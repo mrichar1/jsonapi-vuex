@@ -2,6 +2,8 @@ import Vue from 'vue'
 
 // Mutations/actions/actions/getters
 const mutations = {
+
+  // Add record(s) to the store
   add_records: (state, newRecord) => {
     const { records } = state
     addRecords(records)(newRecord)
@@ -66,7 +68,7 @@ const normalize = (data) => {
       if (!(type in norm)) {
         norm[type] = {}
       }
-      Object.assign(norm[type], normalizeItem(item)[type]) 
+      Object.assign(norm[type], normalizeItem(item)[type])
     })
   } else {
     Object.assign(norm, normalizeItem(data))
