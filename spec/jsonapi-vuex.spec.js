@@ -19,6 +19,20 @@ describe("jsonapi-vuex tests", function() {
     it("should export mutations", function() {
       expect(_testing.mutations).to.be.an('object');
     });
+
+    describe("delete_record", function() {
+      it("should delete a single record", function() {
+        const state = {
+          'records': {
+            'widgets': {
+              '1': 'foo'
+            }
+          }
+        }
+        _testing.mutations.delete_record(state, {type: 'widgets', id: '1'})
+        expect(state['records']['widgets']).to.not.have.key('1');
+      });
+    })
   });
 
   describe("jsonapiModule helpers", function() {

@@ -6,8 +6,11 @@ const mutations = {
     const { records } = state
     addRecords(records)(newRecord)
   },
+
+  // Delete a record from the store (must have id and type defined)
   delete_record: (state, record) => {
-    delete state.records[record.id];
+    const { type, id } = record
+    delete state.records[type][id];
   },
 }
 
