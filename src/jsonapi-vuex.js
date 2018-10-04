@@ -39,7 +39,7 @@ const addRecords = (records) => (newRecords) => {
   const normRecords = normalize(newRecords)
   for (let [type, item] of Object.entries(normRecords)) {
     for (let [id, data] of Object.entries(item)) {
-      Vue.set(records, id, data)
+      Vue.set(records, type, {id: data})
     }
   }
 }

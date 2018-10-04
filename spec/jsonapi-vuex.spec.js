@@ -35,6 +35,7 @@ describe("jsonapi-vuex tests", function() {
 ]
 
         addRecords(records)(newRecords)
+        expect(records).to.have.key('widget')
       });
     });
     describe("normalizeItem", function() {
