@@ -82,8 +82,22 @@ describe("jsonapi-vuex tests", function() {
     });
 
     describe("fetch", function() {
-        it("should make an api call to GET item(s)")
-        it("should add record(s) to the store")
+        it("should make an api call to GET item(s)", function(done) {
+          mock_api.onAny().reply(200, {data: item1})
+          jm.actions.fetch(context, item1)
+            .then(res => {
+              expect(mock_api.history.get[0].url).to.equal(`/${item1['type']}/${item1['id']}`)
+              done()
+            })
+        })
+        it("should add record(s) to the store", function(done) {
+          jm.actions.fetch(context, item1)
+            .then(res => {
+              expect(stub_context.commit).to.have.been.calledWith(sinon.match(/.*/), item1)
+              done()
+            })
+        })
+
         it("should fail gracefully")
     })
 

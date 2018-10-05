@@ -21,8 +21,15 @@ const mutations = (api) => {
 }
 const actions = (api) => {
   return {
-  fetch: (context, options) => {
-    api.get()
+    fetch: ({ commit }, options) => {
+      let path = options['type']
+      if ("id" in options) {
+        path += "/" + options['id']
+      }
+      return api.get(path)
+        .then(results => {
+          commit('add_record', results.data.data)
+        })
   }
   // FIXME: fetch, create, update, delete
 }
