@@ -1,5 +1,8 @@
-import 'chai/register-expect';
+import chai, {expect} from 'chai';
+import sinonChai from 'sinon-chai';
 import { jsonapiModule, _testing } from '../src/jsonapi-vuex.js';
+
+chai.use(sinonChai)
 
 // 'global' variables (redefined in beforeEach)
 var jm, state, item1, item2, norm_item1, norm_item2, record, norm_record
