@@ -70,14 +70,14 @@ describe("jsonapi-vuex tests", function() {
           attributes: {'foo': 1}
         }
 
-        const denormItem = {
+        const denorm_item = {
           'widget': {
             '1': {
               attributes: {'foo': 1}
             }
           }
         }
-        expect(normalizeItem(item)).to.deep.equal(denormItem)
+        expect(normalizeItem(item)).to.deep.equal(denorm_item)
       });
     })
 
@@ -85,21 +85,20 @@ describe("jsonapi-vuex tests", function() {
     describe("normalize", function() {
       it("should normalize a single item", function() {
         const { normalize } = _testing
-        const { normalizeItem } = _testing
         const item = {
           id: '1',
           type: 'widget',
           attributes: {'foo': 1}
         }
 
-        const denormItem = {
+        const denorm_item = {
           'widget': {
             '1': {
               attributes: {'foo': 1}
             }
           }
         }
-        expect(normalize(item)).to.deep.equal(denormItem)
+        expect(normalize(item)).to.deep.equal(denorm_item)
       });
 
       it("should normalize an array of records", function() {
@@ -117,7 +116,7 @@ describe("jsonapi-vuex tests", function() {
           }
         ]
 
-        const denormRecord = {
+        const denorm_record = {
           'widget': {
             '1': {
               attributes: {'foo': 1}
@@ -127,7 +126,7 @@ describe("jsonapi-vuex tests", function() {
             }
           }
         }
-        expect(normalize(record)).to.deep.equal(denormRecord)
+        expect(normalize(record)).to.deep.equal(denorm_record)
       });
     }); // normalize
 
@@ -135,7 +134,7 @@ describe("jsonapi-vuex tests", function() {
       it("should denormalize multiple items", function() {
          const { denormalize } = _testing
 
-         const denormRecord = {
+         const denorm_record = {
            'widget': {
             '1': {
                attributes: {'foo': 1}
@@ -159,14 +158,14 @@ describe("jsonapi-vuex tests", function() {
            }
          ]
 
-        expect(denormalize(denormRecord)).to.deep.equal(record)
+        expect(denormalize(denorm_record)).to.deep.equal(record)
 
       });
 
       it("should denormalize a single item", function() {
          const { denormalize } = _testing
 
-         const denormRecord = {
+         const denorm_record = {
            'widget': {
             '1': {
                attributes: {'foo': 1}
@@ -180,7 +179,7 @@ describe("jsonapi-vuex tests", function() {
              attributes: {'foo': 1}
          }
 
-         expect(denormalize(denormRecord)).to.deep.equal(record)
+         expect(denormalize(denorm_record)).to.deep.equal(record)
       });
 
     }); // denormalize
