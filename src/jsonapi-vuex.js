@@ -2,23 +2,24 @@ import Vue from 'vue'
 
 const mutations = (api) => {
   return {
-  // Add record(s) to the store
-  add_record: (state, newRecords) => {
-    const { records } = state
-    const normRecords = normalize(newRecords)
-    for (let [type, item] of Object.entries(normRecords)) {
-      for (let [id, data] of Object.entries(item)) {
-        Vue.set(records, type, {id: data})
+    // Add record(s) to the store
+    add_record: (state, newRecords) => {
+      const { records } = state
+      const normRecords = normalize(newRecords)
+      for (let [type, item] of Object.entries(normRecords)) {
+        for (let [id, data] of Object.entries(item)) {
+          Vue.set(records, type, {id: data})
+        }
       }
-    }
-  },
-  delete_record: (state, record) => {
-    const { type, id } = record
-    delete state.records[type][id];
-  },
-  update_record: () => {}
+    },
+    delete_record: (state, record) => {
+      const { type, id } = record
+      delete state.records[type][id];
+    },
+    update_record: () => {}
+  }
 }
-}
+
 const actions = (api) => {
   return {
     fetch: ({ commit }, options) => {
