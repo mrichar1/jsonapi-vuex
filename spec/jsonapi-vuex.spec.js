@@ -2,11 +2,22 @@ import 'chai/register-expect';
 import { jsonapiModule, _testing } from '../src/jsonapi-vuex.js';
 
 // 'global' variables (redefined in beforeEach)
+var jm, state, item1, item2, norm_item1, norm_item2, record, norm_record
 
-var state, item1, item2, norm_item1, norm_item2, record, norm_record
+const api = {
+  get: (path) => {},
+  post: (path, body) => {},
+  patch: (path, body) => {},
+  delete: (path, body) => {},
+}
+// Stub for axios-like api
+const stub_api = sinon.stub(api)
+
 
 beforeEach(function() {
 // Set up commonly used data objects
+
+  jm = jsonapiModule(stub_api)
 
   state = {records: {}}
 
@@ -55,8 +66,9 @@ describe("jsonapi-vuex tests", function() {
   describe("jsonapiModule actions", function() {
 
     it("should export actions", function() {
-      expect(_testing.actions).to.be.an('object');
+      expect(_testing.actions).to.be.a('function');
     });
+
     describe("fetch", function() {
         it("should make an api call to GET item(s)")
         it("should add record(s) to the store")
@@ -85,12 +97,12 @@ describe("jsonapi-vuex tests", function() {
 
   describe("jsonapiModule mutations", function() {
     it("should export mutations", function() {
-      expect(_testing.mutations).to.be.an('object');
+      expect(_testing.mutations).to.be.a('function');
     });
 
     describe("add_record", function() {
       it("should add a record to Vue store", function() {
-        const { add_record } = _testing.mutations
+        const { add_record } = jm.mutations
         add_record(state, record)
         expect(state['records']).to.have.key('widget')
       });
@@ -135,7 +147,7 @@ describe("jsonapi-vuex tests", function() {
 
   describe("jsonapiModule getters", function() {
     it("should export getters", function() {
-      expect(_testing.getters).to.be.an('object');
+      expect(_testing.getters).to.be.a('function');
     });
   }); // getters
 

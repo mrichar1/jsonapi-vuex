@@ -1,6 +1,7 @@
 import Vue from 'vue'
 
-const mutations = {
+const mutations = (api) => {
+  return {
   // Add record(s) to the store
   add_record: (state, newRecords) => {
     const { records } = state
@@ -17,13 +18,19 @@ const mutations = {
   },
   update_record: () => {}
 }
-
-const actions = {
+}
+const actions = (api) => {
+  return {
+  fetch: (context, options) => {
+    api.get()
+  }
   // FIXME: fetch, create, update, delete
 }
+}
 
-const getters = {
+const getters = (api) => {
   // FIXME: get item/collection
+  return {}
 }
 
 // Store Module
@@ -35,9 +42,9 @@ const jsonapiModule = (api) => {
       records: {}
     },
 
-    mutations: mutations,
-    actions: actions,
-    getters: getters
+    mutations: mutations(api),
+    actions: actions(api),
+    getters: getters(api)
   }
 }
 
