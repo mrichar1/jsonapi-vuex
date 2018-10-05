@@ -87,16 +87,17 @@ describe("jsonapi-vuex tests", function() {
     it("should export mutations", function() {
       expect(_testing.mutations).to.be.an('object');
     });
-  });
 
-  describe("jsonapiModule helpers", function() {
-    describe("addRecord", function() {
+    describe("add_record", function() {
       it("should add a record to Vue store", function() {
-        const { addRecord } = _testing
-        addRecord(state, record)
+        const { add_record } = _testing.mutations
+        add_record(state, record)
         expect(state['records']).to.have.key('widget')
       });
     });
+  });
+
+  describe("jsonapiModule helpers", function() {
     describe("normalizeItem", function() {
       it("should normalize a single item", function() {
         const { normalizeItem } = _testing

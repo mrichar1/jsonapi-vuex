@@ -1,11 +1,21 @@
 import Vue from 'vue'
 
-/* istanbul ignore next */
 const mutations = {
   // Add record(s) to the store
-  add_record: (state, record) => {addRecord(state, record)},
-  delete_record: (state, record) => {deleteRecord(state, record)},
-  update_record: (state, record) => {updateRecord(state, record)}
+  add_record: (state, newRecords) => {
+    const { records } = state
+    const normRecords = normalize(newRecords)
+    for (let [type, item] of Object.entries(normRecords)) {
+      for (let [id, data] of Object.entries(item)) {
+        Vue.set(records, type, {id: data})
+      }
+    }
+  },
+  delete_record: (state, record) => {
+    const { type, id } = record
+    delete state.records[type][id];
+  },
+  update_record: () => {}
 }
 
 const actions = {
@@ -32,21 +42,6 @@ const jsonapiModule = (api) => {
 }
 
 // Helper methods
-const addRecord = (state, newRecords) => {
-  const { records } = state
-  const normRecords = normalize(newRecords)
-  for (let [type, item] of Object.entries(normRecords)) {
-    for (let [id, data] of Object.entries(item)) {
-      Vue.set(records, type, {id: data})
-    }
-  }
-}
-
-const deleteRecord = (state, record) => {
-  console.log("STATE", state)
-  const { type, id } = record
-  delete state.records[type][id];
-}
 
 // Normalize a single jsonapi item
 const normalizeItem = (data) => {
@@ -104,8 +99,6 @@ const _testing = {
   normalize: normalize,
   normalizeItem: normalizeItem,
   denormalize: denormalize,
-  addRecord: addRecord,
-  deleteRecord: deleteRecord,
   Vue: Vue,
 }
 
