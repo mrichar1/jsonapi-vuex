@@ -1,5 +1,7 @@
 import chai, {expect} from 'chai';
 import sinonChai from 'sinon-chai';
+import axios from 'axios';
+import MockAdapter from 'axios-mock-adapter';
 import { jsonapiModule, _testing } from '../src/jsonapi-vuex.js';
 
 chai.use(sinonChai)
@@ -7,20 +9,27 @@ chai.use(sinonChai)
 // 'global' variables (redefined in beforeEach)
 var jm, state, item1, item2, norm_item1, norm_item2, record, norm_record
 
-const api = {
-  get: (path) => {},
-  post: (path, body) => {},
-  patch: (path, body) => {},
-  delete: (path, body) => {},
+
+// Mock up a fake axios-like api instance
+const api = axios.create({ baseURL: 'http://example.com'})
+
+let mock_api = new MockAdapter(api);
+
+// Mock vuex context Object
+const context = {
+  commit: () => {}
 }
-// Stub for axios-like api
-const stub_api = sinon.stub(api)
+
+// Stub the context object to evaluate calls to it.
+const stub_context = sinon.stub(context)
 
 
 beforeEach(function() {
 // Set up commonly used data objects
 
-  jm = jsonapiModule(stub_api)
+  mock_api.reset()
+  mock_api.onAny().reply(200, {data: item2})
+  jm = jsonapiModule(api)
 
   state = {records: {}}
 

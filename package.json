@@ -2,6 +2,8 @@
   "devDependencies": {
     "@babel/core": "^7.1.2",
     "@babel/preset-env": "^7.1.0",
+    "axios": "^0.18.0",
+    "axios-mock-adapter": "^1.15.0",
     "babel-loader": "^8.0.4",
     "babel-plugin-istanbul": "^5.0.1",
     "babel-polyfill": "^6.26.0",
