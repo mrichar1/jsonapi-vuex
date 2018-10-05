@@ -42,49 +42,23 @@ describe("jsonapi-vuex tests", function() {
     it("should export mutations", function() {
       expect(_testing.mutations).to.be.an('object');
     });
-
-    describe("add_record", function() {
-      it("should add records to the store")
-
-      it("should add a single item to the store")
-
-      it("should fail gravefully")
-
-    })
-
-    describe("delete_record", function() {
-      it("should delete a single record", function() {
-        const state = {
-          'records': {
-            'widgets': {
-              '1': 'foo'
-            }
-          }
-        }
-
-        _testing.mutations.delete_record(state, {type: 'widgets', id: '1'})
-        expect(state['records']['widgets']).to.not.have.key('1');
-      });
-
-      it("should gracefully handle delete requests for non-existent objects")
-    })
   });
 
   describe("jsonapiModule helpers", function() {
     describe("addRecord", function() {
       it("should add a record to Vue store", function() {
-        const { addRecords } = _testing
-        const records = {}
-        const newRecords = [
+        const { addRecord } = _testing
+        const state = {records: {}}
+        const record = [
           {
             'id': '1',
             'type': 'widget',
             'attributes': {'foo': '1'}
           }
-]
+        ]
 
-        addRecords(records)(newRecords)
-        expect(records).to.have.key('widget')
+        addRecord(state, record)
+        expect(state['records']).to.have.key('widget')
       });
     });
     describe("normalizeItem", function() {
