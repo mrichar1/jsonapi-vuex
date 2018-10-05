@@ -28,7 +28,6 @@ beforeEach(function() {
 // Set up commonly used data objects
 
   mock_api.reset()
-  mock_api.onAny().reply(200, {data: item2})
   jm = jsonapiModule(api)
 
   state = {records: {}}
@@ -91,6 +90,7 @@ describe("jsonapi-vuex tests", function() {
             })
         })
         it("should add record(s) to the store", function(done) {
+          mock_api.onAny().reply(200, {data: item1})
           jm.actions.fetch(context, item1)
             .then(res => {
               expect(stub_context.commit).to.have.been.calledWith(sinon.match(/.*/), item1)
