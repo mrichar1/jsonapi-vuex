@@ -133,6 +133,15 @@ describe("jsonapi-vuex tests", function() {
         expect(state['records']).to.have.key('widget')
       });
     });
+
+    describe("delete_record", function() {
+      it("should delete a record from the Vue store", function() {
+        const { delete_record } = jm.mutations
+        const state_i1 = { 'records': norm_item1 }
+        delete_record(state_i1, item1)
+        expect(state_i1['records'][item1['type']]).to.not.have.key(item1['id'])
+      })
+    })
   });
 
   describe("jsonapiModule helpers", function() {
