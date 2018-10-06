@@ -134,8 +134,32 @@ describe("jsonapi-vuex tests", () =>  {
     })
 
     describe("post", () =>  {
-      it("should make an api call to POST item(s)")
-      it("should add record(s) to the store")
+      it("should make an api call to POST item(s)", function(done) {
+        mock_api.onAny().reply(200, {data: item1})
+        jm.actions.post(context, item1)
+          .then(res => {
+            expect(mock_api.history.post[0].url).to.equal(`/${item1['type']}/${item1['id']}`)
+            done()
+          })
+      })
+      it("should add record(s) to the store", (done) => {
+        mock_api.onAny().reply(200, {data: item1})
+        jm.actions.post(context, item1)
+          .then(res => {
+            expect(stub_context.commit).to.have.been.calledWith(sinon.match(/.*/), item1)
+            done()
+          })
+      })
+      it("should POST data", (done) => {
+        mock_api.onAny().reply(200, {data: item1})
+        jm.actions.post(context, item1)
+          .then(res => {
+            // History stores data as JSON string, so parse back to object
+            expect(JSON.parse(mock_api.history.post[0].data)).to.deep.equal(item1)
+            done()
+          })
+      })
+
       it("should fail gracefully")
     })
 
