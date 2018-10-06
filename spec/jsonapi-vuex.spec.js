@@ -7,7 +7,7 @@ import { jsonapiModule, _testing } from '../src/jsonapi-vuex.js';
 chai.use(sinonChai)
 
 // 'global' variables (redefined in beforeEach)
-var jm, state, item1, item2, norm_item1, norm_item2, record, norm_record
+var jm, state, item1, item2, item1_patch, norm_item1, norm_item2, norm_item1_update, record, norm_record
 
 
 // Mock up a fake axios-like api instance
@@ -35,22 +35,50 @@ beforeEach(() =>  {
   item1 = {
     id: '1',
     type: 'widget',
-    attributes: {'foo': 1}
+    attributes: {
+      'foo': 1,
+      'bar': 'baz'
     }
+  }
 
   item2 = {
     id: '2',
     type: 'widget',
-    attributes: {'foo': 2}
+    attributes: {
+      'foo': 2
+    }
+  }
+
+  // item1 with a single attribute modified
+  item1_patch = {
+    id: '1',
+    type: 'widget',
+    attributes: {'foo': 'update'}
   }
 
   norm_item1 = {
     'widget': {
       '1': {
-        attributes: {'foo': 1}
+        attributes: {
+          'foo': 1,
+          'bar': 'baz'
+        }
       }
     }
   }
+
+  // norm_item1 post-patch
+  norm_item1_update = {
+    'widget': {
+      '1': {
+        attributes: {
+          'foo': 'update',
+          'bar': 'baz'
+        }
+      }
+    }
+  }
+
 
   norm_item2 = {
     'widget': {
@@ -140,6 +168,15 @@ describe("jsonapi-vuex tests", () =>  {
         const state_i1 = { 'records': norm_item1 }
         delete_record(state_i1, item1)
         expect(state_i1['records'][item1['type']]).to.not.have.key(item1['id'])
+      })
+    })
+
+    describe("update_record", () => {
+      it("should update a specific attribute of a record already in the store", () => {
+        const { update_record } = jm.mutations
+        const state_i1 = {'records': norm_item1 }
+        update_record(state_i1, item1_patch)
+        expect(state_i1['records']).to.deep.equal(norm_item1_update)
       })
     })
   });
