@@ -24,7 +24,7 @@ const context = {
 const stub_context = sinon.stub(context)
 
 
-beforeEach(function() {
+beforeEach(() =>  {
 // Set up commonly used data objects
 
   mock_api.reset()
@@ -68,19 +68,19 @@ beforeEach(function() {
 
 })
 
-describe("jsonapi-vuex tests", function() {
+describe("jsonapi-vuex tests", () =>  {
 
-  it("should export jsonapiModule", function() {
+  it("should export jsonapiModule", () =>  {
     expect(jsonapiModule).to.exist;
   });
 
-  describe("jsonapiModule actions", function() {
+  describe("jsonapiModule actions", () =>  {
 
-    it("should export actions", function() {
+    it("should export actions", () =>  {
       expect(_testing.actions).to.be.a('function');
     });
 
-    describe("fetch", function() {
+    describe("fetch", () =>  {
         it("should make an api call to GET item(s)", function(done) {
           mock_api.onAny().reply(200, {data: item1})
           jm.actions.fetch(context, item1)
@@ -101,41 +101,41 @@ describe("jsonapi-vuex tests", function() {
         it("should fail gracefully")
     })
 
-    describe("create", function() {
+    describe("create", () =>  {
       it("should make an api call to POST item(s)")
       it("should add record(s) to the store")
       it("should fail gracefully")
     })
 
-    describe("update", function() {
+    describe("update", () =>  {
       it("should make an api call to PATCH item(s)")
       it("should update record(s) in the store")
       it("should fail gracefully")
 
     })
 
-    describe("delete", function() {
+    describe("delete", () =>  {
       it("should make an api call to DELETE item(s)")
       it("should delete record(s) from the store")
       it("should fail gracefully")
     })
   });
 
-  describe("jsonapiModule mutations", function() {
-    it("should export mutations", function() {
+  describe("jsonapiModule mutations", () =>  {
+    it("should export mutations", () =>  {
       expect(_testing.mutations).to.be.a('function');
     });
 
-    describe("add_record", function() {
-      it("should add a record to Vue store", function() {
+    describe("add_record", () =>  {
+      it("should add a record to Vue store", () =>  {
         const { add_record } = jm.mutations
         add_record(state, record)
         expect(state['records']).to.have.key('widget')
       });
     });
 
-    describe("delete_record", function() {
-      it("should delete a record from the Vue store", function() {
+    describe("delete_record", () =>  {
+      it("should delete a record from the Vue store", () =>  {
         const { delete_record } = jm.mutations
         const state_i1 = { 'records': norm_item1 }
         delete_record(state_i1, item1)
@@ -144,35 +144,35 @@ describe("jsonapi-vuex tests", function() {
     })
   });
 
-  describe("jsonapiModule helpers", function() {
-    describe("normalizeItem", function() {
-      it("should normalize a single item", function() {
+  describe("jsonapiModule helpers", () =>  {
+    describe("normalizeItem", () =>  {
+      it("should normalize a single item", () =>  {
         const { normalizeItem } = _testing
         expect(normalizeItem(item1)).to.deep.equal(norm_item1)
       });
     })
 
 
-    describe("normalize", function() {
-      it("should normalize a single item", function() {
+    describe("normalize", () =>  {
+      it("should normalize a single item", () =>  {
         const { normalize } = _testing
         expect(normalize(item1)).to.deep.equal(norm_item1)
       });
 
-      it("should normalize an array of records", function() {
+      it("should normalize an array of records", () =>  {
         const { normalize } = _testing
         expect(normalize(record)).to.deep.equal(norm_record)
       });
     }); // normalize
 
-    describe("denormalize", function() {
-      it("should denormalize multiple items", function() {
+    describe("denormalize", () =>  {
+      it("should denormalize multiple items", () =>  {
         const { denormalize } = _testing
         expect(denormalize(norm_record)).to.deep.equal(record)
 
       });
 
-      it("should denormalize a single item", function() {
+      it("should denormalize a single item", () =>  {
         const { denormalize } = _testing
         expect(denormalize(norm_item1)).to.deep.equal(item1)
       });
@@ -180,8 +180,8 @@ describe("jsonapi-vuex tests", function() {
     }); // denormalize
   }); // Helper methods
 
-  describe("jsonapiModule getters", function() {
-    it("should export getters", function() {
+  describe("jsonapiModule getters", () =>  {
+    it("should export getters", () =>  {
       expect(_testing.getters).to.be.a('function');
     });
   }); // getters
