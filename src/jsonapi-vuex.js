@@ -48,9 +48,11 @@ const actions = (api) => {
         .then(results => {
           commit('add_record', options)
         })
-    }
+    },
+    get fetch () { return this.get },
+    get create () { return this.post },
+    get update () { return this.patch },
   }
-  // FIXME: fetch, create, update, delete
 }
 
 const getters = (api) => {
