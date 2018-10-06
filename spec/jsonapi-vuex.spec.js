@@ -130,7 +130,9 @@ describe("jsonapi-vuex tests", () =>  {
     })
 
     describe("fetch", () => {
-      it("should be an alias for get")
+      it("should be an alias for get", () => {
+        expect(jm.actions.fetch).to.equal(jm.actions.get)
+      })
     })
 
     describe("post", () =>  {
@@ -164,7 +166,9 @@ describe("jsonapi-vuex tests", () =>  {
     })
 
     describe("create", () => {
-      it("should be an alias for post")
+      it("should be an alias for post", () => {
+        expect(jm.actions.create).to.equal(jm.actions.post)
+      })
     })
 
     describe("patch", () =>  {
@@ -174,7 +178,9 @@ describe("jsonapi-vuex tests", () =>  {
     })
 
     describe("update", () => {
-      it("should be an alias for patch")
+      it("should be an alias for patch", () => {
+        expect(jm.actions.update).to.equal(jm.actions.patch)
+      })
     })
 
     describe("delete", () =>  {
