@@ -30,7 +30,7 @@ const mutations = (api) => {
 
 const actions = (api) => {
   return {
-    fetch: ({ commit }, options) => {
+    get: ({ commit }, options) => {
       let path = options['type']
       if ("id" in options) {
         path += "/" + options['id']

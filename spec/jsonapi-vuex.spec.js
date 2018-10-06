@@ -108,10 +108,10 @@ describe("jsonapi-vuex tests", () =>  {
       expect(_testing.actions).to.be.a('function');
     });
 
-    describe("fetch", () =>  {
+    describe("get", () =>  {
         it("should make an api call to GET item(s)", function(done) {
           mock_api.onAny().reply(200, {data: item1})
-          jm.actions.fetch(context, item1)
+          jm.actions.get(context, item1)
             .then(res => {
               expect(mock_api.history.get[0].url).to.equal(`/${item1['type']}/${item1['id']}`)
               done()
@@ -119,7 +119,7 @@ describe("jsonapi-vuex tests", () =>  {
         })
         it("should add record(s) to the store", function(done) {
           mock_api.onAny().reply(200, {data: item1})
-          jm.actions.fetch(context, item1)
+          jm.actions.get(context, item1)
             .then(res => {
               expect(stub_context.commit).to.have.been.calledWith(sinon.match(/.*/), item1)
               done()
@@ -129,17 +129,28 @@ describe("jsonapi-vuex tests", () =>  {
         it("should fail gracefully")
     })
 
-    describe("create", () =>  {
+    describe("fetch", () => {
+      it("should be an alias for get")
+    })
+
+    describe("post", () =>  {
       it("should make an api call to POST item(s)")
       it("should add record(s) to the store")
       it("should fail gracefully")
     })
 
-    describe("update", () =>  {
+    describe("create", () => {
+      it("should be an alias for post")
+    })
+
+    describe("patch", () =>  {
       it("should make an api call to PATCH item(s)")
       it("should update record(s) in the store")
       it("should fail gracefully")
+    })
 
+    describe("update", () => {
+      it("should be an alias for patch")
     })
 
     describe("delete", () =>  {
