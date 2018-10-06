@@ -1,4 +1,6 @@
 import Vue from 'vue'
+import merge from 'deepmerge';
+
 
 const mutations = (api) => {
   return {
@@ -16,7 +18,13 @@ const mutations = (api) => {
       const { type, id } = record
       delete state.records[type][id];
     },
-    update_record: () => {}
+    update_record: (state, record) => {
+      const { records } = state
+      const {type, id } = record
+      const oldRecord = state.records[type][id]
+      Vue.set(records[type], id, merge(oldRecord, normalize(record)[type][id]))
+      console.log("R", records)
+    }
   }
 }
 
