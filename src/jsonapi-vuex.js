@@ -23,7 +23,6 @@ const mutations = (api) => {
       const {type, id } = record
       const oldRecord = state.records[type][id]
       Vue.set(records[type], id, merge(oldRecord, normalize(record)[type][id]))
-      console.log("R", records)
     }
   }
 }
@@ -39,9 +38,19 @@ const actions = (api) => {
         .then(results => {
           commit('add_record', results.data.data)
         })
+    },
+    post: ({ commit }, options) => {
+      let path = options['type']
+      if ("id" in options) {
+        path += "/" + options['id']
+      }
+      return api.post(path, options)
+        .then(results => {
+          commit('add_record', options)
+        })
+    }
   }
   // FIXME: fetch, create, update, delete
-}
 }
 
 const getters = (api) => {
