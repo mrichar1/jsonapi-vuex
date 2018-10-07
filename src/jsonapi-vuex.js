@@ -1,28 +1,25 @@
 import Vue from 'vue'
 import merge from 'deepmerge';
 
-
 const mutations = (api) => {
   return {
-    // Add record(s) to the store
-    add_record: (state, newRecords) => {
-      const { records } = state
-      const normRecords = normalize(newRecords)
-      for (let [type, item] of Object.entries(normRecords)) {
-        for (let [id, data] of Object.entries(item)) {
-          Vue.set(records, type, {id: data})
-        }
-      }
-    },
     delete_record: (state, record) => {
       const { type, id } = record
       delete state.records[type][id];
     },
-    update_record: (state, record) => {
+    update_record: (state, new_records) => {
       const { records } = state
-      const {type, id } = record
-      const oldRecord = state.records[type][id]
-      Vue.set(records[type], id, merge(oldRecord, normalize(record)[type][id]))
+      const norm_records = normalize(new_records)
+      for (let [type, item] of Object.entries(norm_records)) {
+        for (let [id, data] of Object.entries(item)) {
+          const old_record = getNested(state.records, [type, id])
+          if (old_record) {
+            Vue.set(records[type], id, merge(old_record, data))
+          } else {
+            Vue.set(records, type, {[id]: data})
+          }
+        }
+      }
     }
   }
 }
@@ -36,7 +33,7 @@ const actions = (api) => {
       }
       return api.get(path)
         .then(results => {
-          commit('add_record', results.data.data)
+          commit('update_record', results.data.data)
         })
     },
     post: ({ commit }, options) => {
@@ -46,7 +43,7 @@ const actions = (api) => {
       }
       return api.post(path, options)
         .then(results => {
-          commit('add_record', options)
+          commit('update_record', options)
         })
     },
     patch: ({ commit }, options) => {
@@ -66,7 +63,7 @@ const actions = (api) => {
       }
       return api.delete(path)
         .then(results => {
-          commit('update_record', options)
+          commit('delete_record', options)
         })
     },
     get fetch () { return this.get },
@@ -96,6 +93,13 @@ const jsonapiModule = (api) => {
 }
 
 // Helper methods
+
+// Walk an object looking for children, returning undefined rather than an error
+// Use: getNested('object', ['path', 'to', 'child'])
+const getNested  = (nestedObj, pathArray) => {
+    return pathArray.reduce((obj, key) =>
+        (obj && obj[key] !== 'undefined') ? obj[key] : undefined, nestedObj);
+}
 
 // Normalize a single jsonapi item
 const normalizeItem = (data) => {
