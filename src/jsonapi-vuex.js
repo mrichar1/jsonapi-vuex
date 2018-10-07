@@ -32,8 +32,12 @@ const actions = (api) => {
         path += "/" + options['id']
       }
       return api.get(path)
-        .then(results => {
+        .then((results) => {
           commit('update_record', results.data.data)
+          return results
+        })
+        .catch((error) => {
+          return error
         })
     },
     post: ({ commit }, options) => {
@@ -42,8 +46,12 @@ const actions = (api) => {
         path += "/" + options['id']
       }
       return api.post(path, options)
-        .then(results => {
+        .then((results) => {
           commit('update_record', options)
+          return results
+        })
+        .catch((error) => {
+          return error
         })
     },
     patch: ({ commit }, options) => {
@@ -52,8 +60,12 @@ const actions = (api) => {
         path += "/" + options['id']
       }
       return api.patch(path, options)
-        .then(results => {
+        .then((results) => {
           commit('update_record', options)
+          return results
+        })
+        .catch((error) => {
+          return error
         })
     },
     delete: ({ commit }, options) => {
@@ -62,8 +74,12 @@ const actions = (api) => {
         path += "/" + options['id']
       }
       return api.delete(path)
-        .then(results => {
+        .then((results) => {
           commit('delete_record', options)
+          return results
+        })
+        .catch((error) => {
+          return error
         })
     },
     get fetch () { return this.get },
