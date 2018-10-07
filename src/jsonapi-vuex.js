@@ -145,18 +145,14 @@ const normalize = (data) => {
 }
 
 // Denormalize one or more records back to jsonapi
-const denormalize = (data) => {
+const denormalize = (records) => {
   const denorm = []
-  Object.entries(data).forEach(([type, item]) => {
-    Object.entries(item).forEach(([id, entries]) => {
-      denorm.push({
-        'id': id,
-        'type': type,
-        ...entries
-      })
-
+  Object.entries(records).forEach(([type, record]) => {
+    Object.entries(record).forEach(([id, data]) => {
+      data['id'] = id
+      data['type'] = type
+      denorm.push(data)
     })
-
   })
   if (denorm.length === 1) {
     return denorm[0]
