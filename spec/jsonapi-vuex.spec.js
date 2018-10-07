@@ -109,24 +109,22 @@ describe("jsonapi-vuex tests", () =>  {
     });
 
     describe("get", () =>  {
-        it("should make an api call to GET item(s)", (done) => {
-          mock_api.onAny().reply(200, {data: item1})
-          jm.actions.get(context, item1)
-            .then(res => {
-              expect(mock_api.history.get[0].url).to.equal(`/${item1['type']}/${item1['id']}`)
-              done()
-            })
-        })
-        it("should update record(s) in the store", (done) => {
-          mock_api.onAny().reply(200, {data: item1})
-          jm.actions.get(context, item1)
-            .then(res => {
-              expect(stub_context.commit).to.have.been.calledWith("update_record", item1)
-              done()
-            })
-        })
-
-        it("should fail gracefully")
+      it("should make an api call to GET item(s)", (done) => {
+        mock_api.onAny().reply(200, {data: item1})
+        jm.actions.get(context, item1)
+          .then(res => {
+            expect(mock_api.history.get[0].url).to.equal(`/${item1['type']}/${item1['id']}`)
+            done()
+          })
+      })
+      it("should update record(s) in the store", (done) => {
+        mock_api.onAny().reply(200, {data: item1})
+        jm.actions.get(context, item1)
+          .then(res => {
+            expect(stub_context.commit).to.have.been.calledWith("update_record", item1)
+            done()
+          })
+      })
     })
 
     describe("fetch", () => {
