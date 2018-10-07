@@ -259,11 +259,11 @@ describe("jsonapi-vuex tests", () =>  {
     })
 
     describe("update_record", () => {
-      it("should add a new record to the store", () => {
+      it("should add several records to the store", () => {
         const { update_record } = jm.mutations
         const state_i1 = {'records': {} }
-        update_record(state_i1, item1)
-        expect(state_i1['records']).to.deep.equal(norm_item1)
+        update_record(state_i1, [item1, item2])
+        expect(state_i1['records']).to.deep.equal(norm_record)
       })
 
       it("should update a specific attribute of a record already in the store", () => {
