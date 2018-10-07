@@ -125,6 +125,14 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
+      it("should handle API errors", (done) => {
+        mock_api.onAny().reply(500)
+        jm.actions.get(context, item1)
+          .then(res => {
+            expect(res.response.status).to.equal(500)
+            done()
+          })
+      })
     })
 
     describe("fetch", () => {
@@ -159,8 +167,14 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
-
-      it("should fail gracefully")
+      it("should handle API errors", (done) => {
+        mock_api.onAny().reply(500)
+        jm.actions.post(context, item1)
+          .then(res => {
+            expect(res.response.status).to.equal(500)
+            done()
+          })
+      })
     })
 
     describe("create", () => {
@@ -186,7 +200,14 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
-      it("should fail gracefully")
+      it("should handle API errors", (done) => {
+        mock_api.onAny().reply(500)
+        jm.actions.patch(context, item1)
+          .then(res => {
+            expect(res.response.status).to.equal(500)
+            done()
+          })
+      })
     })
 
     describe("update", () => {
@@ -204,7 +225,6 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
-
       it("should delete record(s) from the store", (done) => {
         mock_api.onAny().reply(204)
         jm.actions.delete(context, item1)
@@ -213,8 +233,14 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
-
-      it("should fail gracefully")
+      it("should handle API errors", (done) => {
+        mock_api.onAny().reply(500)
+        jm.actions.delete(context, item1)
+          .then(res => {
+            expect(res.response.status).to.equal(500)
+            done()
+          })
+      })
     })
   });
 
