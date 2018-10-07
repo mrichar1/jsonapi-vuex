@@ -109,7 +109,7 @@ describe("jsonapi-vuex tests", () =>  {
     });
 
     describe("get", () =>  {
-        it("should make an api call to GET item(s)", function(done) {
+        it("should make an api call to GET item(s)", (done) => {
           mock_api.onAny().reply(200, {data: item1})
           jm.actions.get(context, item1)
             .then(res => {
@@ -117,11 +117,11 @@ describe("jsonapi-vuex tests", () =>  {
               done()
             })
         })
-        it("should add record(s) to the store", function(done) {
+        it("should update record(s) in the store", (done) => {
           mock_api.onAny().reply(200, {data: item1})
           jm.actions.get(context, item1)
             .then(res => {
-              expect(stub_context.commit).to.have.been.calledWith(sinon.match(/.*/), item1)
+              expect(stub_context.commit).to.have.been.calledWith("update_record", item1)
               done()
             })
         })
@@ -136,7 +136,7 @@ describe("jsonapi-vuex tests", () =>  {
     })
 
     describe("post", () =>  {
-      it("should make an api call to POST item(s)", function(done) {
+      it("should make an api call to POST item(s)", (done) => {
         mock_api.onAny().reply(200, {data: item1})
         jm.actions.post(context, item1)
           .then(res => {
@@ -148,7 +148,7 @@ describe("jsonapi-vuex tests", () =>  {
         mock_api.onAny().reply(200, {data: item1})
         jm.actions.post(context, item1)
           .then(res => {
-            expect(stub_context.commit).to.have.been.calledWith(sinon.match(/.*/), item1)
+            expect(stub_context.commit).to.have.been.calledWith("update_record", item1)
             done()
           })
       })
@@ -172,8 +172,22 @@ describe("jsonapi-vuex tests", () =>  {
     })
 
     describe("patch", () =>  {
-      it("should make an api call to PATCH item(s)")
-      it("should update record(s) in the store")
+      it("should make an api call to PATCH item(s)", (done) => {
+        mock_api.onAny().reply(200, {data: item1})
+        jm.actions.patch(context, item1_patch)
+          .then(res => {
+            expect(mock_api.history.patch[0].url).to.equal(`/${item1['type']}/${item1['id']}`)
+            done()
+          })
+      })
+      it("should update record(s) in the store", (done) => {
+        mock_api.onAny().reply(200, {data: item1})
+        jm.actions.patch(context, item1_patch)
+          .then(res => {
+            expect(stub_context.commit).to.have.been.calledWith("update_record", item1_patch)
+            done()
+          })
+      })
       it("should fail gracefully")
     })
 
@@ -184,8 +198,24 @@ describe("jsonapi-vuex tests", () =>  {
     })
 
     describe("delete", () =>  {
-      it("should make an api call to DELETE item(s)")
-      it("should delete record(s) from the store")
+      it("should make an api call to DELETE item(s)", (done) => {
+        mock_api.onAny().reply(204)
+        jm.actions.delete(context, item1)
+          .then(res => {
+            expect(mock_api.history.delete[0].url).to.equal(`/${item1['type']}/${item1['id']}`)
+            done()
+          })
+      })
+
+      it("should delete record(s) from the store", (done) => {
+        mock_api.onAny().reply(204)
+        jm.actions.delete(context, item1)
+          .then(res => {
+            expect(stub_context.commit).to.have.been.calledWith("delete_record", item1)
+            done()
+          })
+      })
+
       it("should fail gracefully")
     })
   });
@@ -193,14 +223,6 @@ describe("jsonapi-vuex tests", () =>  {
   describe("jsonapiModule mutations", () =>  {
     it("should export mutations", () =>  {
       expect(_testing.mutations).to.be.a('function');
-    });
-
-    describe("add_record", () =>  {
-      it("should add a record to Vue store", () =>  {
-        const { add_record } = jm.mutations
-        add_record(state, record)
-        expect(state['records']).to.have.key('widget')
-      });
     });
 
     describe("delete_record", () =>  {
@@ -213,6 +235,13 @@ describe("jsonapi-vuex tests", () =>  {
     })
 
     describe("update_record", () => {
+      it("should add a new record to the store", () => {
+        const { update_record } = jm.mutations
+        const state_i1 = {'records': {} }
+        update_record(state_i1, item1)
+        expect(state_i1['records']).to.deep.equal(norm_item1)
+      })
+
       it("should update a specific attribute of a record already in the store", () => {
         const { update_record } = jm.mutations
         const state_i1 = {'records': norm_item1 }
