@@ -49,6 +49,26 @@ const actions = (api) => {
           commit('add_record', options)
         })
     },
+    patch: ({ commit }, options) => {
+      let path = options['type']
+      if ("id" in options) {
+        path += "/" + options['id']
+      }
+      return api.patch(path, options)
+        .then(results => {
+          commit('update_record', options)
+        })
+    },
+    delete: ({ commit }, options) => {
+      let path = options['type']
+      if ("id" in options) {
+        path += "/" + options['id']
+      }
+      return api.delete(path)
+        .then(results => {
+          commit('update_record', options)
+        })
+    },
     get fetch () { return this.get },
     get create () { return this.post },
     get update () { return this.patch },
