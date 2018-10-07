@@ -16,7 +16,10 @@ const mutations = (api) => {
           if (old_record) {
             Vue.set(records[type], id, merge(old_record, data))
           } else {
-            Vue.set(records, type, {[id]: data})
+            if (!(type in records)) {
+              records[type] = {}
+            }
+            Vue.set(records[type], id, data)
           }
         }
       }
