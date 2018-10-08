@@ -54,34 +54,29 @@ beforeEach(() =>  {
   }
 
   norm_item1 = {
-    'widget': {
-      '1': {
-        attributes: {
-          'foo': 1,
-          'bar': 'baz'
-        }
-      }
+    'foo': 1,
+    'bar': 'baz',
+    '_jv': {
+      'type': 'widget',
+      'id': '1'
     }
   }
 
   // norm_item1 post-patch
   norm_item1_update = {
-    'widget': {
-      '1': {
-        attributes: {
-          'foo': 'update',
-          'bar': 'baz'
-        }
-      }
+    'foo': 'update',
+    'bar': 'baz',
+    '_jv': {
+      'type': 'widget',
+      'id': '1'
     }
   }
 
-
   norm_item2 = {
-    'widget': {
-      '2': {
-        attributes: {'foo': 2}
-      }
+    'foo': 2,
+    '_jv': {
+      'type': 'widget',
+      'id': '2'
     }
   }
 
@@ -89,7 +84,10 @@ beforeEach(() =>  {
     item1, item2
   ]
 
-  norm_record = {widget: {...norm_item1['widget'], ...norm_item2['widget']}}
+  norm_record = {
+    [norm_item1['_jv']['id']]: norm_item1,
+    [norm_item2['_jv']['id']]: norm_item2
+  }
 
 })
 
