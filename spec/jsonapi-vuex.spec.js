@@ -7,7 +7,10 @@ import { jsonapiModule, _testing } from '../src/jsonapi-vuex.js';
 chai.use(sinonChai)
 
 // 'global' variables (redefined in beforeEach)
-var jm, state, item1, item2, item1_patch, norm_item1, norm_item2, norm_item1_update, record, norm_record
+var jm, state,
+ json_item1, json_item2, json_item1_patch, json_record,
+ norm_item1, norm_item2, norm_item1_patch, norm_item1_update, norm_record,
+ store_item1, store_item1_update, store_record
 
 
 // Mock up a fake axios-like api instance
@@ -29,7 +32,7 @@ beforeEach(() =>  {
 
   state = {records: {}}
 
-  item1 = {
+  json_item1 = {
     id: '1',
     type: 'widget',
     attributes: {
@@ -38,7 +41,7 @@ beforeEach(() =>  {
     }
   }
 
-  item2 = {
+  json_item2 = {
     id: '2',
     type: 'widget',
     attributes: {
@@ -46,11 +49,12 @@ beforeEach(() =>  {
     }
   }
 
-  // item1 with a single attribute modified
-  item1_patch = {
-    id: '1',
-    type: 'widget',
-    attributes: {'foo': 'update'}
+  json_item1_patch = {
+    'id': '1',
+    'type': 'widget',
+    'attributes': {
+      'foo': 'update'
+    }
   }
 
   norm_item1 = {
@@ -62,7 +66,14 @@ beforeEach(() =>  {
     }
   }
 
-  // norm_item1 post-patch
+  norm_item1_patch = {
+    'foo': 'update',
+    '_jv': {
+      'type': 'widget',
+      'id': '1'
+    }
+  }
+
   norm_item1_update = {
     'foo': 'update',
     'bar': 'baz',
@@ -80,13 +91,40 @@ beforeEach(() =>  {
     }
   }
 
-  record = [
-    item1, item2
+  json_record = [
+    json_item1, json_item2
   ]
 
   norm_record = {
     [norm_item1['_jv']['id']]: norm_item1,
     [norm_item2['_jv']['id']]: norm_item2
+  }
+
+  store_item1 = {
+    'widget':{
+      '1': {
+        ...norm_item1
+      }
+    }
+  }
+
+  store_item1_update = {
+    'widget': {
+      '1': {
+        ...norm_item1_update
+      }
+    }
+  }
+
+  store_record = {
+    'widget': {
+      '1': {
+        ...norm_item1
+      },
+      '2': {
+        ...norm_item2
+      }
+    }
   }
 
 })
@@ -105,24 +143,33 @@ describe("jsonapi-vuex tests", () =>  {
 
     describe("get", () =>  {
       it("should make an api call to GET item(s)", (done) => {
-        mock_api.onAny().reply(200, {data: item1})
-        jm.actions.get(stub_context, item1)
+        mock_api.onAny().reply(200, {data: json_item1})
+        jm.actions.get(stub_context, norm_item1)
           .then(res => {
-            expect(mock_api.history.get[0].url).to.equal(`/${item1['type']}/${item1['id']}`)
+            expect(mock_api.history.get[0].url).to.equal(`/${norm_item1['_jv']['type']}/${norm_item1['_jv']['id']}`)
             done()
           })
       })
       it("should update record(s) in the store", (done) => {
-        mock_api.onAny().reply(200, {data: item1})
-        jm.actions.get(stub_context, item1)
+        mock_api.onAny().reply(200, {data: json_item1})
+        jm.actions.get(stub_context, norm_item1)
           .then(res => {
-            expect(stub_context.commit).to.have.been.calledWith("update_record", item1)
+            expect(stub_context.commit).to.have.been.calledWith("update_record", norm_item1)
+            done()
+          })
+      })
+      it("should update record(s) (string) in the store", (done) =>  {
+        mock_api.onAny().reply(204)
+        // Leading slash is incorrect syntax, but we should handle it so test with it in
+        jm.actions.get(stub_context, "/widget/1")
+          .then(res => {
+            expect(stub_context.commit).to.have.been.calledWith("update_record", norm_item1)
             done()
           })
       })
       it("should handle API errors", (done) => {
         mock_api.onAny().reply(500)
-        jm.actions.get(stub_context, item1)
+        jm.actions.get(stub_context, norm_item1)
           .then(res => {
             expect(res.response.status).to.equal(500)
             done()
@@ -138,33 +185,33 @@ describe("jsonapi-vuex tests", () =>  {
 
     describe("post", () =>  {
       it("should make an api call to POST item(s)", (done) => {
-        mock_api.onAny().reply(200, {data: item1})
-        jm.actions.post(stub_context, item1)
+        mock_api.onAny().reply(200, {data: json_item1})
+        jm.actions.post(stub_context, norm_item1)
           .then(res => {
-            expect(mock_api.history.post[0].url).to.equal(`/${item1['type']}/${item1['id']}`)
+            expect(mock_api.history.post[0].url).to.equal(`/${norm_item1['_jv']['type']}/${norm_item1['_jv']['id']}`)
             done()
           })
       })
       it("should add record(s) to the store", (done) => {
-        mock_api.onAny().reply(200, {data: item1})
-        jm.actions.post(stub_context, item1)
+        mock_api.onAny().reply(200, {data: json_item1})
+        jm.actions.post(stub_context, norm_item1)
           .then(res => {
-            expect(stub_context.commit).to.have.been.calledWith("update_record", item1)
+            expect(stub_context.commit).to.have.been.calledWith("update_record", norm_item1)
             done()
           })
       })
       it("should POST data", (done) => {
-        mock_api.onAny().reply(200, {data: item1})
-        jm.actions.post(stub_context, item1)
+        mock_api.onAny().reply(200, {data: json_item1})
+        jm.actions.post(stub_context, norm_item1)
           .then(res => {
             // History stores data as JSON string, so parse back to object
-            expect(JSON.parse(mock_api.history.post[0].data)).to.deep.equal(item1)
+            expect(JSON.parse(mock_api.history.post[0].data)).to.deep.equal(norm_item1)
             done()
           })
       })
       it("should handle API errors", (done) => {
         mock_api.onAny().reply(500)
-        jm.actions.post(stub_context, item1)
+        jm.actions.post(stub_context, norm_item1)
           .then(res => {
             expect(res.response.status).to.equal(500)
             done()
@@ -180,24 +227,24 @@ describe("jsonapi-vuex tests", () =>  {
 
     describe("patch", () =>  {
       it("should make an api call to PATCH item(s)", (done) => {
-        mock_api.onAny().reply(200, {data: item1})
-        jm.actions.patch(stub_context, item1_patch)
+        mock_api.onAny().reply(200, {data: json_item1})
+        jm.actions.patch(stub_context, norm_item1_patch)
           .then(res => {
-            expect(mock_api.history.patch[0].url).to.equal(`/${item1['type']}/${item1['id']}`)
+            expect(mock_api.history.patch[0].url).to.equal(`/${norm_item1_patch['_jv']['type']}/${norm_item1_patch['_jv']['id']}`)
             done()
           })
       })
       it("should update record(s) in the store", (done) => {
-        mock_api.onAny().reply(200, {data: item1})
-        jm.actions.patch(stub_context, item1_patch)
+        mock_api.onAny().reply(200, {data: json_item1})
+        jm.actions.patch(stub_context, norm_item1_patch)
           .then(res => {
-            expect(stub_context.commit).to.have.been.calledWith("update_record", item1_patch)
+            expect(stub_context.commit).to.have.been.calledWith("update_record", norm_item1_patch)
             done()
           })
       })
       it("should handle API errors", (done) => {
         mock_api.onAny().reply(500)
-        jm.actions.patch(stub_context, item1)
+        jm.actions.patch(stub_context, norm_item1)
           .then(res => {
             expect(res.response.status).to.equal(500)
             done()
@@ -214,23 +261,32 @@ describe("jsonapi-vuex tests", () =>  {
     describe("delete", () =>  {
       it("should make an api call to DELETE item(s)", (done) => {
         mock_api.onAny().reply(204)
-        jm.actions.delete(stub_context, item1)
+        jm.actions.delete(stub_context, norm_item1)
           .then(res => {
-            expect(mock_api.history.delete[0].url).to.equal(`/${item1['type']}/${item1['id']}`)
+            expect(mock_api.history.delete[0].url).to.equal(`/${norm_item1['_jv']['type']}/${norm_item1['_jv']['id']}`)
             done()
           })
       })
-      it("should delete record(s) from the store", (done) => {
+      it("should delete a record from the store", (done) => {
         mock_api.onAny().reply(204)
-        jm.actions.delete(stub_context, item1)
+        jm.actions.delete(stub_context, norm_item1)
           .then(res => {
-            expect(stub_context.commit).to.have.been.calledWith("delete_record", item1)
+            expect(stub_context.commit).to.have.been.calledWith("delete_record", norm_item1)
+            done()
+          })
+      })
+      it("should delete a record (string) from the store", (done) =>  {
+        mock_api.onAny().reply(204)
+        // Leading slash is incorrect syntax, but we should handle it so test with it in
+        jm.actions.delete(stub_context, "/widget/1")
+          .then(res => {
+            expect(stub_context.commit).to.have.been.calledWith("delete_record", norm_item1)
             done()
           })
       })
       it("should handle API errors", (done) => {
         mock_api.onAny().reply(500)
-        jm.actions.delete(stub_context, item1)
+        jm.actions.delete(stub_context, norm_item1)
           .then(res => {
             expect(res.response.status).to.equal(500)
             done()
@@ -245,65 +301,89 @@ describe("jsonapi-vuex tests", () =>  {
     });
 
     describe("delete_record", () =>  {
-      it("should delete a record from the Vue store", () =>  {
+      it("should delete a record (data) from the Vue store", () =>  {
         const { delete_record } = jm.mutations
-        const state_i1 = { 'records': norm_item1 }
-        delete_record(state_i1, item1)
-        expect(state_i1['records'][item1['type']]).to.not.have.key(item1['id'])
+        const state_i1 = { 'records': store_item1 }
+        delete_record(state_i1, norm_item1)
+        expect(state_i1['records'][norm_item1['_jv']['type']]).to.not.have.key(norm_item1['_jv']['id'])
       })
+    })
+
+    it("should delete a record (string) from the store", () =>  {
+      const { delete_record } = jm.mutations
+      const state_i1 = { 'records': store_item1 }
+      // Leading slash is incorrect syntax, but we should handle it so test with it in
+      delete_record(state_i1, "/widget/1")
+      expect(state_i1['records'][norm_item1['_jv']['type']]).to.not.have.key(norm_item1['_jv']['id'])
     })
 
     describe("update_record", () => {
       it("should add several records to the store", () => {
         const { update_record } = jm.mutations
         const state_i1 = {'records': {} }
-        update_record(state_i1, [item1, item2])
-        expect(state_i1['records']).to.deep.equal(norm_record)
+        update_record(state_i1, norm_record)
+        expect(state_i1['records']).to.deep.equal(store_record)
       })
 
       it("should update a specific attribute of a record already in the store", () => {
         const { update_record } = jm.mutations
-        const state_i1 = {'records': norm_item1 }
-        update_record(state_i1, item1_patch)
-        expect(state_i1['records']).to.deep.equal(norm_item1_update)
+        const state_i1 = {'records': store_item1 }
+        update_record(state_i1, norm_item1_patch)
+        expect(state_i1['records']).to.deep.equal(store_item1_update)
       })
     })
   });
 
   describe("jsonapiModule helpers", () =>  {
-    describe("normalizeItem", () =>  {
-      it("should normalize a single item", () =>  {
-        const { normalizeItem } = _testing
-        expect(normalizeItem(item1)).to.deep.equal(norm_item1)
+    describe("jsonapiToNormItem", () =>  {
+      it("should convert jsonapi to normalized for a single item", () =>  {
+        const { jsonapiToNormItem } = _testing
+        expect(jsonapiToNormItem(json_item1)).to.deep.equal(norm_item1)
       });
     })
 
-
-    describe("normalize", () =>  {
-      it("should normalize a single item", () =>  {
-        const { normalize } = _testing
-        expect(normalize(item1)).to.deep.equal(norm_item1)
+    describe("jsonapiToNorm", () =>  {
+      it("should convert jsonapi to normalized for a single item", () =>  {
+        const { jsonapiToNorm } = _testing
+        expect(jsonapiToNorm(json_item1)).to.deep.equal(norm_item1)
       });
 
-      it("should normalize an array of records", () =>  {
-        const { normalize } = _testing
-        expect(normalize(record)).to.deep.equal(norm_record)
+      it("should convert jsonapi to normalized for an array of records", () =>  {
+        const { jsonapiToNorm } = _testing
+        expect(jsonapiToNorm(json_record)).to.deep.equal(norm_record)
       });
-    }); // normalize
+    });
 
-    describe("denormalize", () =>  {
-      it("should denormalize multiple items", () =>  {
-        const { denormalize } = _testing
-        expect(denormalize(norm_record)).to.deep.equal(record)
-
-      });
-
-      it("should denormalize a single item", () =>  {
-        const { denormalize } = _testing
-        expect(denormalize(norm_item1)).to.deep.equal(item1)
+    describe("normToJsonapi", () =>  {
+      it("should convert normalized to jsonapi for multiple items", () =>  {
+        const { normToJsonapi } = _testing
+        expect(normToJsonapi(norm_record)).to.deep.equal(json_record)
       });
 
-    }); // denormalize
+      it("should convert normalized to jsonapi for a single item", () =>  {
+        const { normToJsonapi } = _testing
+        expect(normToJsonapi(norm_item1)).to.deep.equal(json_item1)
+      });
+    });
+
+    describe("normToJsonapiItem", () => {
+      it("should convert normalized to jsonapi for a single item", () =>  {
+        const { normToJsonapiItem } = _testing
+        expect(normToJsonapiItem(norm_item1)).to.deep.equal(json_item1)
+      });
+    })
+
+    describe("normToStore", () => {
+      it("should convert normalized to store", () => {
+        const { normToStore } = _testing
+        expect(normToStore(norm_record)).to.deep.equal(store_record)
+      })
+      it("should convert normalized to store for a single item", () => {
+        const { normToStore } = _testing
+        expect(normToStore(norm_item1)).to.deep.equal(store_item1)
+      })
+    })
+
   }); // Helper methods
 
   describe("jsonapiModule getters", () =>  {

@@ -4,13 +4,18 @@ import merge from 'deepmerge';
 const mutations = (api) => {
   return {
     delete_record: (state, record) => {
-      const { type, id } = record
-      delete state.records[type][id];
+      let type, id
+      if (typeof record === 'string') {
+        [type, id] = record.replace(/^\//, "").split("/")
+      } else {
+        ({ type, id } = record['_jv'])
+      }
+      delete state.records[type][id]
     },
     update_record: (state, new_records) => {
       const { records } = state
-      const norm_records = normalize(new_records)
-      for (let [type, item] of Object.entries(norm_records)) {
+      const store_records = normToStore(new_records)
+      for (let [type, item] of Object.entries(store_records)) {
         for (let [id, data] of Object.entries(item)) {
           const old_record = getNested(state.records, [type, id])
           if (old_record) {
@@ -30,13 +35,16 @@ const mutations = (api) => {
 const actions = (api) => {
   return {
     get: ({ commit }, options) => {
-      let path = options['type']
-      if ("id" in options) {
-        path += "/" + options['id']
+      let path
+      if (typeof options === 'string') {
+        path = options
+      } else {
+        const { type, id } = options['_jv']
+        path = type + "/" + id
       }
       return api.get(path)
         .then((results) => {
-          commit('update_record', results.data.data)
+          commit('update_record', jsonapiToNorm(results.data.data))
           return results
         })
         .catch((error) => {
@@ -44,9 +52,10 @@ const actions = (api) => {
         })
     },
     post: ({ commit }, options) => {
-      let path = options['type']
-      if ("id" in options) {
-        path += "/" + options['id']
+      const { type, id } = options['_jv']
+      let path= type
+      if (id) {
+        path += "/" + id
       }
       return api.post(path, options)
         .then((results) => {
@@ -58,10 +67,8 @@ const actions = (api) => {
         })
     },
     patch: ({ commit }, options) => {
-      let path = options['type']
-      if ("id" in options) {
-        path += "/" + options['id']
-      }
+      const { type, id } = options['_jv']
+      let path = type + "/" + id
       return api.patch(path, options)
         .then((results) => {
           commit('update_record', options)
@@ -72,9 +79,13 @@ const actions = (api) => {
         })
     },
     delete: ({ commit }, options) => {
-      let path = options['type']
-      if ("id" in options) {
-        path += "/" + options['id']
+      let path
+      if (typeof options === 'string') {
+        // Use string as a verbatim path for api request
+        path = options
+      } else {
+        const { type, id } = options['_jv']
+        path = type + "/" + id
       }
       return api.delete(path)
         .then((results) => {
@@ -121,47 +132,80 @@ const getNested  = (nestedObj, pathArray) => {
 }
 
 // Normalize a single jsonapi item
-const normalizeItem = (data) => {
+const jsonapiToNormItem = (data) => {
   // Fastest way to deep copy
   const copy = JSON.parse(JSON.stringify(data))
-  const { id, type } = copy
-  delete copy['id']
-  delete copy['type']
-  return {[type]: {[id]: copy}}
+  // Move attributes to top-level, nest original jsonapi under _jv
+  const norm = {
+    '_jv': copy,
+    ...copy['attributes']
+  }
+  delete norm['_jv']['attributes']
+  return norm
 }
 
 // Normalize one or more jsonapi items
-const normalize = (data) => {
+const jsonapiToNorm = (data) => {
   const norm = {}
   if (Array.isArray(data)) {
     data.forEach(item => {
-      let { type } = item
-      if (!(type in norm)) {
-        norm[type] = {}
+      let { id } = item
+      if (!(id in norm)) {
+        norm[id] = {}
       }
-      Object.assign(norm[type], normalizeItem(item)[type])
+      Object.assign(norm[id], jsonapiToNormItem(item))
     })
   } else {
-    Object.assign(norm, normalizeItem(data))
+    Object.assign(norm, jsonapiToNormItem(data))
   }
   return norm
 }
 
-// Denormalize one or more records back to jsonapi
-const denormalize = (records) => {
-  const denorm = []
-  Object.entries(records).forEach(([type, record]) => {
-    Object.entries(record).forEach(([id, data]) => {
-      data['id'] = id
-      data['type'] = type
-      denorm.push(data)
-    })
-  })
-  if (denorm.length === 1) {
-    return denorm[0]
+// Denormalize an item to jsonapi
+const normToJsonapiItem = (data) => {
+  // Fastest way to deep copy
+  const jsonapi = {}
+  jsonapi['attributes'] = JSON.parse(JSON.stringify(data))
+  delete jsonapi['attributes']['_jv']
+  jsonapi['id'] = data['_jv']['id']
+  jsonapi['type'] = data['_jv']['type']
+  return jsonapi
+}
+
+// Denormalize one or more records to jsonapi
+const normToJsonapi = (record) => {
+  const jsonapi = []
+  if (!('_jv'  in record)) {
+    // Collection of id-indexed records
+    for (let item of Object.values(record)) {
+      jsonapi.push(normToJsonapiItem(item))
+    }
   } else {
-    return denorm
+    jsonapi.push(normToJsonapiItem(record))
   }
+  if (jsonapi.length === 1) {
+    return jsonapi[0]
+  } else {
+    return jsonapi
+  }
+}
+
+// Convert a norm record to store format
+const normToStore = (record) => {
+  let store = {}
+  if (!('_jv' in record)) {
+    for (let item of Object.values(record))  {
+      const {type, id} = item['_jv']
+      if (!(type in store)) {
+        store[type] = {}
+      }
+      store[type][id] = item
+    }
+  } else {
+    const {type, id} = record['_jv']
+    store = { [type]: { [id]: record } }
+  }
+  return store
 }
 
 // Export a single object with references to 'private' functions for the test suite
@@ -169,10 +213,11 @@ const _testing = {
   actions: actions,
   mutations: mutations,
   getters: getters,
-  normalize: normalize,
-  normalizeItem: normalizeItem,
-  denormalize: denormalize,
-  Vue: Vue,
+  jsonapiToNorm: jsonapiToNorm,
+  jsonapiToNormItem: jsonapiToNormItem,
+  normToJsonapi: normToJsonapi,
+  normToJsonapiItem:normToJsonapiItem,
+  normToStore: normToStore,
 }
 
 
