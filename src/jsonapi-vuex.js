@@ -21,7 +21,7 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
             Vue.set(state[type], id, merge(old_record, data))
           } else {
             if (!(type in state)) {
-              state[type] = {}
+              Vue.set(state, type, {})
             }
             Vue.set(state[type], id, data)
           }
