@@ -33,7 +33,7 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
 
 const actions = (api) => {
   return {
-    get: ({ commit }, options) => {
+    get: (context, options) => {
       let path
       if (typeof options === 'string') {
         path = options
@@ -44,14 +44,14 @@ const actions = (api) => {
       return api.get(path)
         .then((results) => {
           const data = jsonapiToNorm(results.data.data)
-          commit('update_record', data)
+          context.commit('update_record', data)
           return data
         })
         .catch((error) => {
           return error
         })
     },
-    post: ({ commit }, options) => {
+    post: (context, options) => {
       const { type, id } = options['_jv']
       let path= type
       if (id) {
@@ -59,26 +59,26 @@ const actions = (api) => {
       }
       return api.post(path, options)
         .then(() => {
-          commit('update_record', options)
+          context.commit('update_record', options)
           return options
         })
         .catch((error) => {
           return error
         })
     },
-    patch: ({ commit }, options) => {
+    patch: (context, options) => {
       const { type, id } = options['_jv']
       let path = type + "/" + id
       return api.patch(path, options)
         .then(() => {
-          commit('update_record', options)
+          context.commit('update_record', options)
           return options
         })
         .catch((error) => {
           return error
         })
     },
-    delete: ({ commit }, options) => {
+    delete: (context, options) => {
       let path
       if (typeof options === 'string') {
         // Use string as a verbatim path for api request
@@ -89,7 +89,7 @@ const actions = (api) => {
       }
       return api.delete(path)
         .then(() => {
-          commit('delete_record', options)
+          context.commit('delete_record', options)
         })
         .catch((error) => {
           return error
