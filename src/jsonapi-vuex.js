@@ -43,8 +43,9 @@ const actions = (api) => {
       }
       return api.get(path)
         .then((results) => {
-          commit('update_record', jsonapiToNorm(results.data.data))
-          return results
+          const data = jsonapiToNorm(results.data.data)
+          commit('update_record', data)
+          return data
         })
         .catch((error) => {
           return error
@@ -57,9 +58,9 @@ const actions = (api) => {
         path += "/" + id
       }
       return api.post(path, options)
-        .then((results) => {
+        .then(() => {
           commit('update_record', options)
-          return results
+          return options
         })
         .catch((error) => {
           return error
@@ -69,9 +70,9 @@ const actions = (api) => {
       const { type, id } = options['_jv']
       let path = type + "/" + id
       return api.patch(path, options)
-        .then((results) => {
+        .then(() => {
           commit('update_record', options)
-          return results
+          return options
         })
         .catch((error) => {
           return error
@@ -87,9 +88,8 @@ const actions = (api) => {
         path = type + "/" + id
       }
       return api.delete(path)
-        .then((results) => {
+        .then(() => {
           commit('delete_record', options)
-          return results
         })
         .catch((error) => {
           return error
