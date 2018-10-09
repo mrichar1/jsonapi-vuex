@@ -292,33 +292,30 @@ describe("jsonapi-vuex tests", () =>  {
     describe("delete_record", () =>  {
       it("should delete a record (data) from the Vue store", () =>  {
         const { delete_record } = jm.mutations
-        const state_i1 = { 'records': store_item1 }
-        delete_record(state_i1, norm_item1)
-        expect(state_i1['records'][norm_item1['_jv']['type']]).to.not.have.key(norm_item1['_jv']['id'])
+        delete_record(store_item1, norm_item1)
+        expect(store_item1[norm_item1['_jv']['type']]).to.not.have.key(norm_item1['_jv']['id'])
       })
     })
 
     it("should delete a record (string) from the store", () =>  {
       const { delete_record } = jm.mutations
-      const state_i1 = { 'records': store_item1 }
       // Leading slash is incorrect syntax, but we should handle it so test with it in
-      delete_record(state_i1, "/widget/1")
-      expect(state_i1['records'][norm_item1['_jv']['type']]).to.not.have.key(norm_item1['_jv']['id'])
+      delete_record(store_item1, "/widget/1")
+      expect(store_item1[norm_item1['_jv']['type']]).to.not.have.key(norm_item1['_jv']['id'])
     })
 
     describe("update_record", () => {
       it("should add several records to the store", () => {
         const { update_record } = jm.mutations
-        const state_i1 = {'records': {} }
-        update_record(state_i1, norm_record)
-        expect(state_i1['records']).to.deep.equal(store_record)
+        const state = {}
+        update_record(state, norm_record)
+        expect(state).to.deep.equal(store_record)
       })
 
       it("should update a specific attribute of a record already in the store", () => {
         const { update_record } = jm.mutations
-        const state_i1 = {'records': store_item1 }
-        update_record(state_i1, norm_item1_patch)
-        expect(state_i1['records']).to.deep.equal(store_item1_update)
+        update_record(store_item1, norm_item1_patch)
+        expect(store_item1).to.deep.equal(store_item1_update)
       })
     })
   });

@@ -10,21 +10,20 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
       } else {
         ({ type, id } = record['_jv'])
       }
-      delete state.records[type][id]
+      delete state[type][id]
     },
     update_record: (state, new_records) => {
-      const { records } = state
       const store_records = normToStore(new_records)
       for (let [type, item] of Object.entries(store_records)) {
         for (let [id, data] of Object.entries(item)) {
-          const old_record = getNested(state.records, [type, id])
+          const old_record = getNested(state, [type, id])
           if (old_record) {
-            Vue.set(records[type], id, merge(old_record, data))
+            Vue.set(state[type], id, merge(old_record, data))
           } else {
-            if (!(type in records)) {
-              records[type] = {}
+            if (!(type in state)) {
+              state[type] = {}
             }
-            Vue.set(records[type], id, data)
+            Vue.set(state[type], id, data)
           }
         }
       }
@@ -112,9 +111,7 @@ const jsonapiModule = (api) => {
   return {
     namespaced: true,
 
-    state: {
-      records: {}
-    },
+    state: {},
 
     mutations: mutations(api),
     actions: actions(api),
