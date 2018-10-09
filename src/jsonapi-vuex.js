@@ -136,10 +136,7 @@ const jsonapiToNormItem = (data) => {
   // Fastest way to deep copy
   const copy = JSON.parse(JSON.stringify(data))
   // Move attributes to top-level, nest original jsonapi under _jv
-  const norm = {
-    '_jv': copy,
-    ...copy['attributes']
-  }
+  const norm = Object.assign({'_jv': copy}, copy['attributes'])
   delete norm['_jv']['attributes']
   return norm
 }
