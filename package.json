@@ -8,6 +8,8 @@
     "babel-plugin-istanbul": "^5.0.1",
     "babel-polyfill": "^6.26.0",
     "chai": "^4.2.0",
+    "eslint": "^5.6.1",
+    "eslint-loader": "^2.1.1",
     "karma": "^3.0.0",
     "karma-chai": "^0.1.0",
     "karma-coverage": "^1.1.2",
@@ -32,6 +34,7 @@
   },
   "dependencies": {
     "deepmerge": "^2.2.1",
+    "mocha-eslint": "^4.1.0",
     "vue": "^2.5.17"
   }
 }

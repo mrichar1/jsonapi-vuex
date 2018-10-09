@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import merge from 'deepmerge';
 
-const mutations = (api) => {
+const mutations = (api) => {  // eslint-disable-line no-unused-vars
   return {
     delete_record: (state, record) => {
       let type, id
@@ -102,7 +102,7 @@ const actions = (api) => {
   }
 }
 
-const getters = (api) => {
+const getters = (api) => {  // eslint-disable-line no-unused-vars
   // FIXME: get item/collection
   return {}
 }

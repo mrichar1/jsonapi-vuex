@@ -1,17 +1,16 @@
 import chai, {expect} from 'chai';
-import sinonChai from 'sinon-chai';
+import { _testing, jsonapiModule } from '../src/jsonapi-vuex.js';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import { jsonapiModule, _testing } from '../src/jsonapi-vuex.js';
+import sinonChai from 'sinon-chai';
 
 chai.use(sinonChai)
 
 // 'global' variables (redefined in beforeEach)
-var jm, state,
- json_item1, json_item2, json_item1_patch, json_record,
+var jm,
+ json_item1, json_item2, json_record,
  norm_item1, norm_item2, norm_item1_patch, norm_item1_update, norm_record,
  store_item1, store_item1_update, store_record
-
 
 // Mock up a fake axios-like api instance
 const api = axios.create({ baseURL: 'http://example.com'})
@@ -30,8 +29,6 @@ beforeEach(() =>  {
   mock_api.reset()
   jm = jsonapiModule(api)
 
-  state = {records: {}}
-
   json_item1 = {
     id: '1',
     type: 'widget',
@@ -46,14 +43,6 @@ beforeEach(() =>  {
     type: 'widget',
     attributes: {
       'foo': 2
-    }
-  }
-
-  json_item1_patch = {
-    'id': '1',
-    'type': 'widget',
-    'attributes': {
-      'foo': 'update'
     }
   }
 
@@ -145,7 +134,7 @@ describe("jsonapi-vuex tests", () =>  {
       it("should make an api call to GET item(s)", (done) => {
         mock_api.onAny().reply(200, {data: json_item1})
         jm.actions.get(stub_context, norm_item1)
-          .then(res => {
+          .then(() => {
             expect(mock_api.history.get[0].url).to.equal(`/${norm_item1['_jv']['type']}/${norm_item1['_jv']['id']}`)
             done()
           })
@@ -153,7 +142,7 @@ describe("jsonapi-vuex tests", () =>  {
       it("should update record(s) in the store", (done) => {
         mock_api.onAny().reply(200, {data: json_item1})
         jm.actions.get(stub_context, norm_item1)
-          .then(res => {
+          .then(() => {
             expect(stub_context.commit).to.have.been.calledWith("update_record", norm_item1)
             done()
           })
@@ -162,7 +151,7 @@ describe("jsonapi-vuex tests", () =>  {
         mock_api.onAny().reply(204)
         // Leading slash is incorrect syntax, but we should handle it so test with it in
         jm.actions.get(stub_context, "/widget/1")
-          .then(res => {
+          .then(() => {
             expect(stub_context.commit).to.have.been.calledWith("update_record", norm_item1)
             done()
           })
@@ -187,7 +176,7 @@ describe("jsonapi-vuex tests", () =>  {
       it("should make an api call to POST item(s)", (done) => {
         mock_api.onAny().reply(200, {data: json_item1})
         jm.actions.post(stub_context, norm_item1)
-          .then(res => {
+          .then(() => {
             expect(mock_api.history.post[0].url).to.equal(`/${norm_item1['_jv']['type']}/${norm_item1['_jv']['id']}`)
             done()
           })
@@ -195,7 +184,7 @@ describe("jsonapi-vuex tests", () =>  {
       it("should add record(s) to the store", (done) => {
         mock_api.onAny().reply(200, {data: json_item1})
         jm.actions.post(stub_context, norm_item1)
-          .then(res => {
+          .then(() => {
             expect(stub_context.commit).to.have.been.calledWith("update_record", norm_item1)
             done()
           })
@@ -203,7 +192,7 @@ describe("jsonapi-vuex tests", () =>  {
       it("should POST data", (done) => {
         mock_api.onAny().reply(200, {data: json_item1})
         jm.actions.post(stub_context, norm_item1)
-          .then(res => {
+          .then(() => {
             // History stores data as JSON string, so parse back to object
             expect(JSON.parse(mock_api.history.post[0].data)).to.deep.equal(norm_item1)
             done()
@@ -229,7 +218,7 @@ describe("jsonapi-vuex tests", () =>  {
       it("should make an api call to PATCH item(s)", (done) => {
         mock_api.onAny().reply(200, {data: json_item1})
         jm.actions.patch(stub_context, norm_item1_patch)
-          .then(res => {
+          .then(() => {
             expect(mock_api.history.patch[0].url).to.equal(`/${norm_item1_patch['_jv']['type']}/${norm_item1_patch['_jv']['id']}`)
             done()
           })
@@ -237,7 +226,7 @@ describe("jsonapi-vuex tests", () =>  {
       it("should update record(s) in the store", (done) => {
         mock_api.onAny().reply(200, {data: json_item1})
         jm.actions.patch(stub_context, norm_item1_patch)
-          .then(res => {
+          .then(() => {
             expect(stub_context.commit).to.have.been.calledWith("update_record", norm_item1_patch)
             done()
           })
@@ -262,7 +251,7 @@ describe("jsonapi-vuex tests", () =>  {
       it("should make an api call to DELETE item(s)", (done) => {
         mock_api.onAny().reply(204)
         jm.actions.delete(stub_context, norm_item1)
-          .then(res => {
+          .then(() => {
             expect(mock_api.history.delete[0].url).to.equal(`/${norm_item1['_jv']['type']}/${norm_item1['_jv']['id']}`)
             done()
           })
@@ -270,7 +259,7 @@ describe("jsonapi-vuex tests", () =>  {
       it("should delete a record from the store", (done) => {
         mock_api.onAny().reply(204)
         jm.actions.delete(stub_context, norm_item1)
-          .then(res => {
+          .then(() => {
             expect(stub_context.commit).to.have.been.calledWith("delete_record", norm_item1)
             done()
           })
@@ -279,7 +268,7 @@ describe("jsonapi-vuex tests", () =>  {
         mock_api.onAny().reply(204)
         // Leading slash is incorrect syntax, but we should handle it so test with it in
         jm.actions.delete(stub_context, "/widget/1")
-          .then(res => {
+          .then(() => {
             expect(stub_context.commit).to.have.been.calledWith("delete_record", norm_item1)
             done()
           })
