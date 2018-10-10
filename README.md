@@ -8,7 +8,7 @@ This project was inspired by https://codingitwrong.com/2018/06/18/vuex-jsonapi-a
 
 * Creates a Vuex module to store API data.
 * High-level methods to wrap common RESTful operations (GET, POST, PUT etc).
-* Normalizes data in the store, making record handling easier.
+* Restructures/normalizes data in the store, making record handling easier.
 * Uses Axios (or your own axios-like module) as the HTTP client.
 
 ## Setup
@@ -97,6 +97,75 @@ computed: {
   // Create a computed property that calls the getter with normalized data
   'getWidget': function() {
     return this.$store.getters['jv/get']({'_jv': {'type': 'Widget'}})
+  }
+}
+```
+
+## Restructured Data
+
+JSONAPI is an extremely useful format for clearly interacting with an API - however it is less useful for the end developer, who is generally more interested in the data contained in a record than the structure surrounding it.
+
+In this module we 'reverse' the JSONAPI data into a form where data attributes become top-level keys, and JSONAPI-specific data is moved down under another key: `_jv`.
+
+For example, the JSONAPI record:
+
+```
+{
+  id: '1',
+  type: 'widget'
+  attributes: {
+    name: 'sprocket',
+    color: 'black'
+  },
+  meta: {...}
+}
+```
+
+has to be accessed as `record.attributes.color`
+
+This module would restructure this record to be:
+
+```
+{
+  name: 'sprocket',
+  color: 'black',
+  _jv: {
+    id: '1',
+    type: 'widget'
+    meta: {...}
+  }
+}
+```
+
+Which is easier to work with, as lookups are now top-level, e.g. `record.name`
+
+In cases where there are multiple records being returned in an object, the id is used as the key (though this is ignored in the code, and the 'real' id is always read from `_jv`):
+
+```
+{
+  1: {
+    name: 'sprocket',
+    color: 'black'
+  },
+  2: {
+    name: 'cog',
+    color: 'red'
+  }
+}
+```
+
+These are accessed as `record.1.name` or `record.2.color`
+
+The above structure is actually how records are maintained in the store, nested below the `endpoint`:
+
+```
+{
+  widget: {
+    1: {...},
+    2: {...}
+  },
+  doohickey: {
+    20: {...},
   }
 }
 ```
