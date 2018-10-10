@@ -45,7 +45,7 @@ const actions = (api) => {
         .then((results) => {
           const data = jsonapiToNorm(results.data.data)
           context.commit('update_record', data)
-          return data
+          return context.getters.get(options)
         })
         .catch((error) => {
           return error
@@ -56,7 +56,7 @@ const actions = (api) => {
       return api.post(type, normToJsonapi(options))
         .then(() => {
           context.commit('update_record', options)
-          return options
+          return context.getters.get(options)
         })
         .catch((error) => {
           return error
@@ -68,7 +68,7 @@ const actions = (api) => {
       return api.patch(path, normToJsonapi(options))
         .then(() => {
           context.commit('update_record', options)
-          return options
+          return context.getters.get(options)
         })
         .catch((error) => {
           return error

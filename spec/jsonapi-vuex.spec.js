@@ -19,6 +19,9 @@ let mock_api = new MockAdapter(api);
 
 // Stub the context's commit function to evaluate calls to it.
 const stub_context = {
+  getters: {
+    get: sinon.stub()
+  },
   commit: sinon.stub()
 }
 
@@ -153,6 +156,14 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
+      it("should return data via the 'get' getter", (done) => {
+        mock_api.onAny().reply(200, {data: json_item1})
+        jm.actions.get(stub_context, norm_item1)
+          .then(() => {
+              expect(stub_context.getters.get).to.have.been.calledWith(norm_item1)
+            done()
+          })
+      })
       it("should update record(s) (string) in the store", (done) =>  {
         mock_api.onAny().reply(204)
         // Leading slash is incorrect syntax, but we should handle it so test with it in
@@ -192,6 +203,14 @@ describe("jsonapi-vuex tests", () =>  {
         jm.actions.post(stub_context, norm_item1)
           .then(() => {
             expect(stub_context.commit).to.have.been.calledWith("update_record", norm_item1)
+            done()
+          })
+      })
+      it("should return data via the 'get' getter", (done) => {
+        mock_api.onAny().reply(200, {data: json_item1})
+        jm.actions.post(stub_context, norm_item1)
+          .then(() => {
+              expect(stub_context.getters.get).to.have.been.calledWith(norm_item1)
             done()
           })
       })
@@ -237,6 +256,15 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
+      it("should return data via the 'get' getter", (done) => {
+        mock_api.onAny().reply(200, {data: json_item1})
+        jm.actions.patch(stub_context, norm_item1_patch)
+          .then(() => {
+              expect(stub_context.getters.get).to.have.been.calledWith(norm_item1)
+            done()
+          })
+      })
+
       it("should handle API errors", (done) => {
         mock_api.onAny().reply(500)
         jm.actions.patch(stub_context, norm_item1)
