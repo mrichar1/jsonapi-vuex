@@ -179,8 +179,10 @@ const normToJsonapiItem = (data) => {
   const jsonapi = {}
   jsonapi['attributes'] = JSON.parse(JSON.stringify(data))
   delete jsonapi['attributes']['_jv']
-  jsonapi['id'] = data['_jv']['id']
   jsonapi['type'] = data['_jv']['type']
+  if ('id' in data['_jv']) {
+    jsonapi['id'] = data['_jv']['id']
+  }
   return jsonapi
 }
 

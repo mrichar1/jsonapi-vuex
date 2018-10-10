@@ -363,6 +363,12 @@ describe("jsonapi-vuex tests", () =>  {
         const { normToJsonapiItem } = _testing
         expect(normToJsonapiItem(norm_item1)).to.deep.equal(json_item1)
       });
+      it("should convert normalized to jsonapi for a single item with no id (POST)", () =>  {
+        const { normToJsonapiItem } = _testing
+        delete norm_item1['_jv']['id']
+        delete json_item1['id']
+        expect(normToJsonapiItem(norm_item1)).to.deep.equal(json_item1)
+      });
     })
 
     describe("normToStore", () => {
