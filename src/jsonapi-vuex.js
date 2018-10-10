@@ -102,8 +102,30 @@ const actions = (api) => {
 }
 
 const getters = (api) => {  // eslint-disable-line no-unused-vars
-  // FIXME: get item/collection
-  return {}
+  return {
+    get: (state) => (options) => {
+      let type, id
+      if (options && '_jv' in options) {
+        ({ type, id } = options['_jv'])
+      }
+      if (type) {
+        if (type in state) {
+          if (id && id in state[type]) {
+            return state[type][id]
+          }
+          // If there's only a single item, no nested id key needed
+          const keys = Object.keys(state[type])
+          if (keys.length === 1) {
+            return state[type][keys[0]]
+          }
+          // Otherwise return the whole endpoint, keyed by id
+          return state[type]
+        }
+      } else {
+        return state
+      }
+    }
+  }
 }
 
 // Store Module
