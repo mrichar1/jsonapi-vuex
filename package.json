@@ -25,7 +25,7 @@
   },
   "name": "jsonapi-vuex",
   "version": "0.0.1",
-  "description": "Access normalized JSONAPI data from a Vuex Store.",
+  "description": "Access restructured JSONAPI data from a Vuex Store.",
   "main": "index.js",
   "author": "Matthew Richardson <M.Richardson@ed.ac.uk>",
   "license": "AGPL-3.0",
