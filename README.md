@@ -1,5 +1,7 @@
 # jsonapi-vuex
 
+[![Build Status](https://travis-ci.com/mrichar1/jsonapi-vuex.svg?branch=master)](https://travis-ci.com/mrichar1/jsonapi-vuex)
+
 A module to access JSONAPI data from a Vuex store, restructured for ease of use.
 
 This project was inspired by https://codingitwrong.com/2018/06/18/vuex-jsonapi-a-zero-config-data-layer.html
