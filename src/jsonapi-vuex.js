@@ -52,12 +52,8 @@ const actions = (api) => {
         })
     },
     post: (context, options) => {
-      const { type, id } = options['_jv']
-      let path= type
-      if (id) {
-        path += "/" + id
-      }
-      return api.post(path, options)
+      const { type } = options['_jv']
+      return api.post(type, normToJsonapi(options))
         .then(() => {
           context.commit('update_record', options)
           return options
@@ -69,7 +65,7 @@ const actions = (api) => {
     patch: (context, options) => {
       const { type, id } = options['_jv']
       let path = type + "/" + id
-      return api.patch(path, options)
+      return api.patch(path, normToJsonapi(options))
         .then(() => {
           context.commit('update_record', options)
           return options
