@@ -2,10 +2,11 @@
 
 const src = './src/**/*.js'
 const tests = './spec/**/*.spec.js'
+const ci = process.env.CI || process.env.TRAVIS || false
 
 module.exports = function(config) {
   config.set({
-    //singleRun: true,
+    singleRun: ci,
     browsers: ['FirefoxHeadless'],
     customLaunchers: {
       'FirefoxHeadless': {
