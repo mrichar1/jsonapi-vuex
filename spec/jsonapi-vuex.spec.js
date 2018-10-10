@@ -183,7 +183,7 @@ describe("jsonapi-vuex tests", () =>  {
         mock_api.onAny().reply(200, {data: json_item1})
         jm.actions.post(stub_context, norm_item1)
           .then(() => {
-            expect(mock_api.history.post[0].url).to.equal(`/${norm_item1['_jv']['type']}/${norm_item1['_jv']['id']}`)
+            expect(mock_api.history.post[0].url).to.equal(`/${norm_item1['_jv']['type']}`)
             done()
           })
       })
@@ -200,7 +200,7 @@ describe("jsonapi-vuex tests", () =>  {
         jm.actions.post(stub_context, norm_item1)
           .then(() => {
             // History stores data as JSON string, so parse back to object
-            expect(JSON.parse(mock_api.history.post[0].data)).to.deep.equal(norm_item1)
+            expect(JSON.parse(mock_api.history.post[0].data)).to.deep.equal(json_item1)
             done()
           })
       })
