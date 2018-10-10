@@ -9,7 +9,7 @@ chai.use(sinonChai)
 // 'global' variables (redefined in beforeEach)
 var jm,
  json_item1, json_item2, json_record,
- norm_item1, norm_item2, norm_item1_patch, norm_item1_update, norm_record,
+ norm_item1, norm_item2, norm_item1_patch, norm_item1_update, norm_record, norm_state,
  store_item1, store_item1_update, store_record
 
 // Mock up a fake axios-like api instance
@@ -87,6 +87,12 @@ beforeEach(() =>  {
   norm_record = {
     [norm_item1['_jv']['id']]: norm_item1,
     [norm_item2['_jv']['id']]: norm_item2
+  }
+
+  norm_state = {
+    'widget': {
+      ...norm_record
+    }
   }
 
   store_item1 = {
@@ -376,6 +382,28 @@ describe("jsonapi-vuex tests", () =>  {
     it("should export getters", () =>  {
       expect(_testing.getters).to.be.a('function');
     });
-  }); // getters
 
+    describe("get", () => {
+      it("should return all state", () => {
+        const { get } = jm.getters
+        const result = get(store_record)()
+        expect(result).to.deep.equal(norm_state)
+      })
+      it("should return all state for a single endpoint", () => {
+        const { get } = jm.getters
+        const result = get(store_record)({'_jv': {'type': 'widget'}})
+        expect(result).to.deep.equal(norm_record)
+      })
+      it("should return all state for a single endpoint with only 1 record", () => {
+        const { get } = jm.getters
+        const result = get(store_item1)({'_jv': {'type': 'widget'}})
+        expect(result).to.deep.equal(norm_item1)
+      })
+      it("should return a single id from state", () => {
+        const { get } = jm.getters
+        const result = get(store_item1)({'_jv': {'type': 'widget', 'id': '1'}})
+        expect(result).to.deep.equal(norm_item1)
+      })
+    })
+  }); // getters
 });
