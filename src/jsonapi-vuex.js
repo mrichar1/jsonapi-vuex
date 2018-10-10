@@ -101,8 +101,12 @@ const getters = (api) => {  // eslint-disable-line no-unused-vars
   return {
     get: (state) => (options) => {
       let type, id
-      if (options && '_jv' in options) {
-        ({ type, id } = options['_jv'])
+      if (options) {
+        if (typeof(options) === 'string') {
+          [type, id] = options.replace(/^\//, "").split("/")
+        } else {
+          ({ type, id } = options['_jv'])
+        }
       }
       if (type) {
         if (type in state) {

@@ -410,6 +410,11 @@ describe("jsonapi-vuex tests", () =>  {
         const result = get(store_item1)({'_jv': {'type': 'widget', 'id': '1'}})
         expect(result).to.deep.equal(norm_item1)
       })
+      it("should accept a string path to object", () => {
+        const { get } = jm.getters
+        const result = get(store_item1)('widget/1')
+        expect(result).to.deep.equal(norm_item1)
+      })
     })
   }); // getters
 });
