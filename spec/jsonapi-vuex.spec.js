@@ -148,6 +148,15 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
+      it("should accept params as the 2nd arg in a list", (done) => {
+        mock_api.onAny().reply(200, {data: json_item1})
+        const params = {filter: "color"}
+        jm.actions.get(stub_context, [norm_item1, params])
+          .then(() => {
+            expect(mock_api.history.get[0].params).to.equal(params)
+            done()
+          })
+      })
       it("should update record(s) in the store", (done) => {
         mock_api.onAny().reply(200, {data: json_item1})
         jm.actions.get(stub_context, norm_item1)
@@ -195,6 +204,15 @@ describe("jsonapi-vuex tests", () =>  {
         jm.actions.post(stub_context, norm_item1)
           .then(() => {
             expect(mock_api.history.post[0].url).to.equal(`/${norm_item1['_jv']['type']}`)
+            done()
+          })
+      })
+      it("should accept params as the 2nd arg in a list", (done) => {
+        mock_api.onAny().reply(200, {data: json_item1})
+        const params = {filter: "color"}
+        jm.actions.post(stub_context, [norm_item1, params])
+          .then(() => {
+            expect(mock_api.history.post[0].params).to.equal(params)
             done()
           })
       })
@@ -248,6 +266,15 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
+      it("should accept params as the 2nd arg in a list", (done) => {
+        mock_api.onAny().reply(200, {data: json_item1})
+        const params = {filter: "color"}
+        jm.actions.patch(stub_context, [norm_item1_patch, params])
+          .then(() => {
+            expect(mock_api.history.patch[0].params).to.equal(params)
+            done()
+          })
+      })
       it("should update record(s) in the store", (done) => {
         mock_api.onAny().reply(200, {data: json_item1})
         jm.actions.patch(stub_context, norm_item1_patch)
@@ -287,6 +314,15 @@ describe("jsonapi-vuex tests", () =>  {
         jm.actions.delete(stub_context, norm_item1)
           .then(() => {
             expect(mock_api.history.delete[0].url).to.equal(`/${norm_item1['_jv']['type']}/${norm_item1['_jv']['id']}`)
+            done()
+          })
+      })
+      it("should accept params as the 2nd arg in a list", (done) => {
+        mock_api.onAny().reply(200, {data: json_item1})
+        const params = {filter: "color"}
+        jm.actions.delete(stub_context, [norm_item1, params])
+          .then(() => {
+            expect(mock_api.history.delete[0].params).to.equal(params)
             done()
           })
       })
@@ -428,7 +464,7 @@ describe("jsonapi-vuex tests", () =>  {
         const result = get(store_record)({'_jv': {'type': 'widget'}})
         expect(result).to.deep.equal(norm_record)
       })
-      it("should return all state for a single endpoint with only 1 record", () => {
+      it("should return all state for a single endpoint with a single record", () => {
         const { get } = jm.getters
         const result = get(store_item1)({'_jv': {'type': 'widget'}})
         expect(result).to.deep.equal(norm_item1)
