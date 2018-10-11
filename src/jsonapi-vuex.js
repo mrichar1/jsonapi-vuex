@@ -33,59 +33,75 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
 
 const actions = (api) => {
   return {
-    get: (context, options) => {
+    get: (context, data) => {
+      let params = {}
+      if (Array.isArray(data)) {
+        [ data, params ] = data
+      }
       let path
-      if (typeof options === 'string') {
-        path = options
+      if (typeof data === 'string') {
+        path = data
       } else {
-        const { type, id } = options['_jv']
+        const { type, id } = data['_jv']
         path = type + "/" + id
       }
-      return api.get(path)
+      return api.get(path, {params: params})
         .then((results) => {
-          const data = jsonapiToNorm(results.data.data)
+          const res_data = jsonapiToNorm(results.data.data)
+          context.commit('update_record', res_data)
+          return context.getters.get(res_data)
+        })
+        .catch((error) => {
+          return error
+        })
+    },
+    post: (context, data) => {
+      let params = {}
+      if (Array.isArray(data)) {
+        [ data, params ] = data
+      }
+      const { type } = data['_jv']
+      return api.post(type, normToJsonapi(data), {params: params})
+        .then(() => {
           context.commit('update_record', data)
-          return context.getters.get(options)
+          return context.getters.get(data)
         })
         .catch((error) => {
           return error
         })
     },
-    post: (context, options) => {
-      const { type } = options['_jv']
-      return api.post(type, normToJsonapi(options))
-        .then(() => {
-          context.commit('update_record', options)
-          return context.getters.get(options)
-        })
-        .catch((error) => {
-          return error
-        })
-    },
-    patch: (context, options) => {
-      const { type, id } = options['_jv']
+    patch: (context, data) => {
+      let params = {}
+      if (Array.isArray(data)) {
+        [ data, params ] = data
+      }
+      const { type, id } = data['_jv']
       let path = type + "/" + id
-      return api.patch(path, normToJsonapi(options))
+      return api.patch(path, normToJsonapi(data), {params:params})
         .then(() => {
-          context.commit('update_record', options)
-          return context.getters.get(options)
+          context.commit('update_record', data)
+          return context.getters.get(data)
         })
         .catch((error) => {
           return error
         })
     },
-    delete: (context, options) => {
+    delete: (context, data) => {
+      let params = {}
+      if (Array.isArray(data)) {
+        [ data, params ] = data
+      }
       let path
-      if (typeof options === 'string') {
+      if (typeof data === 'string') {
         // Use string as a verbatim path for api request
-        path = options
+        path = data
       } else {
-        const { type, id } = options['_jv']
+        const { type, id } = data['_jv']
         path = type + "/" + id
       }
-      return api.delete(path)
+      return api.delete(path, {params:params})
         .then(() => {
-          context.commit('delete_record', options)
+          context.commit('delete_record', data)
         })
         .catch((error) => {
           return error
@@ -99,13 +115,13 @@ const actions = (api) => {
 
 const getters = (api) => {  // eslint-disable-line no-unused-vars
   return {
-    get: (state) => (options) => {
+    get: (state) => (data) => {
       let type, id
-      if (options) {
-        if (typeof(options) === 'string') {
-          [type, id] = options.replace(/^\//, "").split("/")
+      if (data) {
+        if (typeof(data) === 'string') {
+          [type, id] = data.replace(/^\//, "").split("/")
         } else {
-          ({ type, id } = options['_jv'])
+          ({ type, id } = data['_jv'])
         }
       }
       if (type) {
