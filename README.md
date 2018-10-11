@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/mrichar1/jsonapi-vuex.svg?branch=master)](https://travis-ci.com/mrichar1/jsonapi-vuex)
 
-A module to access JSONAPI data from a Vuex store, restructured for ease of use.
+A module to access JSONAPI data from an API, using a Vuex store, restructured to make life easier.
 
 This project was inspired by https://codingitwrong.com/2018/06/18/vuex-jsonapi-a-zero-config-data-layer.html
 
@@ -50,7 +50,9 @@ The usual way to use this module is to use `actions` wherever possible. All acti
 
 There are 4 actions (with aliases): `get` (`fetch`), `post` (`create`), `patch` (`update`), and `delete`.
 
-All actions take an argument in the form of a normalized record, e.g.:
+All actions take 2 arguments: the object to be acted upon, and an (optional) object containing query parameters.
+
+The first argument is an object containing [restructured data](#restructured-data). for example:
 
 ```
 const new_widget = {
@@ -62,24 +64,43 @@ const new_widget = {
   }
 }
 
+const params = {
+  'token': 'abcdef123456'
+}
+
 // To create a new widget in the API, using a normalized object:
-this.$store.dispatch('jv/post', new_widget)
+this.$store.dispatch('jv/post', new_widget, params)
   .then(data => {
     console.log(data)
   })
 
 ```
 
-Actions which take no other arguments apart from the record (`get` and `delete`) also accept a string which matches the path to fetch, e.g.:
+Actions which take no data argument apart from the record (`get` and `delete`) also accept a string which matches the path to fetch. This means you don't need to create an 'empty' restructured data object to get or delete a record:
 
  * `widget` - get all records from the `widget` endpoint.
  * `widget/id` - get the record with matching `id` frmo the `widget` endpoint.
 
-To fetch all `widgets` from the API, using string notation:
-
 ```
+
+const params = {
+  'token': 'abcdef123456'
+}
+
 // Get all records from the 'widget' endpoint
-this.$store.dispatch('jv/get', 'widget')
+this.$store.dispatch('jv/get', 'widget', params)
+  .then(data => {
+    console.log(data)
+  })
+  
+// Get a specific record from the 'widget' endpoint  
+this.$store.dispatch('jv/get', 'widget/1', params)
+  .then(data => {
+    console.log(data)
+  })
+  
+// Equivalent with restructured record
+this.$store.dispatch('jv/get', { '_jv': { 'type': 'widget', 'id': '1'}}, params)
   .then(data => {
     console.log(data)
   })
