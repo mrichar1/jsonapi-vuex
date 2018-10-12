@@ -1,6 +1,14 @@
 language: node_js
 node_js:
-  - "node"
+- node
 before_script:
-  - export DISPLAY=:99.0
-  - sh -e /etc/init.d/xvfb start
+- export DISPLAY=:99.0
+- sh -e /etc/init.d/xvfb start
+deploy:
+  provider: npm
+  email: m.richardson@ed.ac.uk
+  api_key:
+    secure: X+3Mq/DhHS+KxW78iR+BhOS3hcv8HHj700Q8EKA2xTs3URxezm4M2Jw6Z+bCkvOImvq0xecaCsnLxyKVPAdr71brHh01P/7UO0lcEnXInMHnGMp4b1Mp24Z25x/2j3PRvGCO2WwUnRh7DO5v+k9N+hUo+56xlCHwf3TC4yg2zKZpHHnas3ed0TcbvrCp/qcmj06yuT0q/y1D7yH2xKYDJG+PLsP/SPlLdfmwwDLKx/dfB7MQ+JmuMq9/eIPfBUrag3CfenjO5+7p7Bv28wGj1ft+FbZuOO5YBpAEFXy12QkInDctYnkjkkEmlbig0HkOmDlCzHPN5yq9heTHGj2QJ7rLIBFoK7cF7GzLNc51qXLhWB93i2j0c+lypxLe3XSpCepNg2tlnvsqVVL2QzVPvSTvG7GY9aBELOncfwq9lARknq3IZNtWivH7vutXKiwHnjmgvVu02ha4uYurY/n58EK20wpbyzTmgbMqSvjhyMKbXLTOJOOXOBqfukHSxzHs05AhxJVIdJ0kbLijqUrT37+bxAAMbO5z+kc+X6Lp6y8S6jv0drVBuYjIox2zE3PTQbfNvAKPzQLq6NX1t9rsh4u1Rx+euef+8N7vM98w+l/WiLDqHkoP8f+vqyP2/sh64OkxUh3NTqXv10B4DUKqITomuj0+vDqhFl77OTUkAmw=
+  on:
+    tags: true
+    repo: mrichar1/jsonapi-vuex
