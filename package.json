@@ -28,7 +28,15 @@
   "description": "Access restructured JSONAPI data from a Vuex Store.",
   "main": "index.js",
   "author": "Matthew Richardson <M.Richardson@ed.ac.uk>",
-  "license": "AGPL-3.0",
+  "homepage": "https://github.com/mrichar1/jsonapi-vuex.git",
+  "license": "AGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrichar1/jsonapi-vuex.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mrichar1/jsonapi-vuex/issues"
+  },
   "scripts": {
     "test": "karma start"
   },
