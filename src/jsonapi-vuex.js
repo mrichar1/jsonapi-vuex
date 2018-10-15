@@ -117,30 +117,37 @@ const actions = (api) => {
 const getters = (api) => {  // eslint-disable-line no-unused-vars
   return {
     get: (state) => (data) => {
-      let type, id
-      if (data) {
-        if (typeof(data) === 'string') {
-          [type, id] = data.replace(/^\//, "").split("/")
-        } else {
-          ({ type, id } = data['_jv'])
-        }
-      }
-      if (type) {
-        if (type in state) {
-          if (id && id in state[type]) {
-            return state[type][id]
-          }
-          // If there's only a single item, no nested id key needed
-          const keys = Object.keys(state[type])
-          if (keys.length === 1) {
-            return state[type][keys[0]]
-          }
-          // Otherwise return the whole endpoint, keyed by id
-          return state[type]
-        }
-      } else {
+      if (!data) {
+        // No data arg - return whole state object
         return state
       }
+
+      let type, id, result
+      // get type and id from data
+      if (typeof(data) === 'string') {
+        [type, id] = data.replace(/^\//, "").split("/")
+      } else {
+        ({ type, id } = data['_jv'])
+      }
+      if (type in state) {
+        if (id && id in state[type]) {
+          // single item, indexed by id
+          result = {id: state[type][id]}
+        } else {
+          // whole collection
+          result = state[type]
+        }
+      } else {
+        // no records for that type in state
+        return {}
+      }
+
+      // Prune index id if only 1 item
+      const keys = Object.keys(result)
+      if (keys.length === 1) {
+        result = result[keys[0]]
+      }
+      return result
     }
   }
 }
