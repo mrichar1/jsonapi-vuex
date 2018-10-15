@@ -161,7 +161,7 @@ describe("jsonapi-vuex tests", () =>  {
         mock_api.onAny().reply(200, {data: json_item1})
         jm.actions.get(stub_context, norm_item1)
           .then(() => {
-            expect(stub_context.commit).to.have.been.calledWith("update_record", norm_item1)
+            expect(stub_context.commit).to.have.been.calledWith("add_records", norm_item1)
             done()
           })
       })
@@ -178,7 +178,7 @@ describe("jsonapi-vuex tests", () =>  {
         // Leading slash is incorrect syntax, but we should handle it so test with it in
         jm.actions.get(stub_context, "/widget/1")
           .then(() => {
-            expect(stub_context.commit).to.have.been.calledWith("update_record", norm_item1)
+            expect(stub_context.commit).to.have.been.calledWith("add_records", norm_item1)
             done()
           })
       })
@@ -220,7 +220,7 @@ describe("jsonapi-vuex tests", () =>  {
         mock_api.onAny().reply(200, {data: json_item1})
         jm.actions.post(stub_context, norm_item1)
           .then(() => {
-            expect(stub_context.commit).to.have.been.calledWith("update_record", norm_item1)
+            expect(stub_context.commit).to.have.been.calledWith("add_records", norm_item1)
             done()
           })
       })
@@ -374,14 +374,16 @@ describe("jsonapi-vuex tests", () =>  {
       expect(store_item1[norm_item1['_jv']['type']]).to.not.have.key(norm_item1['_jv']['id'])
     })
 
-    describe("update_record", () => {
+    describe("add_records", () => {
       it("should add several records to the store", () => {
-        const { update_record } = jm.mutations
+        const { add_records } = jm.mutations
         const state = {}
-        update_record(state, norm_record)
+        add_records(state, norm_record)
         expect(state).to.deep.equal(store_record)
       })
+    })
 
+    describe("update_record", () => {
       it("should update a specific attribute of a record already in the store", () => {
         const { update_record } = jm.mutations
         update_record(store_item1, norm_item1_patch)

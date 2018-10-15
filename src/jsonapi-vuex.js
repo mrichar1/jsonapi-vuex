@@ -12,21 +12,22 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
       }
       delete state[type][id]
     },
-    update_record: (state, new_records) => {
-      const store_records = normToStore(new_records)
+    add_records: (state, records) => {
+      const store_records = normToStore(records)
       for (let [type, item] of Object.entries(store_records)) {
         for (let [id, data] of Object.entries(item)) {
-          const old_record = getNested(state, [type, id])
-          if (old_record) {
-            Vue.set(state[type], id, merge(old_record, data))
-          } else {
-            if (!(type in state)) {
-              Vue.set(state, type, {})
-            }
-            Vue.set(state[type], id, data)
+          if (!(type in state)) {
+            Vue.set(state, type, {})
           }
+          Vue.set(state[type], id, data)
         }
       }
+    },
+    update_record: (state, new_record) => {
+      const { type, id } = new_record['_jv']
+      const store_record = normToStore(new_record)
+      const old_record = getNested(state, [type, id])
+      Vue.set(state[type], id, merge(old_record, store_record[type][id]))
     }
   }
 }
@@ -48,7 +49,7 @@ const actions = (api) => {
       return api.get(path, {params: params})
         .then((results) => {
           const res_data = jsonapiToNorm(results.data.data)
-          context.commit('update_record', res_data)
+          context.commit('add_records', res_data)
           return context.getters.get(res_data)
         })
         .catch((error) => {
@@ -63,7 +64,7 @@ const actions = (api) => {
       const { type } = data['_jv']
       return api.post(type, normToJsonapi(data), {params: params})
         .then(() => {
-          context.commit('update_record', data)
+          context.commit('add_records', data)
           return context.getters.get(data)
         })
         .catch((error) => {
