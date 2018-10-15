@@ -1,5 +1,8 @@
 import Vue from 'vue'
 import merge from 'deepmerge';
+// https://github.com/dchester/jsonpath/issues/89
+import jp from 'jsonpath/jsonpath.min'
+
 
 const mutations = (api) => {  // eslint-disable-line no-unused-vars
   return {
@@ -116,7 +119,7 @@ const actions = (api) => {
 
 const getters = (api) => {  // eslint-disable-line no-unused-vars
   return {
-    get: (state) => (data) => {
+    get: (state) => (data, jsonpath) => {
       if (!data) {
         // No data arg - return whole state object
         return state
@@ -142,6 +145,16 @@ const getters = (api) => {  // eslint-disable-line no-unused-vars
         return {}
       }
 
+      // Filter by jsonpath
+      if (jsonpath) {
+        const filtered = jp.query(result, jsonpath)
+        if (Array.isArray(filtered)) {
+          result = {}
+          for (let item of filtered) {
+            result[item['_jv']['id']] = item
+          }
+        }
+      }
       // Prune index id if only 1 item
       const keys = Object.keys(result)
       if (keys.length === 1) {
