@@ -474,6 +474,16 @@ describe("jsonapi-vuex tests", () =>  {
         expect(normToStore(norm_item1)).to.deep.equal(store_item1)
       })
     })
+    describe("unpackArgs", () => {
+      it("Should convert a single arg into an array with empty config", () => {
+        const { unpackArgs } = _testing
+        expect(unpackArgs('splat')).to.deep.equal(['splat', {}])
+      })
+      it("Should leave an args array as-is", () => {
+        const { unpackArgs } = _testing
+        expect(unpackArgs(['splat', {}])).to.deep.equal(['splat', {}])
+      })
+    })
 
   }); // Helper methods
 

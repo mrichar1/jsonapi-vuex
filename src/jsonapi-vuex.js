@@ -32,11 +32,9 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
 
 const actions = (api) => {
   return {
-    get: (context, data) => {
-      let config = {}
-      if (Array.isArray(data)) {
-        [ data, config ] = data
-      }
+    get: (context, args) => {
+      const [ data, config ] = unpackArgs(args)
+
       const path = getTypeId(data).join('/')
 
       return api.get(path, config)
@@ -49,11 +47,8 @@ const actions = (api) => {
           return error
         })
     },
-    post: (context, data) => {
-      let config = {}
-      if (Array.isArray(data)) {
-        [ data, config ] = data
-      }
+    post: (context, args) => {
+      const [ data, config ] = unpackArgs(args)
       const type = getTypeId(data)[0]
       return api.post(type, normToJsonapi(data), config)
         .then(() => {
@@ -64,11 +59,8 @@ const actions = (api) => {
           return error
         })
     },
-    patch: (context, data) => {
-      let config = {}
-      if (Array.isArray(data)) {
-        [ data, config ] = data
-      }
+    patch: (context, args) => {
+      const [ data, config ] = unpackArgs(args)
       const path = getTypeId(data).join('/')
       return api.patch(path, normToJsonapi(data), config)
         .then(() => {
@@ -79,11 +71,8 @@ const actions = (api) => {
           return error
         })
     },
-    delete: (context, data) => {
-      let config = {}
-      if (Array.isArray(data)) {
-        [ data, config ] = data
-      }
+    delete: (context, args) => {
+      const [ data, config ] = unpackArgs(args)
       const path = getTypeId(data).join('/')
       return api.delete(path, config)
         .then((result) => {
@@ -158,6 +147,14 @@ const jsonapiModule = (api) => {
 }
 
 // Helper methods
+
+// Make sure args is always an array of data and config
+const unpackArgs = (args) => {
+  if (Array.isArray(args)) {
+    return args
+  }
+  return [ args, {} ]
+}
 
 // Get type and id from data, either a string, or a restructured object
 const getTypeId = (data) => {
@@ -264,6 +261,7 @@ const _testing = {
   normToJsonapi: normToJsonapi,
   normToJsonapiItem:normToJsonapiItem,
   normToStore: normToStore,
+  unpackArgs: unpackArgs
 }
 
 
