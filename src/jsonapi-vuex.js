@@ -255,9 +255,6 @@ const normToStore = (record) => {
 
 // Export a single object with references to 'private' functions for the test suite
 const _testing = {
-  actions: actions,
-  mutations: mutations,
-  getters: getters,
   getTypeId: getTypeId,
   jsonapiToNorm: jsonapiToNorm,
   jsonapiToNormItem: jsonapiToNormItem,

@@ -135,10 +135,6 @@ describe("jsonapi-vuex tests", () =>  {
 
   describe("jsonapiModule actions", () =>  {
 
-    it("should export actions", () =>  {
-      expect(_testing.actions).to.be.a('function');
-    });
-
     describe("get", () =>  {
       it("should make an api call to GET item(s)", (done) => {
         mock_api.onAny().reply(200, {data: json_item1})
@@ -355,9 +351,6 @@ describe("jsonapi-vuex tests", () =>  {
   });
 
   describe("jsonapiModule mutations", () =>  {
-    it("should export mutations", () =>  {
-      expect(_testing.mutations).to.be.a('function');
-    });
 
     describe("delete_record", () =>  {
       it("should delete a record (data) from the Vue store", () =>  {
@@ -471,9 +464,6 @@ describe("jsonapi-vuex tests", () =>  {
   }); // Helper methods
 
   describe("jsonapiModule getters", () =>  {
-    it("should export getters", () =>  {
-      expect(_testing.getters).to.be.a('function');
-    });
 
     describe("get", () => {
       it("should return all state", () => {
