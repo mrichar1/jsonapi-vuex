@@ -19,6 +19,7 @@
     "karma-verbose-reporter": "^0.0.6",
     "karma-webpack": "^4.0.0-rc.2",
     "mocha": "^5.2.0",
+    "mocha-eslint": "^4.1.0",
     "sinon": "^6.3.5",
     "sinon-chai": "^3.2.0",
     "webpack": "^4.20.2"
@@ -26,6 +27,7 @@
   "name": "jsonapi-vuex",
   "version": "0.0.2",
   "description": "Access restructured JSONAPI data from a Vuex Store.",
+  "keywords": ["vue", "vuex", "jsonapi", "rest", "normalize", "jsonpath"],
   "main": "index.js",
   "author": "Matthew Richardson <M.Richardson@ed.ac.uk>",
   "homepage": "https://github.com/mrichar1/jsonapi-vuex.git",
@@ -43,7 +45,6 @@
   "dependencies": {
     "deepmerge": "^2.2.1",
     "jsonpath": "^1.0.0",
-    "mocha-eslint": "^4.1.0",
     "vue": "^2.5.17"
   }
 }
