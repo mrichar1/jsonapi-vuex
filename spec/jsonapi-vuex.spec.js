@@ -393,6 +393,26 @@ describe("jsonapi-vuex tests", () =>  {
   });
 
   describe("jsonapiModule helpers", () =>  {
+    describe("getTypeId", () => {
+      it("should get type & id from string", () => {
+        const { getTypeId } = _testing
+        expect(getTypeId("widget/1")).to.deep.equal(['widget', '1'])
+      })
+      it("should get type only from string", () => {
+        const { getTypeId } = _testing
+        expect(getTypeId("widget")).to.deep.equal(['widget', undefined])
+      })
+      it("should get type & id from norm data", () => {
+        const { getTypeId } = _testing
+        expect(getTypeId(norm_item1)).to.deep.equal(['widget', '1'])
+      })
+      it("should get type only from norm data", () => {
+        const { getTypeId } = _testing
+        delete norm_item1['_jv']['id']
+        expect(getTypeId(norm_item1)).to.deep.equal(['widget', undefined])
+      })
+    })
+
     describe("jsonapiToNormItem", () =>  {
       it("should convert jsonapi to normalized for a single item", () =>  {
         const { jsonapiToNormItem } = _testing

@@ -7,12 +7,7 @@ import jp from 'jsonpath/jsonpath.min'
 const mutations = (api) => {  // eslint-disable-line no-unused-vars
   return {
     delete_record: (state, record) => {
-      let type, id
-      if (typeof record === 'string') {
-        [type, id] = record.replace(/^\//, "").split("/")
-      } else {
-        ({ type, id } = record['_jv'])
-      }
+      const [ type, id ] = getTypeId(record)
       delete state[type][id]
     },
     add_records: (state, records) => {
@@ -27,7 +22,7 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
       }
     },
     update_record: (state, new_record) => {
-      const { type, id } = new_record['_jv']
+      const [ type, id ] = getTypeId(new_record)
       const store_record = normToStore(new_record)
       const old_record = getNested(state, [type, id])
       Vue.set(state[type], id, merge(old_record, store_record[type][id]))
@@ -42,13 +37,8 @@ const actions = (api) => {
       if (Array.isArray(data)) {
         [ data, params ] = data
       }
-      let path
-      if (typeof data === 'string') {
-        path = data
-      } else {
-        const { type, id } = data['_jv']
-        path = type + "/" + id
-      }
+      const path = getTypeId(data).join('/')
+
       return api.get(path, {params: params})
         .then((results) => {
           const res_data = jsonapiToNorm(results.data.data)
@@ -64,7 +54,7 @@ const actions = (api) => {
       if (Array.isArray(data)) {
         [ data, params ] = data
       }
-      const { type } = data['_jv']
+      const type = getTypeId(data)[0]
       return api.post(type, normToJsonapi(data), {params: params})
         .then(() => {
           context.commit('add_records', data)
@@ -79,8 +69,7 @@ const actions = (api) => {
       if (Array.isArray(data)) {
         [ data, params ] = data
       }
-      const { type, id } = data['_jv']
-      let path = type + "/" + id
+      const path = getTypeId(data).join('/')
       return api.patch(path, normToJsonapi(data), {params:params})
         .then(() => {
           context.commit('update_record', data)
@@ -95,14 +84,8 @@ const actions = (api) => {
       if (Array.isArray(data)) {
         [ data, params ] = data
       }
-      let path
-      if (typeof data === 'string') {
-        // Use string as a verbatim path for api request
-        path = data
-      } else {
-        const { type, id } = data['_jv']
-        path = type + "/" + id
-      }
+      const path = getTypeId(data).join('/')
+
       return api.delete(path, {params:params})
         .then(() => {
           context.commit('delete_record', data)
@@ -125,13 +108,9 @@ const getters = (api) => {  // eslint-disable-line no-unused-vars
         return state
       }
 
-      let type, id, result
-      // get type and id from data
-      if (typeof(data) === 'string') {
-        [type, id] = data.replace(/^\//, "").split("/")
-      } else {
-        ({ type, id } = data['_jv'])
-      }
+      let result
+      const [ type, id ] = getTypeId(data)
+
       if (type in state) {
         if (id && id in state[type]) {
           // single item, indexed by id
@@ -179,6 +158,17 @@ const jsonapiModule = (api) => {
 }
 
 // Helper methods
+
+// Get type and id from data, either a string, or a restructured object
+const getTypeId = (data) => {
+  let type, id
+  if (typeof(data) === 'string') {
+    [type, id] = data.replace(/^\//, "").split("/")
+  } else {
+    ({ type, id } = data['_jv'])
+  }
+  return [type, id]
+}
 
 // Walk an object looking for children, returning undefined rather than an error
 // Use: getNested('object', ['path', 'to', 'child'])
@@ -268,6 +258,7 @@ const _testing = {
   actions: actions,
   mutations: mutations,
   getters: getters,
+  getTypeId: getTypeId,
   jsonapiToNorm: jsonapiToNorm,
   jsonapiToNormItem: jsonapiToNormItem,
   normToJsonapi: normToJsonapi,
