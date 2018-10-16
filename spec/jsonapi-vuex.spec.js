@@ -144,10 +144,10 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
-      it("should accept params as the 2nd arg in a list", (done) => {
+      it("should accept axios config as the 2nd arg in a list", (done) => {
         mock_api.onAny().reply(200, {data: json_item1})
         const params = {filter: "color"}
-        jm.actions.get(stub_context, [norm_item1, params])
+        jm.actions.get(stub_context, [norm_item1, {params: params}])
           .then(() => {
             expect(mock_api.history.get[0].params).to.equal(params)
             done()
@@ -203,10 +203,10 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
-      it("should accept params as the 2nd arg in a list", (done) => {
+      it("should accept axios config as the 2nd arg in a list", (done) => {
         mock_api.onAny().reply(200, {data: json_item1})
         const params = {filter: "color"}
-        jm.actions.post(stub_context, [norm_item1, params])
+        jm.actions.post(stub_context, [norm_item1, {params: params}])
           .then(() => {
             expect(mock_api.history.post[0].params).to.equal(params)
             done()
@@ -262,10 +262,10 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
-      it("should accept params as the 2nd arg in a list", (done) => {
+      it("should accept axios config as the 2nd arg in a list", (done) => {
         mock_api.onAny().reply(200, {data: json_item1})
         const params = {filter: "color"}
-        jm.actions.patch(stub_context, [norm_item1_patch, params])
+        jm.actions.patch(stub_context, [norm_item1_patch, {params: params}])
           .then(() => {
             expect(mock_api.history.patch[0].params).to.equal(params)
             done()
@@ -313,10 +313,10 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
-      it("should accept params as the 2nd arg in a list", (done) => {
+      it("should accept axios config as the 2nd arg in a list", (done) => {
         mock_api.onAny().reply(200, {data: json_item1})
         const params = {filter: "color"}
-        jm.actions.delete(stub_context, [norm_item1, params])
+        jm.actions.delete(stub_context, [norm_item1, {params: params}])
           .then(() => {
             expect(mock_api.history.delete[0].params).to.equal(params)
             done()

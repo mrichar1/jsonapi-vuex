@@ -33,13 +33,13 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
 const actions = (api) => {
   return {
     get: (context, data) => {
-      let params = {}
+      let config = {}
       if (Array.isArray(data)) {
-        [ data, params ] = data
+        [ data, config ] = data
       }
       const path = getTypeId(data).join('/')
 
-      return api.get(path, {params: params})
+      return api.get(path, config)
         .then((results) => {
           const res_data = jsonapiToNorm(results.data.data)
           context.commit('add_records', res_data)
@@ -50,12 +50,12 @@ const actions = (api) => {
         })
     },
     post: (context, data) => {
-      let params = {}
+      let config = {}
       if (Array.isArray(data)) {
-        [ data, params ] = data
+        [ data, config ] = data
       }
       const type = getTypeId(data)[0]
-      return api.post(type, normToJsonapi(data), {params: params})
+      return api.post(type, normToJsonapi(data), config)
         .then(() => {
           context.commit('add_records', data)
           return context.getters.get(data)
@@ -65,12 +65,12 @@ const actions = (api) => {
         })
     },
     patch: (context, data) => {
-      let params = {}
+      let config = {}
       if (Array.isArray(data)) {
-        [ data, params ] = data
+        [ data, config ] = data
       }
       const path = getTypeId(data).join('/')
-      return api.patch(path, normToJsonapi(data), {params:params})
+      return api.patch(path, normToJsonapi(data), config)
         .then(() => {
           context.commit('update_record', data)
           return context.getters.get(data)
@@ -80,13 +80,13 @@ const actions = (api) => {
         })
     },
     delete: (context, data) => {
-      let params = {}
+      let config = {}
       if (Array.isArray(data)) {
-        [ data, params ] = data
+        [ data, config ] = data
       }
       const path = getTypeId(data).join('/')
 
-      return api.delete(path, {params:params})
+      return api.delete(path, config)
         .then(() => {
           context.commit('delete_record', data)
         })
