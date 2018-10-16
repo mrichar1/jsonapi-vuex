@@ -179,6 +179,9 @@ const getNested  = (nestedObj, pathArray) => {
 
 // Normalize a single jsonapi item
 const jsonapiToNormItem = (data) => {
+  if (!data) {
+    return {}
+  }
   // Fastest way to deep copy
   const copy = JSON.parse(JSON.stringify(data))
   // Move attributes to top-level, nest original jsonapi under _jv

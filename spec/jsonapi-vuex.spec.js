@@ -423,6 +423,11 @@ describe("jsonapi-vuex tests", () =>  {
         const { jsonapiToNorm } = _testing
         expect(jsonapiToNorm(json_record)).to.deep.equal(norm_record)
       });
+
+      it("should return an empty object if input is undefined", () =>  {
+        const { jsonapiToNorm } = _testing
+        expect(jsonapiToNorm(undefined)).to.deep.equal({})
+      })
     });
 
     describe("normToJsonapi", () =>  {
