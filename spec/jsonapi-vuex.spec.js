@@ -339,6 +339,15 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
+      it("should return deleted object if passed back by server", (done) =>  {
+        mock_api.onAny().reply(200, {data: json_item1})
+        // Leading slash is incorrect syntax, but we should handle it so test with it in
+        jm.actions.delete(stub_context, norm_item1)
+          .then((res) => {
+            expect(res).to.deep.equal(norm_item1)
+            done()
+          })
+      })
       it("should handle API errors", (done) => {
         mock_api.onAny().reply(500)
         jm.actions.delete(stub_context, norm_item1)

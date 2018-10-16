@@ -85,10 +85,10 @@ const actions = (api) => {
         [ data, config ] = data
       }
       const path = getTypeId(data).join('/')
-
       return api.delete(path, config)
-        .then(() => {
+        .then((result) => {
           context.commit('delete_record', data)
+          return jsonapiToNorm(result.data.data)
         })
         .catch((error) => {
           return error
