@@ -481,10 +481,20 @@ describe("jsonapi-vuex tests", () =>  {
         const result = get(store_item1)('widget/1')
         expect(result).to.deep.equal(norm_item1)
       })
-      it("should filter results using jsonpath", () => {
+      it("should filter results using jsonpath, returning a single item", () => {
         const { get } = jm.getters
         const result = get(store_record)('widget', '$[?(@.bar=="baz")]')
         expect(result).to.deep.equal(norm_item1)
+      })
+      it("should filter results using jsonpath, returning multiple items", () => {
+        const { get } = jm.getters
+        const result = get(store_record)('widget', '$[?(@.foo)]')
+        expect(result).to.deep.equal(norm_record)
+      })
+      it("should filter results using jsonpath, returning no items", () => {
+        const { get } = jm.getters
+        const result = get(store_record)('widget', '$[?(@.nosuchkey)]')
+        expect(result).to.deep.equal({})
       })
       it("should return empty object if type not in state", () => {
         const { get } = jm.getters
