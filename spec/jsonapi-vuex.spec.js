@@ -153,7 +153,7 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
-      it("should update record(s) in the store", (done) => {
+      it("should add record(s) in the store", (done) => {
         mock_api.onAny().reply(200, {data: json_item1})
         jm.actions.get(stub_context, norm_item1)
           .then(() => {
@@ -161,20 +161,20 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
-      it("should return data via the 'get' getter", (done) => {
-        mock_api.onAny().reply(200, {data: json_item1})
-        jm.actions.get(stub_context, norm_item1)
-          .then(() => {
-              expect(stub_context.getters.get).to.have.been.calledWith(norm_item1)
-            done()
-          })
-      })
-      it("should update record(s) (string) in the store", (done) =>  {
+      it("should add record(s) (string) in the store", (done) =>  {
         mock_api.onAny().reply(204)
         // Leading slash is incorrect syntax, but we should handle it so test with it in
         jm.actions.get(stub_context, "/widget/1")
           .then(() => {
             expect(stub_context.commit).to.have.been.calledWith("add_records", norm_item1)
+            done()
+          })
+      })
+      it("should return normalized data", (done) => {
+        mock_api.onAny().reply(200, {data: json_item1})
+        jm.actions.get(stub_context, norm_item1)
+          .then((res) => {
+            expect(res).to.deep.equal(norm_item1)
             done()
           })
       })

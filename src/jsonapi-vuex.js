@@ -43,7 +43,7 @@ const actions = (api) => {
         .then((results) => {
           const res_data = jsonapiToNorm(results.data.data)
           context.commit('add_records', res_data)
-          return context.getters.get(res_data)
+          return res_data
         })
         .catch((error) => {
           return error
