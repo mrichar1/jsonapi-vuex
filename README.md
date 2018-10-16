@@ -8,10 +8,11 @@ This project was inspired by https://codingitwrong.com/2018/06/18/vuex-jsonapi-a
 
 ## Features
 
-* Creates a Vuex module to store API data.
-* High-level methods to wrap common RESTful operations (GET, POST, PUT etc).
-* Restructures/normalizes data in the store, making record handling easier.
-* Uses Axios (or your own axios-like module) as the HTTP client.
+* Creates a [Vuex](https://vuex.vuejs.org/) module to store API data.
+* High-level methods to wrap common RESTful operations (GET, POST, PUT, DELETE).
+* Restructures/normalizes data, making record handling easier.
+* Uses [Axios](https://github.com/axios/axios) (or your own axios-like module) as the HTTP client.
+* Use [jsonpath](https://github.com/dchester/jsonpath) for filtering when getting objects from the store.
 
 ## Setup
 
@@ -50,11 +51,14 @@ The usual way to use this module is to use `actions` wherever possible. All acti
 
 There are 4 actions (with aliases): `get` (`fetch`), `post` (`create`), `patch` (`update`), and `delete`.
 
-All actions take 2 arguments: the object to be acted upon, and an (optional) object containing query parameters.
+All actions take 2 arguments: the path/object to be acted on, and an (optional) [`axios` config object](The first argument is an object containing [restructured data](#restructured-data).
 
-The first argument is an object containing [restructured data](#restructured-data). for example:
+Note: Since the `dispatch` method can only accept a single argument, if both arguments are used, the argument must be an array.
+
+The first argument is an object containing [restructured data](#restructured-data). Actions which take no `data` argument apart from the record (`get` and `delete`) can also accept a string which matches the path to fetch. This means you don't need to create an 'empty' restructured data object to get or delete a record. some examples:
 
 ```
+// Restructured representation of a record
 const new_widget = {
   'name': 'sprocket',
   'color': 'black',
@@ -64,46 +68,29 @@ const new_widget = {
   }
 }
 
+// Request Query params (JSONAPI options, auth tokens etc)
 const params = {
   'token': 'abcdef123456'
 }
 
-// To create a new widget in the API, using a normalized object:
-this.$store.dispatch('jv/post', new_widget, params)
+// To get all items in a collection, using a sring path:
+this.$store.dispatch('jv/get', "widget")
   .then(data => {
     console.log(data)
   })
 
-```
-
-Actions which take no data argument apart from the record (`get` and `delete`) also accept a string which matches the path to fetch. This means you don't need to create an 'empty' restructured data object to get or delete a record:
-
- * `widget` - get all records from the `widget` endpoint.
- * `widget/id` - get the record with matching `id` frmo the `widget` endpoint.
-
-```
-
-const params = {
-  'token': 'abcdef123456'
-}
-
-// Get all records from the 'widget' endpoint
-this.$store.dispatch('jv/get', 'widget', params)
+// Get a specific record from the 'widget' endpoint, passing parameters to axios:
+this.$store.dispatch('jv/get', 'widget/1', [{params: params}])
   .then(data => {
     console.log(data)
   })
-  
-// Get a specific record from the 'widget' endpoint  
-this.$store.dispatch('jv/get', 'widget/1', params)
+
+// Create a new widget in the API, using a restructured object, and passing parameters to axios:
+this.$store.dispatch('jv/post', [new_widget, {params: params}])
   .then(data => {
     console.log(data)
   })
-  
-// Equivalent with restructured record
-this.$store.dispatch('jv/get', { '_jv': { 'type': 'widget', 'id': '1'}}, params)
-  .then(data => {
-    console.log(data)
-  })
+
 ```
 
 ### Getters
@@ -123,6 +110,34 @@ computed: {
   }
 }
 ```
+
+`get` takes an optional 2nd argument - a `jsonpath` string to filter the record(s) which are being retrieved. See the project page for [JSONPath Syntax](https://github.com/dchester/jsonpath#jsonpath-syntax)
+
+```
+
+// Assuming the store is as follows:
+store = {
+  'widget' : {
+    '1': {
+      'name': 'sprocket',
+      'color': 'black',
+    },
+    '2': {
+      'name': 'cog',
+      'color': 'red'
+    }
+  }
+}
+
+// Get all widgets that are red:
+this.$store.getters['jv/get']('widget', '[?(@.color=="red")]')
+
+// Note that filters can create impossible conditions
+// The following will return empty, as widget 1 is not red
+this.$store.getters['jv/get']('widget/1', '[?(@.color=="red")]')
+
+```
+
 
 ## Restructured Data
 
@@ -177,7 +192,7 @@ In cases where there are multiple records being returned in an object, the id is
 }
 ```
 
-These are accessed as `record.1.name` or `record.2.color`
+These are accessed as `record.1.name` or `record.2.color`, or if a list is needed, via `Object.values(record)`.
 
 The above structure is actually how records are maintained in the store, nested below the `endpoint`:
 

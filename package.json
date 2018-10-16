@@ -24,7 +24,7 @@
     "webpack": "^4.20.2"
   },
   "name": "jsonapi-vuex",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Access restructured JSONAPI data from a Vuex Store.",
   "main": "index.js",
   "author": "Matthew Richardson <M.Richardson@ed.ac.uk>",
