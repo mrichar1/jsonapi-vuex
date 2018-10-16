@@ -12,8 +12,8 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
     },
     add_records: (state, records) => {
       const store_records = normToStore(records)
-      for (let [type, item] of Object.entries(store_records)) {
-        for (let [id, data] of Object.entries(item)) {
+      for (let [ type, item ] of Object.entries(store_records)) {
+        for (let [ id, data ] of Object.entries(item)) {
           if (!(type in state)) {
             Vue.set(state, type, {})
           }
@@ -24,7 +24,7 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
     update_record: (state, new_record) => {
       const [ type, id ] = getTypeId(new_record)
       const store_record = normToStore(new_record)
-      const old_record = getNested(state, [type, id])
+      const old_record = getNested(state, [ type, id ])
       Vue.set(state[type], id, merge(old_record, store_record[type][id]))
     }
   }
@@ -103,7 +103,7 @@ const getters = (api) => {  // eslint-disable-line no-unused-vars
       if (type in state) {
         if (id && id in state[type]) {
           // single item, indexed by id
-          result = {id: state[type][id]}
+          result = { id: state[type][id] }
         } else {
           // whole collection
           result = state[type]
@@ -160,16 +160,16 @@ const unpackArgs = (args) => {
 const getTypeId = (data) => {
   let type, id
   if (typeof(data) === 'string') {
-    [type, id] = data.replace(/^\//, "").split("/")
+    [ type, id ] = data.replace(/^\//, "").split("/")
   } else {
     ({ type, id } = data['_jv'])
   }
-  return [type, id]
+  return [ type, id ]
 }
 
 // Walk an object looking for children, returning undefined rather than an error
 // Use: getNested('object', ['path', 'to', 'child'])
-const getNested  = (nestedObj, pathArray) => {
+const getNested = (nestedObj, pathArray) => {
     return pathArray.reduce((obj, key) =>
         (obj && obj[key] !== 'undefined') ? obj[key] : undefined, nestedObj);
 }
@@ -182,7 +182,7 @@ const jsonapiToNormItem = (data) => {
   // Fastest way to deep copy
   const copy = JSON.parse(JSON.stringify(data))
   // Move attributes to top-level, nest original jsonapi under _jv
-  const norm = Object.assign({'_jv': copy}, copy['attributes'])
+  const norm = Object.assign({ '_jv': copy }, copy['attributes'])
   delete norm['_jv']['attributes']
   return norm
 }
@@ -240,15 +240,15 @@ const normToStore = (record) => {
   let store = {}
   if (!('_jv' in record)) {
     for (let item of Object.values(record))  {
-      const {type, id} = item['_jv']
+      const { type, id } = item['_jv']
       if (!(type in store)) {
         store[type] = {}
       }
       store[type][id] = item
     }
   } else {
-    const {type, id} = record['_jv']
-    store = { [type]: { [id]: record } }
+    const { type, id } = record['_jv']
+    store = { [type]: { [id]: record }}
   }
   return store
 }

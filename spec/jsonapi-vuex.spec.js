@@ -1,4 +1,4 @@
-import chai, {expect} from 'chai';
+import chai, { expect } from 'chai';
 import { _testing, jsonapiModule } from '../src/jsonapi-vuex.js';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
@@ -13,7 +13,7 @@ var jm,
  store_item1, store_item1_update, store_record
 
 // Mock up a fake axios-like api instance
-const api = axios.create({ baseURL: 'http://example.com'})
+const api = axios.create({ baseURL: 'http://example.com' })
 
 let mock_api = new MockAdapter(api);
 
@@ -137,7 +137,7 @@ describe("jsonapi-vuex tests", () =>  {
 
     describe("get", () =>  {
       it("should make an api call to GET item(s)", (done) => {
-        mock_api.onAny().reply(200, {data: json_item1})
+        mock_api.onAny().reply(200, { data: json_item1 })
         jm.actions.get(stub_context, norm_item1)
           .then(() => {
             expect(mock_api.history.get[0].url).to.equal(`/${norm_item1['_jv']['type']}/${norm_item1['_jv']['id']}`)
@@ -145,16 +145,16 @@ describe("jsonapi-vuex tests", () =>  {
           })
       })
       it("should accept axios config as the 2nd arg in a list", (done) => {
-        mock_api.onAny().reply(200, {data: json_item1})
-        const params = {filter: "color"}
-        jm.actions.get(stub_context, [norm_item1, {params: params}])
+        mock_api.onAny().reply(200, { data: json_item1 })
+        const params = { filter: "color" }
+        jm.actions.get(stub_context, [ norm_item1, { params: params } ])
           .then(() => {
             expect(mock_api.history.get[0].params).to.equal(params)
             done()
           })
       })
       it("should add record(s) in the store", (done) => {
-        mock_api.onAny().reply(200, {data: json_item1})
+        mock_api.onAny().reply(200, { data: json_item1 })
         jm.actions.get(stub_context, norm_item1)
           .then(() => {
             expect(stub_context.commit).to.have.been.calledWith("add_records", norm_item1)
@@ -171,7 +171,7 @@ describe("jsonapi-vuex tests", () =>  {
           })
       })
       it("should return normalized data", (done) => {
-        mock_api.onAny().reply(200, {data: json_item1})
+        mock_api.onAny().reply(200, { data: json_item1 })
         jm.actions.get(stub_context, norm_item1)
           .then((res) => {
             expect(res).to.deep.equal(norm_item1)
@@ -196,7 +196,7 @@ describe("jsonapi-vuex tests", () =>  {
 
     describe("post", () =>  {
       it("should make an api call to POST item(s)", (done) => {
-        mock_api.onAny().reply(200, {data: json_item1})
+        mock_api.onAny().reply(200, { data: json_item1 })
         jm.actions.post(stub_context, norm_item1)
           .then(() => {
             expect(mock_api.history.post[0].url).to.equal(`/${norm_item1['_jv']['type']}`)
@@ -204,16 +204,16 @@ describe("jsonapi-vuex tests", () =>  {
           })
       })
       it("should accept axios config as the 2nd arg in a list", (done) => {
-        mock_api.onAny().reply(200, {data: json_item1})
-        const params = {filter: "color"}
-        jm.actions.post(stub_context, [norm_item1, {params: params}])
+        mock_api.onAny().reply(200, { data: json_item1 })
+        const params = { filter: "color" }
+        jm.actions.post(stub_context, [ norm_item1, { params: params } ])
           .then(() => {
             expect(mock_api.history.post[0].params).to.equal(params)
             done()
           })
       })
       it("should add record(s) to the store", (done) => {
-        mock_api.onAny().reply(200, {data: json_item1})
+        mock_api.onAny().reply(200, { data: json_item1 })
         jm.actions.post(stub_context, norm_item1)
           .then(() => {
             expect(stub_context.commit).to.have.been.calledWith("add_records", norm_item1)
@@ -221,7 +221,7 @@ describe("jsonapi-vuex tests", () =>  {
           })
       })
       it("should return data via the 'get' getter", (done) => {
-        mock_api.onAny().reply(200, {data: json_item1})
+        mock_api.onAny().reply(200, { data: json_item1 })
         jm.actions.post(stub_context, norm_item1)
           .then(() => {
               expect(stub_context.getters.get).to.have.been.calledWith(norm_item1)
@@ -229,7 +229,7 @@ describe("jsonapi-vuex tests", () =>  {
           })
       })
       it("should POST data", (done) => {
-        mock_api.onAny().reply(200, {data: json_item1})
+        mock_api.onAny().reply(200, { data: json_item1 })
         jm.actions.post(stub_context, norm_item1)
           .then(() => {
             // History stores data as JSON string, so parse back to object
@@ -255,7 +255,7 @@ describe("jsonapi-vuex tests", () =>  {
 
     describe("patch", () =>  {
       it("should make an api call to PATCH item(s)", (done) => {
-        mock_api.onAny().reply(200, {data: json_item1})
+        mock_api.onAny().reply(200, { data: json_item1 })
         jm.actions.patch(stub_context, norm_item1_patch)
           .then(() => {
             expect(mock_api.history.patch[0].url).to.equal(`/${norm_item1_patch['_jv']['type']}/${norm_item1_patch['_jv']['id']}`)
@@ -263,16 +263,16 @@ describe("jsonapi-vuex tests", () =>  {
           })
       })
       it("should accept axios config as the 2nd arg in a list", (done) => {
-        mock_api.onAny().reply(200, {data: json_item1})
-        const params = {filter: "color"}
-        jm.actions.patch(stub_context, [norm_item1_patch, {params: params}])
+        mock_api.onAny().reply(200, { data: json_item1 })
+        const params = { filter: "color" }
+        jm.actions.patch(stub_context, [ norm_item1_patch, { params: params } ])
           .then(() => {
             expect(mock_api.history.patch[0].params).to.equal(params)
             done()
           })
       })
       it("should update record(s) in the store", (done) => {
-        mock_api.onAny().reply(200, {data: json_item1})
+        mock_api.onAny().reply(200, { data: json_item1 })
         jm.actions.patch(stub_context, norm_item1_patch)
           .then(() => {
             expect(stub_context.commit).to.have.been.calledWith("update_record", norm_item1_patch)
@@ -280,7 +280,7 @@ describe("jsonapi-vuex tests", () =>  {
           })
       })
       it("should return data via the 'get' getter", (done) => {
-        mock_api.onAny().reply(200, {data: json_item1})
+        mock_api.onAny().reply(200, { data: json_item1 })
         jm.actions.patch(stub_context, norm_item1_patch)
           .then(() => {
               expect(stub_context.getters.get).to.have.been.calledWith(norm_item1)
@@ -314,9 +314,9 @@ describe("jsonapi-vuex tests", () =>  {
           })
       })
       it("should accept axios config as the 2nd arg in a list", (done) => {
-        mock_api.onAny().reply(200, {data: json_item1})
-        const params = {filter: "color"}
-        jm.actions.delete(stub_context, [norm_item1, {params: params}])
+        mock_api.onAny().reply(200, { data: json_item1 })
+        const params = { filter: "color" }
+        jm.actions.delete(stub_context, [ norm_item1, { params: params } ])
           .then(() => {
             expect(mock_api.history.delete[0].params).to.equal(params)
             done()
@@ -340,7 +340,7 @@ describe("jsonapi-vuex tests", () =>  {
           })
       })
       it("should return deleted object if passed back by server", (done) =>  {
-        mock_api.onAny().reply(200, {data: json_item1})
+        mock_api.onAny().reply(200, { data: json_item1 })
         // Leading slash is incorrect syntax, but we should handle it so test with it in
         jm.actions.delete(stub_context, norm_item1)
           .then((res) => {
@@ -398,20 +398,20 @@ describe("jsonapi-vuex tests", () =>  {
     describe("getTypeId", () => {
       it("should get type & id from string", () => {
         const { getTypeId } = _testing
-        expect(getTypeId("widget/1")).to.deep.equal(['widget', '1'])
+        expect(getTypeId("widget/1")).to.deep.equal([ 'widget', '1' ])
       })
       it("should get type only from string", () => {
         const { getTypeId } = _testing
-        expect(getTypeId("widget")).to.deep.equal(['widget', undefined])
+        expect(getTypeId("widget")).to.deep.equal([ 'widget', undefined ])
       })
       it("should get type & id from norm data", () => {
         const { getTypeId } = _testing
-        expect(getTypeId(norm_item1)).to.deep.equal(['widget', '1'])
+        expect(getTypeId(norm_item1)).to.deep.equal([ 'widget', '1' ])
       })
       it("should get type only from norm data", () => {
         const { getTypeId } = _testing
         delete norm_item1['_jv']['id']
-        expect(getTypeId(norm_item1)).to.deep.equal(['widget', undefined])
+        expect(getTypeId(norm_item1)).to.deep.equal([ 'widget', undefined ])
       })
     })
 
@@ -477,11 +477,11 @@ describe("jsonapi-vuex tests", () =>  {
     describe("unpackArgs", () => {
       it("Should convert a single arg into an array with empty config", () => {
         const { unpackArgs } = _testing
-        expect(unpackArgs('splat')).to.deep.equal(['splat', {}])
+        expect(unpackArgs('splat')).to.deep.equal([ 'splat', {} ])
       })
       it("Should leave an args array as-is", () => {
         const { unpackArgs } = _testing
-        expect(unpackArgs(['splat', {}])).to.deep.equal(['splat', {}])
+        expect(unpackArgs([ 'splat', {} ])).to.deep.equal([ 'splat', {} ])
       })
     })
 
@@ -497,17 +497,17 @@ describe("jsonapi-vuex tests", () =>  {
       })
       it("should return all state for a single endpoint", () => {
         const { get } = jm.getters
-        const result = get(store_record)({'_jv': {'type': 'widget'}})
+        const result = get(store_record)({ '_jv': { 'type': 'widget' }})
         expect(result).to.deep.equal(norm_record)
       })
       it("should return all state for a single endpoint with a single record", () => {
         const { get } = jm.getters
-        const result = get(store_item1)({'_jv': {'type': 'widget'}})
+        const result = get(store_item1)({ '_jv': { 'type': 'widget' }})
         expect(result).to.deep.equal(norm_item1)
       })
       it("should return a single id from state", () => {
         const { get } = jm.getters
-        const result = get(store_item1)({'_jv': {'type': 'widget', 'id': '1'}})
+        const result = get(store_item1)({ '_jv': { 'type': 'widget', 'id': '1' }})
         expect(result).to.deep.equal(norm_item1)
       })
       it("should accept a string path to object", () => {

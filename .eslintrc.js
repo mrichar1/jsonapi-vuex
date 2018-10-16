@@ -14,6 +14,21 @@ module.exports = {
       {
         "varsIgnorePattern": "should|expect"
       }
+    ],
+    "object-curly-spacing": [
+      "error",
+      "always",
+      {
+        "objectsInObjects": false
+      }
+    ],
+    "array-bracket-spacing": [
+      "error",
+      "always",
+      {
+        "singleValue": true,
+        "arraysInArrays": false
+      }
     ]
   }
 }
