@@ -1,16 +1,18 @@
 import chai, { expect } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
 import { _testing, jsonapiModule } from '../src/jsonapi-vuex.js';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import sinonChai from 'sinon-chai';
 
 chai.use(sinonChai)
+chai.use(chaiAsPromised)
 
 // 'global' variables (redefined in beforeEach)
 var jm,
  json_item1, json_item2, json_record,
- norm_item1, norm_item2, norm_item1_patch, norm_item1_update, norm_record, norm_state,
- store_item1, store_item1_update, store_record
+ norm_item1, norm_item2, norm_item3, norm_item1_patch, norm_item1_update, norm_record, norm_state,
+ store_item1, store_item1_update, store_item2, store_item1_3, store_record
 
 // Mock up a fake axios-like api instance
 const api = axios.create({ baseURL: 'http://example.com' })
@@ -22,7 +24,25 @@ const stub_context = {
   getters: {
     get: sinon.stub()
   },
-  commit: sinon.stub()
+  commit: sinon.stub(),
+  // Mock up dispatch('get')
+  dispatch: (method, data) => {
+    if (method == 'get') {
+      let id
+      if (typeof(data) === 'string') {
+        id = data.replace(/^\//, "").split('/')[1]
+      } else {
+        id = data['_jv']['id']
+      }
+      if (id === '1') {
+        return norm_item1
+      } else if (id === '2') {
+        return norm_item2
+      } else if (id === '3'){
+        return norm_item3
+      }
+    }
+  }
 }
 
 
@@ -54,6 +74,20 @@ beforeEach(() =>  {
     type: 'widget',
     attributes: {
       'foo': 2
+    },
+    'relationships': {
+      'widgets': {
+        'data': [
+          {
+            'type': 'widget',
+            'id': '1'
+          },
+          {
+            'type': 'widget',
+            'id': '3'
+          }
+        ]
+      }
     }
   }
 
@@ -103,7 +137,43 @@ beforeEach(() =>  {
     'foo': 2,
     '_jv': {
       'type': 'widget',
-      'id': '2'
+      'id': '2',
+      'relationships': {
+        'widgets': {
+          'data': [
+            {
+              'type': 'widget',
+              'id': '1'
+            },
+            {
+              'type': 'widget',
+              'id': '3'
+            }
+          ]
+        }
+      }
+    }
+  }
+
+  norm_item3 = {
+    'foo': 3,
+    '_jv': {
+      'type': 'widget',
+      'id': '3',
+      'relationships': {
+        'widgets': {
+          'data': {
+            'type': 'widget',
+            'id': '1'
+          }
+        },
+        'doohickeys': {
+          'data': {
+            'type': 'widget',
+            'id': '3'
+          }
+        }
+      }
     }
   }
 
@@ -126,6 +196,25 @@ beforeEach(() =>  {
     'widget':{
       '1': {
         ...norm_item1
+      }
+    }
+  }
+
+  store_item2 = {
+    'widget':{
+      '2': {
+        ...norm_item2
+      }
+    }
+  }
+
+  store_item1_3 = {
+    'widget':{
+      '1': {
+        ...norm_item1
+      },
+      '3': {
+        ...norm_item3
       }
     }
   }
@@ -215,6 +304,43 @@ describe("jsonapi-vuex tests", () =>  {
     describe("fetch", () => {
       it("should be an alias for get", () => {
         expect(jm.actions.fetch).to.equal(jm.actions.get)
+      })
+    })
+
+    describe("getRelated", () =>{
+      it("Should throw an error if passed an object with no id", (done) => {
+        delete norm_item1['_jv']['id']
+        // Look for promise rejection as action is async
+        expect(jm.actions.getRelated(stub_context, norm_item1)).to.be.rejected
+        done()
+      })
+      it("should get a record's single related item", (done) => {
+        jm.actions.getRelated(stub_context, norm_item1)
+          .then(res => {
+            expect(res).to.deep.equal({ 'widgets' : store_item2 })
+            done()
+          })
+      })
+      it("should get a record's related items", (done) => {
+        jm.actions.getRelated(stub_context, norm_item2)
+          .then(res => {
+            expect(res).to.deep.equal({ 'widgets': store_item1_3 })
+            done()
+          })
+      })
+      it("should get a record's related items (string path)", (done) => {
+        jm.actions.getRelated(stub_context, "widget/2")
+          .then(res => {
+            expect(res).to.deep.equal({ 'widgets': store_item1_3 })
+            done()
+          })
+      })
+      it("should return related data for a specific relname", (done) => {
+        jm.actions.getRelated(stub_context, "widget/3/widgets")
+          .then((res) => {
+            expect(res).to.deep.equal({ 'widgets': store_item1 })
+            done()
+          })
       })
     })
 
@@ -427,6 +553,10 @@ describe("jsonapi-vuex tests", () =>  {
       it("should get type only from string", () => {
         const { getTypeId } = _testing
         expect(getTypeId("widget")).to.deep.equal([ 'widget', undefined ])
+      })
+      it("should get type, id & relname from string", () => {
+        const { getTypeId } = _testing
+        expect(getTypeId("widget/1/relname")).to.deep.equal([ 'widget', '1', 'relname' ])
       })
       it("should get type & id from norm data", () => {
         const { getTypeId } = _testing

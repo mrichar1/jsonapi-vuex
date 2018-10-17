@@ -8,6 +8,7 @@
     "babel-plugin-istanbul": "^5.0.1",
     "babel-polyfill": "^6.26.0",
     "chai": "^4.2.0",
+    "chai-as-promised": "^7.1.1",
     "eslint": "^5.6.1",
     "eslint-loader": "^2.1.1",
     "karma": "^3.0.0",
@@ -27,7 +28,14 @@
   "name": "jsonapi-vuex",
   "version": "0.0.2",
   "description": "Access restructured JSONAPI data from a Vuex Store.",
-  "keywords": ["vue", "vuex", "jsonapi", "rest", "normalize", "jsonpath"],
+  "keywords": [
+    "vue",
+    "vuex",
+    "jsonapi",
+    "rest",
+    "normalize",
+    "jsonpath"
+  ],
   "main": "index.js",
   "author": "Matthew Richardson <M.Richardson@ed.ac.uk>",
   "homepage": "https://github.com/mrichar1/jsonapi-vuex.git",

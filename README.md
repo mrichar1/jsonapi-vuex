@@ -11,6 +11,7 @@ This project was inspired by https://codingitwrong.com/2018/06/18/vuex-jsonapi-a
 * Creates a [Vuex](https://vuex.vuejs.org/) module to store API data.
 * High-level methods to wrap common RESTful operations (GET, POST, PUT, DELETE).
 * Restructures/normalizes data, making record handling easier.
+* Makes fetching related objects easy.
 * Uses [Axios](https://github.com/axios/axios) (or your own axios-like module) as the HTTP client.
 * Use [jsonpath](https://github.com/dchester/jsonpath) for filtering when getting objects from the store.
 
@@ -49,9 +50,11 @@ The most common way to access the API and update the store is through high-level
 
 The usual way to use this module is to use `actions` wherever possible. All actions are asynchronous, and both query the API and update the store, then return data in a normalized form.
 
-There are 4 actions (with aliases): `get` (`fetch`), `post` (`create`), `patch` (`update`), and `delete`.
+There are 4 actions (with aliases): `get` (`fetch`), `post` (`create`), `patch` (`update`), and `delete` which correspond to RESTful methods. There is also a `getRelated` action which fetches a record's related items.
 
-All actions take 2 arguments: the path/object to be acted on, and an (optional) [`axios` config object](The first argument is an object containing [restructured data](#restructured-data).
+#### RESTful actions
+
+These actions take 2 arguments: the path/object to be acted on, and an (optional) [`axios` config object](The first argument is an object containing [restructured data](#restructured-data).
 
 Note: Since the `dispatch` method can only accept a single argument, if both arguments are used, the argument must be an array.
 
@@ -92,6 +95,49 @@ this.$store.dispatch('jv/post', [new_widget, {params: params}])
   })
 
 ```
+
+#### getRelated
+
+Like the RESTful actions, this takes 2 arguments - the path/object to be acted on, and an axios config object. It returns a deeply nested restructured tree - `relationship -> type -> id -> data`.
+
+Note: `getRelated` only accepts a path to a specific record, not a collection.
+
+```
+// Assuming the API holds the following data
+jsonapi = {
+  data: {
+    type: 'widget',
+    id: '1'
+  },
+  relationships: {
+    'widgets': {
+      data: {
+        type: 'widget',
+        id: '2'
+    }
+    'doohickeys': {
+      data: {
+        type: 'doohickey',
+        id: '10'
+      }
+    }
+  }
+}
+
+// Get all of widget 1's related items - this will return all items
+this.$store.dispatch('jv/get', 'widget/1')
+  .then(data => {
+    console.log(data)
+  })
+
+// Get only the items in the 'widgets' relationship
+this.$store.dispatch('jv/get', 'widget/1/widgets')
+  .then(data => {
+    console.log(data)
+  })
+
+```
+
 
 ### Getters
 

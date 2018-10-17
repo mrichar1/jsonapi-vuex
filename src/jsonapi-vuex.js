@@ -34,9 +34,7 @@ const actions = (api) => {
   return {
     get: (context, args) => {
       const [ data, config ] = unpackArgs(args)
-
       const path = getTypeId(data).join('/')
-
       return api.get(path, config)
         .then((results) => {
           const res_data = jsonapiToNorm(results.data.data)
@@ -46,6 +44,49 @@ const actions = (api) => {
         .catch((error) => {
           return error
         })
+    },
+    getRelated: async (context, args) => {
+      let related = {}
+      const data = unpackArgs(args)[0]
+      let [ , id, rel ] = getTypeId(data)
+      if (!id) {
+        throw "No id specified"
+      }
+      const record = context.dispatch('get', args)
+      let rels = getNested(record, [ '_jv', 'relationships' ]) || {}
+      if (rel && rels) {
+        // Only process requested relname
+        rels = { [rel]: rels[rel] }
+      }
+      for (let [ rel_name, rel_items ] of Object.entries(rels)) {
+        if ('data' in rel_items) {
+          let rel_data = rel_items['data']
+          if (!(Array.isArray(rel_data))) {
+            // Treat as if always an array
+            rel_data = [ rel_data ]
+          }
+          for (let entry of rel_data) {
+            const fetched = context.dispatch('get', { '_jv': entry })
+            const { type: rel_type, id: rel_id } = fetched['_jv']
+            if (!(rel_name in related)) {
+              related[rel_name] = {}
+            }
+            if (!(rel_type in related[rel_name])) {
+              related[rel_name][rel_type] = {}
+            }
+            Object.assign(related[rel_name][rel_type], { [rel_id]: fetched })
+          }
+        } else {
+          // FIXME: handle related links
+          // rel_link = getNested(rels, [ 'links', 'related' ])
+        }
+      }
+      return related
+      // new Promise((resolve, reject) => {
+        //  resolve(related)
+        //  reject()
+      //  })
+
     },
     post: (context, args) => {
       const [ data, config ] = unpackArgs(args)
@@ -158,13 +199,17 @@ const unpackArgs = (args) => {
 
 // Get type and id from data, either a string, or a restructured object
 const getTypeId = (data) => {
-  let type, id
+  let type, id, rel
   if (typeof(data) === 'string') {
-    [ type, id ] = data.replace(/^\//, "").split("/")
+    [ type, id, rel ] = data.replace(/^\//, "").split("/")
   } else {
     ({ type, id } = data['_jv'])
   }
-  return [ type, id ]
+  if (rel) {
+    return [ type, id, rel ]
+  } else {
+    return [ type, id ]
+  }
 }
 
 // Walk an object looking for children, returning undefined rather than an error
