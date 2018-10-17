@@ -207,13 +207,9 @@ const jsonapiToNorm = (data) => {
 // Denormalize an item to jsonapi
 const normToJsonapiItem = (data) => {
   // Fastest way to deep copy
-  const jsonapi = {}
-  jsonapi['attributes'] = JSON.parse(JSON.stringify(data))
+  const jsonapi = { ...data['_jv'] }
+  jsonapi['attributes'] = Object.assign({}, data)
   delete jsonapi['attributes']['_jv']
-  jsonapi['type'] = data['_jv']['type']
-  if ('id' in data['_jv']) {
-    jsonapi['id'] = data['_jv']['id']
-  }
   return jsonapi
 }
 

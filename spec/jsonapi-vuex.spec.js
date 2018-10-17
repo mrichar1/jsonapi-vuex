@@ -38,6 +38,14 @@ beforeEach(() =>  {
     attributes: {
       'foo': 1,
       'bar': 'baz'
+    },
+    relationships: {
+      'widgets': {
+        'data': {
+          'type': 'widget',
+          'id': '2'
+        }
+      }
     }
   }
 
@@ -54,7 +62,15 @@ beforeEach(() =>  {
     'bar': 'baz',
     '_jv': {
       'type': 'widget',
-      'id': '1'
+      'id': '1',
+      'relationships': {
+        'widgets': {
+          'data': {
+            'type': 'widget',
+            'id': '2'
+          }
+        }
+      }
     }
   }
 
@@ -71,7 +87,15 @@ beforeEach(() =>  {
     'bar': 'baz',
     '_jv': {
       'type': 'widget',
-      'id': '1'
+      'id': '1',
+      'relationships': {
+        'widgets': {
+          'data': {
+            'type': 'widget',
+            'id': '2'
+          }
+        }
+      }
     }
   }
 
@@ -417,6 +441,10 @@ describe("jsonapi-vuex tests", () =>  {
 
     describe("jsonapiToNormItem", () =>  {
       it("should convert jsonapi to normalized for a single item", () =>  {
+        const { jsonapiToNormItem } = _testing
+        expect(jsonapiToNormItem(json_item1)).to.deep.equal(norm_item1)
+      });
+      it("should preserve deeply nested '_jv' keys", () =>  {
         const { jsonapiToNormItem } = _testing
         expect(jsonapiToNormItem(json_item1)).to.deep.equal(norm_item1)
       });
