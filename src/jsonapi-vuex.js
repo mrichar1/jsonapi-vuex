@@ -205,11 +205,8 @@ const getTypeId = (data) => {
   } else {
     ({ type, id } = data['_jv'])
   }
-  if (rel) {
-    return [ type, id, rel ]
-  } else {
-    return [ type, id ]
-  }
+  // Strip any empty strings (falsey items)
+  return [ type, id, rel ].filter(Boolean)
 }
 
 // Walk an object looking for children, returning undefined rather than an error

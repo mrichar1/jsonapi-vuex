@@ -561,7 +561,7 @@ describe("jsonapi-vuex tests", () =>  {
       })
       it("should get type only from string", () => {
         const { getTypeId } = _testing
-        expect(getTypeId("widget")).to.deep.equal([ 'widget', undefined ])
+        expect(getTypeId("widget")).to.deep.equal([ 'widget' ])
       })
       it("should get type, id & relname from string", () => {
         const { getTypeId } = _testing
@@ -574,7 +574,7 @@ describe("jsonapi-vuex tests", () =>  {
       it("should get type only from norm data", () => {
         const { getTypeId } = _testing
         delete norm_item1['_jv']['id']
-        expect(getTypeId(norm_item1)).to.deep.equal([ 'widget', undefined ])
+        expect(getTypeId(norm_item1)).to.deep.equal([ 'widget' ])
       })
     })
 
