@@ -26,7 +26,7 @@
     "webpack": "^4.20.2"
   },
   "name": "jsonapi-vuex",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Access restructured JSONAPI data from a Vuex Store.",
   "keywords": [
     "vue",
@@ -53,6 +53,7 @@
   "dependencies": {
     "deepmerge": "^2.2.1",
     "jsonpath": "^1.0.0",
-    "vue": "^2.5.17"
+    "vue": "^2.5.17",
+    "vuex": "^3.0.1"
   }
 }
