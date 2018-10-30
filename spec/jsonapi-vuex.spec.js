@@ -257,6 +257,15 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
+      it("should make an api call to GET a collection", (done) => {
+        mock_api.onAny().reply(200, { data: json_item1 })
+        delete norm_item1['_jv']['id']
+        jm.actions.get(stub_context, norm_item1)
+          .then(() => {
+            expect(mock_api.history.get[0].url).to.equal(`/${norm_item1['_jv']['type']}`)
+            done()
+          })
+      })
       it("should accept axios config as the 2nd arg in a list", (done) => {
         mock_api.onAny().reply(200, { data: json_item1 })
         const params = { filter: "color" }
