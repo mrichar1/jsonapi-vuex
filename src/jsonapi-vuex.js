@@ -305,7 +305,8 @@ const _testing = {
   normToJsonapi: normToJsonapi,
   normToJsonapiItem:normToJsonapiItem,
   normToStore: normToStore,
-  unpackArgs: unpackArgs
+  unpackArgs: unpackArgs,
+  config: config
 }
 
 

@@ -255,6 +255,15 @@ describe("jsonapi-vuex tests", () =>  {
     expect(jsonapiModule).to.exist;
   });
 
+  describe("config handling", () => {
+    it("Should override default config", () => {
+      const conf = { 'jvtag': '_splat' }
+      const { config } = _testing
+      jm = jsonapiModule(api, conf)
+      expect(config['jvtag']).to.equal('_splat')
+    })
+  });
+
   describe("jsonapiModule actions", () =>  {
 
     describe("get", () =>  {
