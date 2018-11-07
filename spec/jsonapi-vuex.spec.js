@@ -64,6 +64,9 @@ beforeEach(() =>  {
         'data': {
           'type': 'widget',
           'id': '2'
+        },
+        'links': {
+          'related': 'widget/1/widgets'
         }
       }
     }
@@ -102,6 +105,9 @@ beforeEach(() =>  {
           'data': {
             'type': 'widget',
             'id': '2'
+          },
+          'links': {
+            'related': 'widget/1/widgets'
           }
         }
       }
@@ -127,6 +133,9 @@ beforeEach(() =>  {
           'data': {
             'type': 'widget',
             'id': '2'
+          },
+          'links': {
+            'related': 'widget/1/widgets'
           }
         }
       }
@@ -323,17 +332,39 @@ describe("jsonapi-vuex tests", () =>  {
         expect(jm.actions.getRelated(stub_context, norm_item1)).to.be.rejected
         done()
       })
-      it("should get a record's single related item", (done) => {
+      it("should get a record's single related item (using 'data')", (done) => {
         jm.actions.getRelated(stub_context, norm_item1)
           .then(res => {
             expect(res).to.deep.equal({ 'widgets' : store_item2 })
             done()
           })
       })
-      it("should get a record's related items", (done) => {
+      it("should get a record's related items (using 'data')", (done) => {
         jm.actions.getRelated(stub_context, norm_item2)
           .then(res => {
             expect(res).to.deep.equal({ 'widgets': store_item1_3 })
+            done()
+          })
+      })
+      it("should get a record's related items (using 'links' string)", (done) => {
+        // Remove data so it will fallback to using links
+        delete norm_item1['_jv']['relationships']['widgets']['data']
+        mock_api.onAny().reply(200, { data: json_item2 })
+        jm.actions.getRelated(stub_context, norm_item1)
+          .then(res => {
+            expect(res).to.deep.equal({ 'widgets': store_item2 })
+            done()
+          })
+      })
+      it("should get a record's related items (using 'links' object)", (done) => {
+        // Remove data so it will fallback to using links
+        delete norm_item1['_jv']['relationships']['widgets']['data']
+        // Replace links string with links object
+        norm_item1['_jv']['relationships']['widgets']['links']['related'] = { 'href': 'widget/1/widgets' }
+        mock_api.onAny().reply(200, { data: json_item2 })
+        jm.actions.getRelated(stub_context, norm_item1)
+          .then(res => {
+            expect(res).to.deep.equal({ 'widgets': store_item2 })
             done()
           })
       })

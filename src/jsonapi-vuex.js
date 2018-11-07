@@ -59,6 +59,9 @@ const actions = (api) => {
         rels = { [rel]: rels[rel] }
       }
       for (let [ rel_name, rel_items ] of Object.entries(rels)) {
+        if (!(rel_name in related)) {
+          related[rel_name] = {}
+        }
         if ('data' in rel_items) {
           let rel_data = rel_items['data']
           if (!(Array.isArray(rel_data))) {
@@ -68,25 +71,28 @@ const actions = (api) => {
           for (let entry of rel_data) {
             const fetched = context.dispatch('get', { '_jv': entry })
             const { type: rel_type, id: rel_id } = fetched['_jv']
-            if (!(rel_name in related)) {
-              related[rel_name] = {}
-            }
             if (!(rel_type in related[rel_name])) {
               related[rel_name][rel_type] = {}
             }
             Object.assign(related[rel_name][rel_type], { [rel_id]: fetched })
           }
-        } else {
-          // FIXME: handle related links
-          // rel_link = getNested(rels, [ 'links', 'related' ])
+        } else if ('links' in rel_items) {
+          let rel_links = rel_items['links']['related']
+          if (!(typeof rel_links === 'string')) {
+            rel_links = rel_links['href']
+          }
+          const results = await api.get(rel_links, {})
+          const res_data = jsonapiToNorm(results.data.data)
+          const rel_type = res_data['_jv']['type']
+          const rel_id = res_data['_jv']['id']
+          context.commit('add_records', res_data)
+          if (!(rel_type in related[rel_name])) {
+            related[rel_name][rel_type] = {}
+          }
+          Object.assign(related[rel_name][rel_type], { [rel_id]: res_data })
         }
       }
       return related
-      // new Promise((resolve, reject) => {
-        //  resolve(related)
-        //  reject()
-      //  })
-
     },
     post: (context, args) => {
       const [ data, config ] = unpackArgs(args)
