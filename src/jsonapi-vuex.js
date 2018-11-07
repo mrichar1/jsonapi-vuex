@@ -3,12 +3,12 @@ import merge from 'deepmerge'
 // https://github.com/dchester/jsonpath/issues/89
 import jp from 'jsonpath/jsonpath.min'
 
-let config = {
+let jvConfig = {
   // key to store jsonapi-vuex-related data under when destructuring
   'jvtag': '_jv',
 }
 
-const jvtag = config['jvtag']
+const jvtag = jvConfig['jvtag']
 
 const mutations = (api) => {  // eslint-disable-line no-unused-vars
   return {
@@ -37,7 +37,7 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
 }
 
 const actions = (api, conf = {}) => {
-  Object.assign(config, conf)
+  Object.assign(jvConfig, conf)
   return {
     get: (context, args) => {
       const [ data, config ] = unpackArgs(args)
@@ -313,7 +313,7 @@ const _testing = {
   normToJsonapiItem:normToJsonapiItem,
   normToStore: normToStore,
   unpackArgs: unpackArgs,
-  config: config
+  jvConfig: jvConfig
 }
 
 
