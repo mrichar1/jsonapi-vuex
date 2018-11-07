@@ -1,5 +1,5 @@
 import Vue from 'vue'
-import merge from 'deepmerge';
+import merge from 'deepmerge'
 // https://github.com/dchester/jsonpath/issues/89
 import jp from 'jsonpath/jsonpath.min'
 
@@ -226,7 +226,7 @@ const getTypeId = (data) => {
 // Use: getNested('object', ['path', 'to', 'child'])
 const getNested = (nestedObj, pathArray) => {
     return pathArray.reduce((obj, key) =>
-        (obj && obj[key] !== 'undefined') ? obj[key] : undefined, nestedObj);
+        (obj && obj[key] !== 'undefined') ? obj[key] : undefined, nestedObj)
 }
 
 // Normalize a single jsonapi item
