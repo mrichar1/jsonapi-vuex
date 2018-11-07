@@ -100,7 +100,7 @@ this.$store.dispatch('jv/post', [new_widget, {params: params}])
 
 Like the RESTful actions, this takes 2 arguments - the path/object to be acted on, and an axios config object. It returns a deeply nested restructured tree - `relationship -> type -> id -> data`.
 
-Note: `getRelated` only accepts a path to a specific record, not a collection.
+Note: `getRelated` using a string only accepts a path to a specific record (with an id), not a collection.
 
 ```
 // Assuming the API holds the following data
@@ -124,14 +124,14 @@ jsonapi = {
   }
 }
 
-// Get all of widget 1's related items - this will return all items
-this.$store.dispatch('jv/get', 'widget/1')
+// Get all of widget 1's related items (widgets and doohickeys)
+this.$store.dispatch('jv/getRelated', 'widget/1')
   .then(data => {
     console.log(data)
   })
 
 // Get only the items in the 'widgets' relationship
-this.$store.dispatch('jv/get', 'widget/1/widgets')
+this.$store.dispatch('jv/getRelated', 'widget/1/widgets')
   .then(data => {
     console.log(data)
   })
