@@ -3,6 +3,12 @@ import merge from 'deepmerge';
 // https://github.com/dchester/jsonpath/issues/89
 import jp from 'jsonpath/jsonpath.min'
 
+let config = {
+  // key to store jsonapi-vuex-related data under when destructuring
+  'jvtag': '_jv',
+}
+
+const jvtag = config['jvtag']
 
 const mutations = (api) => {  // eslint-disable-line no-unused-vars
   return {
@@ -30,7 +36,8 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
   }
 }
 
-const actions = (api) => {
+const actions = (api, conf = {}) => {
+  Object.assign(config, conf)
   return {
     get: (context, args) => {
       const [ data, config ] = unpackArgs(args)
@@ -53,7 +60,7 @@ const actions = (api) => {
         throw "No id specified"
       }
       const record = context.dispatch('get', args)
-      let rels = getNested(record, [ '_jv', 'relationships' ]) || {}
+      let rels = getNested(record, [ jvtag, 'relationships' ]) || {}
       if (rel && rels) {
         // Only process requested relname
         rels = { [rel]: rels[rel] }
@@ -69,8 +76,8 @@ const actions = (api) => {
             rel_data = [ rel_data ]
           }
           for (let entry of rel_data) {
-            const fetched = context.dispatch('get', { '_jv': entry })
-            const { type: rel_type, id: rel_id } = fetched['_jv']
+            const fetched = context.dispatch('get', { [jvtag]: entry })
+            const { type: rel_type, id: rel_id } = fetched[jvtag]
             if (!(rel_type in related[rel_name])) {
               related[rel_name][rel_type] = {}
             }
@@ -83,8 +90,8 @@ const actions = (api) => {
           }
           const results = await api.get(rel_links, {})
           const res_data = jsonapiToNorm(results.data.data)
-          const rel_type = res_data['_jv']['type']
-          const rel_id = res_data['_jv']['id']
+          const rel_type = res_data[jvtag]['type']
+          const rel_id = res_data[jvtag]['id']
           context.commit('add_records', res_data)
           if (!(rel_type in related[rel_name])) {
             related[rel_name][rel_type] = {}
@@ -166,7 +173,7 @@ const getters = (api) => {  // eslint-disable-line no-unused-vars
         if (Array.isArray(filtered)) {
           result = {}
           for (let item of filtered) {
-            result[item['_jv']['id']] = item
+            result[item[jvtag]['id']] = item
           }
         }
       }
@@ -181,15 +188,15 @@ const getters = (api) => {  // eslint-disable-line no-unused-vars
 }
 
 // Store Module
-const jsonapiModule = (api) => {
+const jsonapiModule = (api, conf) => {
   return {
     namespaced: true,
 
     state: {},
 
-    mutations: mutations(api),
-    actions: actions(api),
-    getters: getters(api)
+    mutations: mutations(api, conf),
+    actions: actions(api, conf),
+    getters: getters(api, conf)
   }
 }
 
@@ -209,7 +216,7 @@ const getTypeId = (data) => {
   if (typeof(data) === 'string') {
     [ type, id, rel ] = data.replace(/^\//, "").split("/")
   } else {
-    ({ type, id } = data['_jv'])
+    ({ type, id } = data[jvtag])
   }
   // Strip any empty strings (falsey items)
   return [ type, id, rel ].filter(Boolean)
@@ -230,8 +237,8 @@ const jsonapiToNormItem = (data) => {
   // Fastest way to deep copy
   const copy = JSON.parse(JSON.stringify(data))
   // Move attributes to top-level, nest original jsonapi under _jv
-  const norm = Object.assign({ '_jv': copy }, copy['attributes'])
-  delete norm['_jv']['attributes']
+  const norm = Object.assign({ [jvtag]: copy }, copy['attributes'])
+  delete norm[jvtag]['attributes']
   return norm
 }
 
@@ -255,16 +262,16 @@ const jsonapiToNorm = (data) => {
 // Denormalize an item to jsonapi
 const normToJsonapiItem = (data) => {
   // Fastest way to deep copy
-  const jsonapi = { ...data['_jv'] }
+  const jsonapi = { ...data[jvtag] }
   jsonapi['attributes'] = Object.assign({}, data)
-  delete jsonapi['attributes']['_jv']
+  delete jsonapi['attributes'][jvtag]
   return jsonapi
 }
 
 // Denormalize one or more records to jsonapi
 const normToJsonapi = (record) => {
   const jsonapi = []
-  if (!('_jv'  in record)) {
+  if (!(jvtag  in record)) {
     // Collection of id-indexed records
     for (let item of Object.values(record)) {
       jsonapi.push(normToJsonapiItem(item))
@@ -282,16 +289,16 @@ const normToJsonapi = (record) => {
 // Convert a norm record to store format
 const normToStore = (record) => {
   let store = {}
-  if (!('_jv' in record)) {
+  if (!(jvtag in record)) {
     for (let item of Object.values(record))  {
-      const { type, id } = item['_jv']
+      const { type, id } = item[jvtag]
       if (!(type in store)) {
         store[type] = {}
       }
       store[type][id] = item
     }
   } else {
-    const { type, id } = record['_jv']
+    const { type, id } = record[jvtag]
     store = { [type]: { [id]: record }}
   }
   return store
