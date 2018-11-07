@@ -710,7 +710,7 @@ describe("jsonapi-vuex tests", () =>  {
       it("should return all state for a single endpoint with a single record", () => {
         const { get } = jm.getters
         const result = get(store_item1)({ '_jv': { 'type': 'widget' }})
-        expect(result).to.deep.equal(norm_item1)
+        expect(result).to.deep.equal(store_item1['widget'])
       })
       it("should return a single id from state", () => {
         const { get } = jm.getters
@@ -725,7 +725,7 @@ describe("jsonapi-vuex tests", () =>  {
       it("should filter results using jsonpath, returning a single item", () => {
         const { get } = jm.getters
         const result = get(store_record)('widget', '$[?(@.bar=="baz")]')
-        expect(result).to.deep.equal(norm_item1)
+        expect(result).to.deep.equal({ [norm_item1['_jv']['id']] : norm_item1 })
       })
       it("should filter results using jsonpath, returning multiple items", () => {
         const { get } = jm.getters

@@ -156,10 +156,10 @@ const getters = (api) => {  // eslint-disable-line no-unused-vars
 
       if (type in state) {
         if (id && id in state[type]) {
-          // single item, indexed by id
-          result = { id: state[type][id] }
+          // single item
+          result = state[type][id]
         } else {
-          // whole collection
+          // whole collection, indexed by id
           result = state[type]
         }
       } else {
@@ -176,11 +176,6 @@ const getters = (api) => {  // eslint-disable-line no-unused-vars
             result[item[jvtag]['id']] = item
           }
         }
-      }
-      // Prune index id if only 1 item
-      const keys = Object.keys(result)
-      if (keys.length === 1) {
-        result = result[keys[0]]
       }
       return result
     }
