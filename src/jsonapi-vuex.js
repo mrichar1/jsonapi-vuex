@@ -59,7 +59,7 @@ const actions = (api, conf = {}) => {
       if (!id) {
         throw "No id specified"
       }
-      const record = context.dispatch('get', args)
+      const record = await context.dispatch('get', args)
       let rels = getNested(record, [ jvtag, 'relationships' ]) || {}
       if (rel && rels) {
         // Only process requested relname
@@ -76,7 +76,7 @@ const actions = (api, conf = {}) => {
             rel_data = [ rel_data ]
           }
           for (let entry of rel_data) {
-            const fetched = context.dispatch('get', { [jvtag]: entry })
+            const fetched = await context.dispatch('get', { [jvtag]: entry })
             const { type: rel_type, id: rel_id } = fetched[jvtag]
             if (!(rel_type in related[rel_name])) {
               related[rel_name][rel_type] = {}
