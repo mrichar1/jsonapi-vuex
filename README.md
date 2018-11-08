@@ -241,6 +241,20 @@ let related_item2_name = item1._jv.rels.parts.2.name
 
 ```
 
+## Configuration
+
+A config object can be passed to jsonapiModule when instantiating. It will override the default options
+
+```
+const config = { 'jvtag': '_splat' }
+jm = jsonapiModule(api, config)
+```
+
+### Config Options
+
+* `jvtag` - The tag in restructured objects to hold object metadata (defaults to `_jv`)
+* `follow_relationships_data` - Whether to follow and expand relationships from the store in the `get` getter (defaults to `true`)
+
 ## Restructured Data
 
 JSONAPI is an extremely useful format for clearly interacting with an API - however it is less useful for the end developer, who is generally more interested in the data contained in a record than the structure surrounding it.
