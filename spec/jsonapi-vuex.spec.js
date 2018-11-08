@@ -10,8 +10,8 @@ chai.use(chaiAsPromised)
 
 // 'global' variables (redefined in beforeEach)
 var jm,
- json_item1, json_item2, json_record,
- norm_item1, norm_item2, norm_item3, norm_item1_patch, norm_item1_update, norm_record, norm_state,
+ json_item1, json_item2, json_item3, json_record,
+ norm_item1, norm_item2, norm_item3, norm_item1_3, norm_item1_rels, norm_item2_rels, norm_item3_rels, norm_item1_patch, norm_item1_update, norm_record, norm_record_rels, norm_state,
  store_item1, store_item1_update, store_item2, store_item1_3, store_record
 
 // Mock up a fake axios-like api instance
@@ -50,7 +50,8 @@ beforeEach(() =>  {
 // Set up commonly used data objects
 
   mock_api.reset()
-  jm = jsonapiModule(api)
+  // Turn off following by default to simplify test data in most cases
+  jm = jsonapiModule(api, { 'follow_relationships_data': false })
 
   json_item1 = {
     id: '1',
@@ -90,6 +91,22 @@ beforeEach(() =>  {
             'id': '3'
           }
         ]
+      }
+    }
+  }
+
+  json_item3 = {
+    id: '3',
+    type: 'widget',
+    attributes: {
+      'foo': 3
+    },
+    'relationships': {
+      'widgets': {
+        'data': {
+          'type': 'widget',
+          'id': '1'
+        }
       }
     }
   }
@@ -175,24 +192,38 @@ beforeEach(() =>  {
             'type': 'widget',
             'id': '1'
           }
-        },
-        'doohickeys': {
-          'data': {
-            'type': 'widget',
-            'id': '3'
-          }
         }
       }
     }
   }
 
+  norm_item1_3 = {
+    '1': norm_item1,
+    '3': norm_item3
+  }
+
+  // Copy norm_item2 and add expanded rels
+  norm_item1_rels = JSON.parse(JSON.stringify(norm_item1))
+  norm_item2_rels = JSON.parse(JSON.stringify(norm_item2))
+  norm_item3_rels = JSON.parse(JSON.stringify(norm_item3))
+  norm_item1_rels['_jv']['rels'] = { 'widgets': norm_item2 }
+  norm_item2_rels['_jv']['rels'] = { 'widgets': norm_item1_3 }
+  norm_item3_rels['_jv']['rels'] = { 'widgets': norm_item1 }
+
   json_record = [
-    json_item1, json_item2
+    json_item1, json_item2, json_item3
   ]
 
   norm_record = {
     [norm_item1['_jv']['id']]: norm_item1,
-    [norm_item2['_jv']['id']]: norm_item2
+    [norm_item2['_jv']['id']]: norm_item2,
+    [norm_item3['_jv']['id']]: norm_item3
+  }
+
+  norm_record_rels = {
+    [norm_item1['_jv']['id']]: norm_item1_rels,
+    [norm_item2['_jv']['id']]: norm_item2_rels,
+    [norm_item3['_jv']['id']]: norm_item3_rels
   }
 
   norm_state = {
@@ -243,6 +274,9 @@ beforeEach(() =>  {
       },
       '2': {
         ...norm_item2
+      },
+      '3': {
+        ...norm_item3
       }
     }
   }
@@ -741,6 +775,24 @@ describe("jsonapi-vuex tests", () =>  {
         const { get } = jm.getters
         const result = get({})('widget')
         expect(result).to.deep.equal({})
+      })
+      it("should follow relationships data (single item)", () => {
+        jm = jsonapiModule(api, { 'follow_relationships_data': true })
+        const { get } = jm.getters
+        const result = get(store_record, { 'get': get })('widget/1')
+        expect(norm_item1_rels).to.deep.equal(result)
+      })
+      it("should follow relationships data (array)", () => {
+        jm = jsonapiModule(api, { 'follow_relationships_data': true })
+        const { get } = jm.getters
+        const result = get(store_record, { 'get': get })('widget/2')
+        expect(norm_item2_rels).to.deep.equal(result)
+      })
+      it("should follow relationships data (array) for a collection", () => {
+        jm = jsonapiModule(api, { 'follow_relationships_data': true })
+        const { get } = jm.getters
+        const result = get(store_record, { 'get': get })('widget')
+        expect(norm_record_rels).to.deep.equal(result)
       })
     })
   }); // getters

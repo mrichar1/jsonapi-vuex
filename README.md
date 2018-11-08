@@ -12,8 +12,9 @@ This project was inspired by https://codingitwrong.com/2018/06/18/vuex-jsonapi-a
 * High-level methods to wrap common RESTful operations (GET, POST, PUT, DELETE).
 * Restructures/normalizes data, making record handling easier.
 * Makes fetching related objects easy.
+* Relationships can be followed and expanded into records automatically.
 * Uses [Axios](https://github.com/axios/axios) (or your own axios-like module) as the HTTP client.
-* Use [jsonpath](https://github.com/dchester/jsonpath) for filtering when getting objects from the store.
+* Uses [jsonpath](https://github.com/dchester/jsonpath) for filtering when getting objects from the store.
 
 ## Setup
 
@@ -184,6 +185,61 @@ this.$store.getters['jv/get']('widget/1', '[?(@.color=="red")]')
 
 ```
 
+#### Related items
+
+By default the `get` getter is configured to follow and expand out relationships, if they are provided as `data` entries (i.e. `{type: 'widget', id: '1'}`).
+
+For any relationships where the related item is already in the store, this is added to the returned object(s) in `obj['_jv']['rels'][rel_name]`. For items with a single relationship, the object is placed directly under the `rel_name` - for mutiple items, they are indexed by id:
+
+```
+// Assuming the store is as follows:
+store = {
+  'widget' : {
+    '1': {
+      'name': 'sprocket',
+      '_jv': {
+        'relationships': {
+          'parts': {
+            'data': {
+              'type': 'widget',
+              'id': '2'
+            }
+          }
+        }
+      }
+    },
+    '2': {
+      'name': 'cog',
+    }
+  }
+}
+
+// Get widget/1, with related items in _jv/rels
+let item1 = this.$store.getters['jv/get']('widget/1')
+
+// This will return:
+{
+  name: 'sprocket',
+  '_jv': {
+    'id': '1',
+    'type': 'widget',
+    'rels': {
+      'parts': {
+        'name': 'cog'
+        '_jv': { ... }
+        }
+      }
+    }
+  }
+}
+
+// This can then be accessed as:
+let related_item_name = item1._jv.rels.parts.name
+
+//  Or if there were multiple related items as:
+let related_item2_name = item1._jv.rels.parts.2.name
+
+```
 
 ## Restructured Data
 

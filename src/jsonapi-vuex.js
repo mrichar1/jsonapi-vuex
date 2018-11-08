@@ -6,6 +6,8 @@ import jp from 'jsonpath/jsonpath.min'
 let jvConfig = {
   // key to store jsonapi-vuex-related data under when destructuring
   'jvtag': '_jv',
+  // Follow relationships 'data' entries (from store)
+  'follow_relationships_data': true
 }
 
 const jvtag = jvConfig['jvtag']
@@ -158,9 +160,17 @@ const getters = (api) => {  // eslint-disable-line no-unused-vars
         if (id && id in state[type]) {
           // single item
           result = state[type][id]
+          if (jvConfig.follow_relationships_data) {
+            result = followRelationships(state, result)
+          }
         } else {
           // whole collection, indexed by id
           result = state[type]
+          if (jvConfig.follow_relationships_data) {
+            for (let [ key, item ] of Object.entries(result)) {
+              result[key] = followRelationships(state, item)
+            }
+          }
         }
       } else {
         // no records for that type in state
@@ -196,6 +206,39 @@ const jsonapiModule = (api, conf) => {
 }
 
 // Helper methods
+
+// Follow relationships and expand them into _jv/rels
+const followRelationships = (state, data) => {
+  let is_item = false
+  data[jvtag]['rels'] = {}
+  const rel_names = getNested(data, [ jvtag, 'relationships' ]) || {}
+  for (let [ rel_name, rel_info ] of Object.entries(rel_names)) {
+    // We can only work with data, not links since we need type & id
+    if ('data' in rel_info) {
+      let rel_data = rel_info['data']
+      data[jvtag]['rels'][rel_name] = {}
+      if (!(Array.isArray(rel_data))) {
+        // Convert to an array to keep things DRY
+        is_item = true
+        rel_data = [ rel_data ]
+      }
+      for (let rel_item of rel_data) {
+        let [ type, id ] = getTypeId({ [jvtag]: rel_item })
+        let result = getNested(state, [ type, id ])
+        if (result) {
+          if (is_item) {
+            // Store attrs directly under rel_name
+            data[jvtag]['rels'][rel_name] = result
+          } else {
+            // Store attrs indexed by id
+            data[jvtag]['rels'][rel_name][id] = result
+          }
+        }
+      }
+    }
+  }
+  return data
+}
 
 // Make sure args is always an array of data and config
 const unpackArgs = (args) => {
