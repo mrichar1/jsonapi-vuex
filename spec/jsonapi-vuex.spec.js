@@ -10,7 +10,7 @@ chai.use(chaiAsPromised)
 
 // 'global' variables (redefined in beforeEach)
 var jm,
- json_item1, json_item2, json_item3, json_record,
+ json_item1, json_item2, json_item3, json_item1_patch, json_record,
  norm_item1, norm_item2, norm_item3, norm_item1_3, norm_item1_rels, norm_item2_rels, norm_item3_rels, norm_item1_patch, norm_item1_update, norm_record, norm_record_rels, norm_state,
  store_item1, store_item1_update, store_item2, store_item1_3, store_record
 
@@ -106,6 +106,26 @@ beforeEach(() =>  {
         'data': {
           'type': 'widget',
           'id': '1'
+        }
+      }
+    }
+  }
+
+  json_item1_patch = {
+    id: '1',
+    type: 'widget',
+    attributes: {
+      'foo': 'update',
+      'bar': 'baz'
+    },
+    relationships: {
+      'widgets': {
+        'data': {
+          'type': 'widget',
+          'id': '2'
+        },
+        'links': {
+          'related': 'widget/1/widgets'
         }
       }
     }
@@ -504,8 +524,17 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
-      it("should update record(s) in the store", (done) => {
-        mock_api.onAny().reply(200, { data: json_item1 })
+      it("should delete then add record(s) in the store (from server response)", (done) => {
+        mock_api.onAny().reply(200,  { data: json_item1_patch })
+        jm.actions.patch(stub_context, norm_item1_patch)
+          .then(() => {
+            expect(stub_context.commit).to.have.been.calledWith("delete_record", norm_item1_patch)
+            expect(stub_context.commit).to.have.been.calledWith("add_records", norm_item1_update)
+            done()
+          })
+      })
+      it("should update record(s) in the store (no server response)", (done) => {
+        mock_api.onAny().reply(204)
         jm.actions.patch(stub_context, norm_item1_patch)
           .then(() => {
             expect(stub_context.commit).to.have.been.calledWith("update_record", norm_item1_patch)

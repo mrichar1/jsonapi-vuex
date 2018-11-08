@@ -119,8 +119,15 @@ const actions = (api, conf = {}) => {
       const [ data, config ] = unpackArgs(args)
       const path = getTypeId(data).join('/')
       return api.patch(path, normToJsonapi(data), config)
-        .then(() => {
-          context.commit('update_record', data)
+        .then((results) => {
+          // If the server handed back data, store it
+          if (results.status === 200) {
+            context.commit('delete_record', data)
+            context.commit('add_records', jsonapiToNorm(results.data.data))
+          } else if (results.status === 204) {
+            // Otherwise, try to update the store record from the patch
+            context.commit('update_record', data)
+          }
           return context.getters.get(data)
         })
         .catch((error) => {
