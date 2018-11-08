@@ -1,1 +1,1 @@
-module.exports = require('./src/jsonapi-vuex')
+export { jsonapiModule } from './src/jsonapi-vuex'

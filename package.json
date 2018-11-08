@@ -26,7 +26,7 @@
     "webpack": "^4.20.2"
   },
   "name": "jsonapi-vuex",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "description": "Access restructured JSONAPI data from a Vuex Store.",
   "keywords": [
     "vue",
@@ -37,6 +37,10 @@
     "jsonpath"
   ],
   "main": "index.js",
+  "files": [
+      "index.js",
+      "src/"
+  ],
   "author": "Matthew Richardson <M.Richardson@ed.ac.uk>",
   "homepage": "https://github.com/mrichar1/jsonapi-vuex.git",
   "license": "AGPL-3.0-or-later",
