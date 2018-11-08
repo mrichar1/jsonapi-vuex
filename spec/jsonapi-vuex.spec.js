@@ -27,21 +27,23 @@ const stub_context = {
   commit: sinon.stub(),
   // Mock up dispatch('get')
   dispatch: (method, data) => {
-    if (method == 'get') {
-      let id
-      if (typeof(data) === 'string') {
-        id = data.replace(/^\//, "").split('/')[1]
-      } else {
-        id = data['_jv']['id']
+    return new Promise(function(resolve) {
+      if (method == 'get') {
+        let id
+        if (typeof(data) === 'string') {
+          id = data.replace(/^\//, "").split('/')[1]
+        } else {
+          id = data['_jv']['id']
+        }
+        if (id === '1') {
+          resolve(norm_item1)
+        } else if (id === '2') {
+          resolve(norm_item2)
+        } else if (id === '3'){
+          resolve(norm_item3)
+        }
       }
-      if (id === '1') {
-        return norm_item1
-      } else if (id === '2') {
-        return norm_item2
-      } else if (id === '3'){
-        return norm_item3
-      }
-    }
+    })
   }
 }
 
