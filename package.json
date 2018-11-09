@@ -38,8 +38,8 @@
   ],
   "main": "index.js",
   "files": [
-      "index.js",
-      "src/"
+    "index.js",
+    "src/"
   ],
   "author": "Matthew Richardson <M.Richardson@ed.ac.uk>",
   "homepage": "https://github.com/mrichar1/jsonapi-vuex.git",
@@ -52,7 +52,9 @@
     "url": "https://github.com/mrichar1/jsonapi-vuex/issues"
   },
   "scripts": {
-    "test": "karma start"
+    "test": "npm run unit -- --single-run && npm run e2e",
+    "unit": "karma start",
+    "e2e": "cd examples/testapp; node_modules/.bin/vue-cli-service test:e2e --env FirefoxHeadless"
   },
   "dependencies": {
     "deepmerge": "^2.2.1",
