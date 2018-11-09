@@ -2,8 +2,13 @@
   "devDependencies": {
     "@babel/core": "^7.1.2",
     "@babel/preset-env": "^7.1.0",
+    "@vue/cli-plugin-babel": "^3.1.1",
+    "@vue/cli-plugin-e2e-nightwatch": "^3.1.1",
+    "@vue/cli-plugin-eslint": "^3.1.4",
+    "@vue/cli-service": "^3.1.3",
     "axios": "^0.18.0",
     "axios-mock-adapter": "^1.15.0",
+    "babel-eslint": "^10.0.1",
     "babel-loader": "^8.0.4",
     "babel-plugin-istanbul": "^5.0.1",
     "babel-polyfill": "^6.26.0",
@@ -11,6 +16,8 @@
     "chai-as-promised": "^7.1.1",
     "eslint": "^5.6.1",
     "eslint-loader": "^2.1.1",
+    "eslint-plugin-vue": "^4.7.1",
+    "geckodriver": "^1.14.1",
     "karma": "^3.0.0",
     "karma-chai": "^0.1.0",
     "karma-coverage": "^1.1.2",
@@ -23,6 +30,7 @@
     "mocha-eslint": "^4.1.0",
     "sinon": "^6.3.5",
     "sinon-chai": "^3.2.0",
+    "vue-template-compiler": "^2.5.17",
     "webpack": "^4.20.2"
   },
   "name": "jsonapi-vuex",
@@ -54,7 +62,7 @@
   "scripts": {
     "test": "npm run unit -- --single-run && npm run e2e",
     "unit": "karma start",
-    "e2e": "cd examples/testapp; node_modules/.bin/vue-cli-service test:e2e --env FirefoxHeadless"
+    "e2e": "vue-cli-service test:e2e --env FirefoxHeadless"
   },
   "dependencies": {
     "deepmerge": "^2.2.1",

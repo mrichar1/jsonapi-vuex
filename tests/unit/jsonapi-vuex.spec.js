@@ -1,6 +1,6 @@
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { _testing, jsonapiModule } from '../src/jsonapi-vuex.js';
+import { _testing, jsonapiModule } from '../../src/jsonapi-vuex.js';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 import sinonChai from 'sinon-chai';
