@@ -48,6 +48,11 @@ const actions = (api, conf = {}) => {
       config['data'] = config['data'] || {}
       return api.get(path, config)
         .then((results) => {
+          // Process included records
+          if ('included' in results.data) {
+            const included_data = jsonapiToNorm(results.data.included)
+            context.commit('add_records', included_data)
+          }
           const res_data = jsonapiToNorm(results.data.data)
           context.commit('add_records', res_data)
           return res_data

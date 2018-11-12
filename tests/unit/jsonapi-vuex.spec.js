@@ -374,6 +374,19 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
+      it("should add included record(s) to the store", (done) => {
+        const data = {
+          data: json_item1,
+          included: [ json_item2 ]
+        }
+        mock_api.onAny().reply(200, data)
+        jm.actions.get(stub_context, norm_item1, { params: { included: "widgets" }})
+          .then(() => {
+            // included is always an array, so add_records data will have id index
+            expect(stub_context.commit).to.have.been.calledWith("add_records", { 2: norm_item2 })
+            done()
+          })
+      })
       it("should handle API errors", (done) => {
         mock_api.onAny().reply(500)
         jm.actions.get(stub_context, norm_item1)
