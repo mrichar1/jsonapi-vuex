@@ -53,8 +53,19 @@ const actions = (api, conf = {}) => {
             const included_data = jsonapiToNorm(results.data.included)
             context.commit('add_records', included_data)
           }
-          const res_data = jsonapiToNorm(results.data.data)
+          let res_data = jsonapiToNorm(results.data.data)
           context.commit('add_records', res_data)
+          if (jvConfig.follow_relationships_data) {
+            if (jvtag in res_data) {
+              // single item
+              res_data = followRelationships(context.state, res_data)
+            } else {
+              // multiple items
+              for (let item of Object.values(res_data)) {
+                item = followRelationships(context.state, item)
+              }
+            }
+          }
           return res_data
         })
         .catch((error) => {

@@ -34,7 +34,7 @@
     "webpack": "^4.20.2"
   },
   "name": "jsonapi-vuex",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Access restructured JSONAPI data from a Vuex Store.",
   "keywords": [
     "vue",

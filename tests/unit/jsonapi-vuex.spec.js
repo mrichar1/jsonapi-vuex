@@ -387,6 +387,28 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
+      it("should return normalized data with expanded rels (single item)", (done) => {
+        jm = jsonapiModule(api, { 'follow_relationships_data': true })
+        // Make state contain all records for rels to work
+        stub_context['state'] = store_record
+        mock_api.onAny().reply(200, { data: json_item1 })
+        jm.actions.get(stub_context, norm_item1)
+          .then((res) => {
+            expect(res).to.deep.equal(norm_item1_rels)
+            done()
+          })
+      })
+      it("should return normalized data with expanded rels (array)", (done) => {
+        jm = jsonapiModule(api, { 'follow_relationships_data': true })
+        // Make state contain all records for rels to work
+        stub_context['state'] = store_record
+        mock_api.onAny().reply(200, { data: json_record })
+        jm.actions.get(stub_context, "widget")
+          .then((res) => {
+            expect(res).to.deep.equal(norm_record_rels)
+            done()
+          })
+      })
       it("should handle API errors", (done) => {
         mock_api.onAny().reply(500)
         jm.actions.get(stub_context, norm_item1)

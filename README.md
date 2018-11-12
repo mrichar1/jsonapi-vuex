@@ -55,9 +55,9 @@ There are 4 actions (with aliases): `get` (`fetch`), `post` (`create`), `patch` 
 
 #### RESTful actions
 
-These actions take 2 arguments: the path/object to be acted on, and an (optional) [`axios` config object](The first argument is an object containing [restructured data](#restructured-data).
+These actions take 2 arguments: the path/object to be acted on, and an (optional) [`axios` config object](https://github.com/axios/axios#request-config). The first argument is an object containing [restructured data](#restructured-data).
 
-Note: Since the `dispatch` method can only accept a single argument, if both arguments are used, the argument must be an array.
+*Note* - Since the `dispatch` method can only accept a single argument, if both arguments are used, the argument must be an array.
 
 The first argument is an object containing [restructured data](#restructured-data). Actions which take no `data` argument apart from the record (`get` and `delete`) can also accept a string which matches the path to fetch. This means you don't need to create an 'empty' restructured data object to get or delete a record. some examples:
 
@@ -99,9 +99,11 @@ this.$store.dispatch('jv/post', [new_widget, {params: params}])
 
 #### getRelated
 
+*Note* - in many cases you may prefer to use the jsonapi server-side `include` option to get data on relationships included in your original query.
+
 Like the RESTful actions, this takes 2 arguments - the path/object to be acted on, and an axios config object. It returns a deeply nested restructured tree - `relationship -> type -> id -> data`.
 
-Note: `getRelated` using a string only accepts a path to a specific record (with an id), not a collection.
+*Note* - `getRelated` using a string only accepts a path to a specific record (with an id), not a collection.
 
 ```
 // Assuming the API holds the following data
@@ -187,7 +189,9 @@ this.$store.getters['jv/get']('widget/1', '[?(@.color=="red")]')
 
 #### Related items
 
-By default the `get` getter is configured to follow and expand out relationships, if they are provided as `data` entries (i.e. `{type: 'widget', id: '1'}`).
+By default the `get` action and getter is configured to follow and expand out relationships, if they are provided as `data` entries (i.e. `{type: 'widget', id: '1'}`).
+
+*Note* - If using the `action` you may wish to also set the `include` parameter on the server query to include the relationships you are interested in. Any records returned in the `included` section of the jsonapi data will be automatically added to the store.
 
 For any relationships where the related item is already in the store, this is added to the returned object(s) in `obj['_jv']['rels'][rel_name]`. For items with a single relationship, the object is placed directly under the `rel_name` - for mutiple items, they are indexed by id:
 
@@ -214,7 +218,13 @@ store = {
   }
 }
 
-// Get widget/1, with related items in _jv/rels
+// Get widget/1, with related items in _jv/rels... either:
+
+// (note the use of include to ensure `parts` is in the store)
+let item1 = await this.$store.dispatch('jv/get', 'widget/1', [{include: 'parts'}])
+
+// OR...
+
 let item1 = this.$store.getters['jv/get']('widget/1')
 
 // This will return:
