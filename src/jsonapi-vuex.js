@@ -44,6 +44,8 @@ const actions = (api, conf = {}) => {
     get: (context, args) => {
       const [ data, config ] = unpackArgs(args)
       const path = getTypeId(data).join('/')
+      // https://github.com/axios/axios/issues/362
+      config['data'] = config['data'] || {}
       return api.get(path, config)
         .then((results) => {
           const res_data = jsonapiToNorm(results.data.data)
