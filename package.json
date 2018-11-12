@@ -18,6 +18,7 @@
     "eslint-loader": "^2.1.1",
     "eslint-plugin-vue": "^4.7.1",
     "geckodriver": "^1.14.1",
+    "jsonapi-mock": "^1.4.41",
     "karma": "^3.0.0",
     "karma-chai": "^0.1.0",
     "karma-coverage": "^1.1.2",

@@ -7,9 +7,11 @@ import { jsonapiModule } from '../../../src/jsonapi-vuex';
 Vue.use(Vuex)
 
 const api = axios.create({
-  baseURL: 'https://api.example.com/1/api/',
+  // connect to local jsonapi-mock server
+  baseURL: 'http://localhost:3004',
   headers: {
-    'Content-Type': 'application/vnd.api+json'
+    'Content-Type': 'application/vnd.api+json',
+    'Accept': 'application/vnd.api+json'
   }
 })
 
