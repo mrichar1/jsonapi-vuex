@@ -36,7 +36,7 @@
     "webpack": "^4.20.2"
   },
   "name": "jsonapi-vuex",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Access restructured JSONAPI data from a Vuex Store.",
   "keywords": [
     "vue",
@@ -62,7 +62,7 @@
     "url": "https://github.com/mrichar1/jsonapi-vuex/issues"
   },
   "scripts": {
-    "test": "npm run unit -- --single-run && npm run e2e",
+    "test": "npm run unit -- --single-run",
     "unit": "karma start",
     "e2e": "vue-cli-service test:e2e --env FirefoxHeadless",
     "testapp": "cp examples/testapp/testapp.json examples/testapp/tmp.json && concurrently \"jsonapi-mock\" \"vue-cli-service serve\""
