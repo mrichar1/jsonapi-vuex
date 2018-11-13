@@ -1,29 +1,44 @@
 <template>
-  <div class="main-div">
+  <div id="main-div">
     <h1>JSONAPI Vuex Test App</h1>
-      <div style="display: block; border: 2px solid;" v-on:mouseover="updateState">
-        <pre>{{ status }}</pre>
+    <div id="raw_data" style="border: 1px solid;">
+      <h2>Raw Data</h2>
+      <pre>{{ widget }}</pre>
+    </div>
+    <div id="render_data" style="border: 1px solid;">
+      <h2>Rendered Data</h2>
+      <div :id='"render_" + name' v-for="(value, name, index) in widget" :key="index" v-if="name != '_jv'">
+        <span>{{ name }}: </span>
+        <span :id='"span_" + name'>{{ value }}</span>
       </div>
+    </div>
+    <div id="inputs">
+      <h2>Inputs</h2>
+      <div v-for="(value, name, index) in widget" :key="index" v-if="name != '_jv'">
+        <label :for='"input_" + name'>{{ name }}</label>
+        <input :id='"input_" + name' v-model="widget[name]"/>
+      </div>
+      <div>
+        <button @click="patchRecord(widget)">Submit</button>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 export default {
   name: 'JsonapiVuex',
-  data () {
-    return {
-      status: { "loading": null }
+  computed: {
+    widget () {
+      return this.$store.getters["jv/get"]('widget/1')
     }
   },
+  created () {
+    this.$store.dispatch("jv/get", "widget")
+  },
   methods: {
-    updateState () {
-      console.log("updateState")
-      this.$store.dispatch("jv/get", "widget")
-        .then(res => {
-          console.log("RES", res)
-          console.log(this.status)
-          this.status = res
-        })
+    patchRecord (record) {
+      this.$store.dispatch("jv/patch", record)
     }
   }
 }
