@@ -23,6 +23,11 @@ module.exports = {
     be.element('#span_name').text.to.equal('sprocket')
     be.element('#span_color').text.to.equal('black')
 
+    // Expanded related objects
+    be.element('#relspan_relname').text.to.equal('widgets')
+    be.element('#relspan_name').text.to.equal('spring')
+    be.element('#relspan_color').text.to.equal('silver')
+
     // Inputs exist and have correct values
     be.element('#inputs').to.be.present
     be.element('#input_name').value.to.be.equal('sprocket')
