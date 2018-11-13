@@ -64,8 +64,9 @@
   "scripts": {
     "test": "npm run unit -- --single-run",
     "unit": "karma start",
-    "e2e": "vue-cli-service test:e2e --env FirefoxHeadless",
-    "testapp": "cp examples/testapp/testapp.json examples/testapp/tmp.json && concurrently \"jsonapi-mock\" \"vue-cli-service serve\""
+    "e2e": "concurrently --success first --kill-others \"npm:jsonapimock\" \"vue-cli-service test:e2e --env FirefoxHeadless\"",
+    "testapp": "concurrently --kill-others \"npm:jsonapimock\" \"vue-cli-service serve\"",
+    "jsonapimock": "cp examples/testapp/testapp.json examples/testapp/tmp.json && jsonapi-mock"
   },
   "dependencies": {
     "deepmerge": "^2.2.1",
