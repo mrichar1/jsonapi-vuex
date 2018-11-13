@@ -232,9 +232,11 @@ beforeEach(() =>  {
   norm_item2_rels['_jv']['rels'] = { 'widgets': norm_item1_3 }
   norm_item3_rels['_jv']['rels'] = { 'widgets': norm_item1 }
 
-  json_record = [
-    json_item1, json_item2, json_item3
-  ]
+  json_record = {
+    data: [
+      json_item1, json_item2, json_item3
+    ]
+  }
 
   norm_record = {
     [norm_item1['_jv']['id']]: norm_item1,
@@ -402,7 +404,7 @@ describe("jsonapi-vuex tests", () =>  {
         jm = jsonapiModule(api, { 'follow_relationships_data': true })
         // Make state contain all records for rels to work
         stub_context['state'] = store_record
-        mock_api.onAny().reply(200, { data: json_record })
+        mock_api.onAny().reply(200, json_record)
         jm.actions.get(stub_context, "widget")
           .then((res) => {
             expect(res).to.deep.equal(norm_record_rels)
@@ -523,7 +525,7 @@ describe("jsonapi-vuex tests", () =>  {
         jm.actions.post(stub_context, norm_item1)
           .then(() => {
             // History stores data as JSON string, so parse back to object
-            expect(JSON.parse(mock_api.history.post[0].data)).to.deep.equal(json_item1)
+            expect(JSON.parse(mock_api.history.post[0].data)).to.deep.equal({ data: json_item1 })
             done()
           })
       })
@@ -737,7 +739,7 @@ describe("jsonapi-vuex tests", () =>  {
 
       it("should convert jsonapi to normalized for an array of records", () =>  {
         const { jsonapiToNorm } = _testing
-        expect(jsonapiToNorm(json_record)).to.deep.equal(norm_record)
+        expect(jsonapiToNorm(json_record['data'])).to.deep.equal(norm_record)
       });
 
       it("should return an empty object if input is undefined", () =>  {
@@ -754,7 +756,7 @@ describe("jsonapi-vuex tests", () =>  {
 
       it("should convert normalized to jsonapi for a single item", () =>  {
         const { normToJsonapi } = _testing
-        expect(normToJsonapi(norm_item1)).to.deep.equal(json_item1)
+        expect(normToJsonapi(norm_item1)).to.deep.equal({ data: json_item1 })
       });
     });
 

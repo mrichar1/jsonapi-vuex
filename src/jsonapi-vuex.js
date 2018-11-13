@@ -343,9 +343,9 @@ const normToJsonapi = (record) => {
     jsonapi.push(normToJsonapiItem(record))
   }
   if (jsonapi.length === 1) {
-    return jsonapi[0]
+    return { data: jsonapi[0] }
   } else {
-    return jsonapi
+    return { data: jsonapi }
   }
 }
 
