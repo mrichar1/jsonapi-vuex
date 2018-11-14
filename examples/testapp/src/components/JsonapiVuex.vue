@@ -11,11 +11,13 @@
         <span>{{ name }}: </span>
         <span :id='"span_" + name'>{{ value }}</span>
       </div>
-      <div :id='"rels_" + name' v-for="(rel, name, index) in widget._jv.rels" :key="index">
-        <span>Related: </span>
-        <span :id='"relspan_relname"'>{{ name }}</span>&nbsp;
-        <span :id='"relspan_name"'>{{ rel.name }}</span>&nbsp;
-        <span :id='"relspan_color"'>{{ rel.color }}</span>&nbsp;
+      <div v-if="'_jv' in widget && 'rels' in widget['_jv']">
+        <div :id='"rels_" + name' v-for="(rel, name, index) in widget['_jv']['rels']" :key="index">
+          <span>Related: </span>
+          <span :id='"relspan_relname"'>{{ name }}</span>&nbsp;
+          <span :id='"relspan_name"'>{{ rel.name }}</span>&nbsp;
+          <span :id='"relspan_color"'>{{ rel.color }}</span>&nbsp;
+        </div>
       </div>
     </div>
     <div id="inputs">
