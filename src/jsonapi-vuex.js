@@ -251,6 +251,8 @@ const followRelationships = (state, data) => {
         let [ type, id ] = getTypeId({ [jvtag]: rel_item })
         let result = getNested(state, [ type, id ])
         if (result) {
+          // Copy rather than ref to avoid circular JSON issues
+          result = JSON.parse(JSON.stringify(result))
           if (is_item) {
             // Store attrs directly under rel_name
             data[jvtag]['rels'][rel_name] = result
