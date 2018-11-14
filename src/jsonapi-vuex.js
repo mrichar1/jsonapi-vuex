@@ -297,11 +297,11 @@ const jsonapiToNormItem = (data) => {
   if (!data) {
     return {}
   }
-  // Fastest way to deep copy
-  const copy = JSON.parse(JSON.stringify(data))
   // Move attributes to top-level, nest original jsonapi under _jv
-  const norm = Object.assign({ [jvtag]: copy }, copy['attributes'])
-  delete norm[jvtag]['attributes']
+  const norm = Object.assign({ [jvtag]: data }, data['attributes'])
+  // Create a new object omitting attributes
+  const { attributes, ...norm_no_attrs } = norm[jvtag]  // eslint-disable-line no-unused-vars
+  norm[jvtag] = norm_no_attrs
   return norm
 }
 
