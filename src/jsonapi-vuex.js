@@ -122,10 +122,14 @@ const actions = (api, conf = {}) => {
       return related
     },
     post: (context, args) => {
-      const [ data, config ] = unpackArgs(args)
+      let [ data, config ] = unpackArgs(args)
       const type = getTypeId(data)[0]
       return api.post(type, normToJsonapi(data), config)
-        .then(() => {
+        .then((results) => {
+        // If the server handed back data, store it (to get id)
+          if (results.status === 201) {
+            data = jsonapiToNorm(results.data.data)
+          }
           context.commit('add_records', data)
           return context.getters.get(data)
         })

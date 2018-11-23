@@ -488,7 +488,7 @@ describe("jsonapi-vuex tests", () =>  {
 
     describe("post", () =>  {
       it("should make an api call to POST item(s)", (done) => {
-        mock_api.onAny().reply(200, { data: json_item1 })
+        mock_api.onAny().reply(201, { data: json_item1 })
         jm.actions.post(stub_context, norm_item1)
           .then(() => {
             expect(mock_api.history.post[0].url).to.equal(`/${norm_item1['_jv']['type']}`)
@@ -496,7 +496,7 @@ describe("jsonapi-vuex tests", () =>  {
           })
       })
       it("should accept axios config as the 2nd arg in a list", (done) => {
-        mock_api.onAny().reply(200, { data: json_item1 })
+        mock_api.onAny().reply(201, { data: json_item1 })
         const params = { filter: "color" }
         jm.actions.post(stub_context, [ norm_item1, { params: params } ])
           .then(() => {
@@ -505,7 +505,15 @@ describe("jsonapi-vuex tests", () =>  {
           })
       })
       it("should add record(s) to the store", (done) => {
-        mock_api.onAny().reply(200, { data: json_item1 })
+        mock_api.onAny().reply(201, { data: json_item1 })
+        jm.actions.post(stub_context, norm_item1)
+          .then(() => {
+            expect(stub_context.commit).to.have.been.calledWith("add_records", norm_item1)
+            done()
+          })
+      })
+      it("should add record(s) in the store (no server response)", (done) => {
+        mock_api.onAny().reply(204)
         jm.actions.post(stub_context, norm_item1)
           .then(() => {
             expect(stub_context.commit).to.have.been.calledWith("add_records", norm_item1)
@@ -513,7 +521,7 @@ describe("jsonapi-vuex tests", () =>  {
           })
       })
       it("should return data via the 'get' getter", (done) => {
-        mock_api.onAny().reply(200, { data: json_item1 })
+        mock_api.onAny().reply(201, { data: json_item1 })
         jm.actions.post(stub_context, norm_item1)
           .then(() => {
               expect(stub_context.getters.get).to.have.been.calledWith(norm_item1)
@@ -521,7 +529,7 @@ describe("jsonapi-vuex tests", () =>  {
           })
       })
       it("should POST data", (done) => {
-        mock_api.onAny().reply(200, { data: json_item1 })
+        mock_api.onAny().reply(201, { data: json_item1 })
         jm.actions.post(stub_context, norm_item1)
           .then(() => {
             // History stores data as JSON string, so parse back to object
