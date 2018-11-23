@@ -61,8 +61,8 @@ const actions = (api, conf = {}) => {
               res_data = followRelationships(context.state, res_data)
             } else {
               // multiple items
-              for (let item of Object.values(res_data)) {
-                item = followRelationships(context.state, item)
+              for (let [ key, item ] of Object.entries(res_data)) {
+                res_data[key] = followRelationships(context.state, item)
               }
             }
           }
@@ -192,9 +192,11 @@ const getters = (api) => {  // eslint-disable-line no-unused-vars
           // whole collection, indexed by id
           result = state[type]
           if (jvConfig.follow_relationships_data) {
+            let result_rels = {}
             for (let [ key, item ] of Object.entries(result)) {
-              result[key] = followRelationships(state, item)
+              result_rels[key] = followRelationships(state, item)
             }
+            result = result_rels
           }
         }
       } else {
@@ -233,8 +235,10 @@ const jsonapiModule = (api, conf) => {
 // Helper methods
 
 // Follow relationships and expand them into _jv/rels
-const followRelationships = (state, data) => {
+const followRelationships = (state, record) => {
   let is_item = false
+  // Copy item before modifying
+  const data = JSON.parse(JSON.stringify(record))
   data[jvtag]['rels'] = {}
   const rel_names = getNested(data, [ jvtag, 'relationships' ]) || {}
   for (let [ rel_name, rel_info ] of Object.entries(rel_names)) {
