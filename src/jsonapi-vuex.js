@@ -1,5 +1,6 @@
 import Vue from 'vue'
-import merge from 'deepmerge'
+import merge from 'lodash.merge';
+import clone from 'lodash.clone';
 // https://github.com/dchester/jsonpath/issues/89
 import jp from 'jsonpath/jsonpath.min'
 
@@ -242,7 +243,7 @@ const jsonapiModule = (api, conf) => {
 const followRelationships = (state, record) => {
   let is_item = false
   // Copy item before modifying
-  const data = JSON.parse(JSON.stringify(record))
+  const data = clone(record, true)
   data[jvtag]['rels'] = {}
   const rel_names = getNested(data, [ jvtag, 'relationships' ]) || {}
   for (let [ rel_name, rel_info ] of Object.entries(rel_names)) {
@@ -260,7 +261,7 @@ const followRelationships = (state, record) => {
         let result = getNested(state, [ type, id ])
         if (result) {
           // Copy rather than ref to avoid circular JSON issues
-          result = JSON.parse(JSON.stringify(result))
+          result = clone(result, true)
           if (is_item) {
             // Store attrs directly under rel_name
             data[jvtag]['rels'][rel_name] = result

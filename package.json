@@ -36,7 +36,7 @@
     "webpack": "^4.20.2"
   },
   "name": "jsonapi-vuex",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Access restructured JSONAPI data from a Vuex Store.",
   "keywords": [
     "vue",
@@ -69,8 +69,9 @@
     "jsonapimock": "cp examples/testapp/testapp.json examples/testapp/tmp.json && jsonapi-mock"
   },
   "dependencies": {
-    "deepmerge": "^2.2.1",
     "jsonpath": "^1.0.0",
+    "lodash.clone": "^4.5.0",
+    "lodash.merge": "^4.6.1",
     "vue": "^2.5.17",
     "vuex": "^3.0.1"
   }
