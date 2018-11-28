@@ -17,7 +17,7 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
   return {
     delete_record: (state, record) => {
       const [ type, id ] = getTypeId(record)
-      delete state[type][id]
+      Vue.delete(state[type], id)
     },
     add_records: (state, records) => {
       const store_records = normToStore(records)
