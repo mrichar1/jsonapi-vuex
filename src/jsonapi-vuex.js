@@ -17,6 +17,9 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
   return {
     delete_record: (state, record) => {
       const [ type, id ] = getTypeId(record)
+      if (! type || ! id) {
+        throw("delete_record: Missing type or id" + type + ":" + id)
+      }
       Vue.delete(state[type], id)
     },
     add_records: (state, records) => {
@@ -32,6 +35,9 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
     },
     update_record: (state, new_record) => {
       const [ type, id ] = getTypeId(new_record)
+      if (! type || ! id) {
+        throw("update_record: Missing type or id" + type + ":" + id)
+      }
       const store_record = normToStore(new_record)
       const old_record = getNested(state, [ type, id ])
       Vue.set(state[type], id, merge(old_record, store_record[type][id]))

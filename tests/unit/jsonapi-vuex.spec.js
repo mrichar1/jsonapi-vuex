@@ -676,13 +676,17 @@ describe("jsonapi-vuex tests", () =>  {
         delete_record(store_item1, norm_item1)
         expect(store_item1[norm_item1['_jv']['type']]).to.not.have.key(norm_item1['_jv']['id'])
       })
+      it("should delete a record (string) from the store", () =>  {
+        const { delete_record } = jm.mutations
+        // Leading slash is incorrect syntax, but we should handle it so test with it in
+        delete_record(store_item1, "/widget/1")
+        expect(store_item1[norm_item1['_jv']['type']]).to.not.have.key(norm_item1['_jv']['id'])
     })
-
-    it("should delete a record (string) from the store", () =>  {
-      const { delete_record } = jm.mutations
-      // Leading slash is incorrect syntax, but we should handle it so test with it in
-      delete_record(store_item1, "/widget/1")
-      expect(store_item1[norm_item1['_jv']['type']]).to.not.have.key(norm_item1['_jv']['id'])
+      it("should throw an error if no type or id present.", () => {
+        const { delete_record } = jm.mutations
+        // expect needs a function to call, not the return from a function
+        expect(() => delete_record(store_item1, { '_jv': {}})).to.throw(/delete_record/)
+      })
     })
 
     describe("add_records", () => {
@@ -700,8 +704,13 @@ describe("jsonapi-vuex tests", () =>  {
         update_record(store_item1, norm_item1_patch)
         expect(store_item1).to.deep.equal(store_item1_update)
       })
+      it("should throw an error if no type or id present.", () => {
+        const { update_record } = jm.mutations
+        // expect needs a function to call, not the return from a function
+        expect(() => update_record(store_item1, { '_jv': {}})).to.throw(/update_record/)
+      })
     })
-  });
+  })
 
   describe("jsonapiModule helpers", () =>  {
     describe("getTypeId", () => {
