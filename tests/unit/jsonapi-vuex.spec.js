@@ -685,7 +685,7 @@ describe("jsonapi-vuex tests", () =>  {
       it("should throw an error if no type or id present.", () => {
         const { delete_record } = jm.mutations
         // expect needs a function to call, not the return from a function
-        expect(() => delete_record(store_item1, { '_jv': {}})).to.throw(/delete_record/)
+        expect(() => delete_record(store_item1, { '_jv': {}})).to.throw(_testing.RecordError)
       })
     })
 
@@ -707,7 +707,7 @@ describe("jsonapi-vuex tests", () =>  {
       it("should throw an error if no type or id present.", () => {
         const { update_record } = jm.mutations
         // expect needs a function to call, not the return from a function
-        expect(() => update_record(store_item1, { '_jv': {}})).to.throw(/update_record/)
+        expect(() => update_record(store_item1, { '_jv': {}})).to.throw(_testing.RecordError)
       })
     })
   })
@@ -881,4 +881,18 @@ describe("jsonapi-vuex tests", () =>  {
       })
     })
   }); // getters
+
+  describe("Custom Exceptions", () =>  {
+
+    describe("RecordError", () => {
+      it.only("Should have a message and object", () => {
+        const msg = "hello"
+        const obj = { invalid: "json" }
+        const exc = new _testing.RecordError(msg, obj)
+        expect(exc.message).to.equal(msg)
+        expect(exc.value).to.equal(obj)
+      })
+    })
+  }) // Exceptions
+
 });

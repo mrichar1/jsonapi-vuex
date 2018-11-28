@@ -4,6 +4,13 @@ import clone from 'lodash.clone';
 // https://github.com/dchester/jsonpath/issues/89
 import jp from 'jsonpath/jsonpath.min'
 
+class RecordError extends Error {
+  constructor(message, value) {
+    super(message);
+    this.value = value;
+  }
+}
+
 let jvConfig = {
   // key to store jsonapi-vuex-related data under when destructuring
   'jvtag': '_jv',
@@ -18,7 +25,7 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
     delete_record: (state, record) => {
       const [ type, id ] = getTypeId(record)
       if (! type || ! id) {
-        throw("delete_record: Missing type or id" + type + ":" + id)
+        throw new RecordError("delete_record: Missing type or id", record)
       }
       Vue.delete(state[type], id)
     },
@@ -36,7 +43,7 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
     update_record: (state, new_record) => {
       const [ type, id ] = getTypeId(new_record)
       if (! type || ! id) {
-        throw("update_record: Missing type or id" + type + ":" + id)
+        throw new RecordError("update_record: Missing type or id", new_record)
       }
       const store_record = normToStore(new_record)
       const old_record = getNested(state, [ type, id ])
@@ -393,7 +400,9 @@ const _testing = {
   normToJsonapiItem:normToJsonapiItem,
   normToStore: normToStore,
   unpackArgs: unpackArgs,
-  jvConfig: jvConfig
+  jvConfig: jvConfig,
+  RecordError: RecordError
+
 }
 
 
