@@ -141,7 +141,8 @@ const actions = (api, conf = {}) => {
       return api.post(type, normToJsonapi(data), config)
         .then((results) => {
         // If the server handed back data, store it (to get id)
-          if (results.status === 201) {
+        // spec says 201, but some servers (wrongly) return 200
+          if (results.status === 200 || results.status === 201) {
             data = jsonapiToNorm(results.data.data)
           }
           context.commit('add_records', data)
