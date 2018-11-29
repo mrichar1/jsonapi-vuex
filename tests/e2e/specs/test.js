@@ -20,8 +20,8 @@ module.exports = {
     // Values from initial API get in table
     be.element('#render_data').to.be.present
     be.element('#render_data h2').text.to.equal('Rendered Data')
-    be.element('#span_name').text.to.equal('sprocket')
-    be.element('#span_color').text.to.equal('black')
+    be.element('#span_name_1').text.to.equal('sprocket')
+    be.element('#span_color_1').text.to.equal('black')
 
     // Expanded related objects
     be.element('#relspan_relname').text.to.equal('widgets')
@@ -29,15 +29,15 @@ module.exports = {
     be.element('#relspan_color').text.to.equal('silver')
 
     // Inputs exist and have correct values
-    be.element('#inputs').to.be.present
-    be.element('#input_name').value.to.be.equal('sprocket')
-    be.element('#input_color').value.to.be.equal('black')
+    be.element('#patch').to.be.present
+    be.element('#patch_name').value.to.be.equal('sprocket')
+    be.element('#patch_color').value.to.be.equal('black')
 
     // Modify values
-    browser.clearValue('#input_name')
-    browser.setValue('#input_name', 'cog')
-    browser.clearValue('#input_color')
-    browser.setValue('#input_color', 'red')
+    browser.clearValue('#patch_name')
+    browser.setValue('#patch_name', 'cog')
+    browser.clearValue('#patch_color')
+    browser.setValue('#patch_color', 'red')
 
     // Move so that element is in view (Firefox doesn't render items off-screen)
     browser.getLocationInView('button[name=patch_button]')
@@ -46,8 +46,22 @@ module.exports = {
     browser.pause(1000)
 
     // Check changes propagate
-    be.element('#span_name').text.to.equal('cog')
-    be.element('#span_color').text.to.equal('red')
+    be.element('#span_name_1').text.to.equal('cog')
+    be.element('#span_color_1').text.to.equal('red')
+
+    // Create new item
+    browser.setValue('#post_name', 'wheel')
+    browser.setValue('#post_color', 'green')
+
+    // Move so that element is in view (Firefox doesn't render items off-screen)
+    browser.getLocationInView('button[name=post_button]')
+    browser.click('button[name=post_button]')
+    // Pause for API response
+    browser.pause(1000)
+
+    // Check changes propagate
+    be.element('#span_name_4').text.to.equal('wheel')
+    be.element('#span_color_4').text.to.equal('green')
 
     browser.end()
   }
