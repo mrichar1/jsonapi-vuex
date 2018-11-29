@@ -885,7 +885,7 @@ describe("jsonapi-vuex tests", () =>  {
   describe("Custom Exceptions", () =>  {
 
     describe("RecordError", () => {
-      it.only("Should have a message and object", () => {
+      it("Should have a message and object", () => {
         const msg = "hello"
         const obj = { invalid: "json" }
         const exc = new _testing.RecordError(msg, obj)
