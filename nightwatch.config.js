@@ -6,6 +6,12 @@ module.exports = {
     }
   },
   "test_settings": {
+    "Firefox": {
+      "desiredCapabilities": {
+        "browserName": "firefox",
+        "acceptInsecureCerts": true,
+      }
+    },
     "FirefoxHeadless": {
       "desiredCapabilities": {
         "browserName": "firefox",

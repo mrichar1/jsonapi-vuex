@@ -18,8 +18,8 @@
     "eslint": "^5.6.1",
     "eslint-loader": "^2.1.1",
     "eslint-plugin-vue": "^4.7.1",
+    "fake-json-api-server": "^1.6.0",
     "geckodriver": "^1.14.1",
-    "jsonapi-mock": "^1.4.41",
     "karma": "^3.0.0",
     "karma-chai": "^0.1.0",
     "karma-coverage": "^1.1.2",
@@ -62,11 +62,11 @@
     "url": "https://github.com/mrichar1/jsonapi-vuex/issues"
   },
   "scripts": {
-    "test": "npm run unit -- --single-run",
+    "test": "npm run unit -- --single-run && npm run e2e",
     "unit": "karma start",
-    "e2e": "concurrently --success first --kill-others \"npm:jsonapimock\" \"vue-cli-service test:e2e --env FirefoxHeadless\"",
-    "testapp": "concurrently --kill-others \"npm:jsonapimock\" \"vue-cli-service serve\"",
-    "jsonapimock": "cp examples/testapp/testapp.json examples/testapp/tmp.json && jsonapi-mock"
+    "e2e": "concurrently --success first --kill-others \"npm:fakeapiserver\" \"vue-cli-service test:e2e --env FirefoxHeadless\"",
+    "testapp": "concurrently --kill-others \"npm:fakeapiserver\" \"vue-cli-service serve\"",
+    "fakeapiserver": "node examples/fake-json-api-server.js"
   },
   "dependencies": {
     "jsonpath": "^1.0.0",

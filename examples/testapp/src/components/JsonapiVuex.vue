@@ -27,7 +27,7 @@
         <input :id='"input_" + name' v-model="widget[name]"/>
       </div>
       <div>
-        <button @click="patchRecord(widget)">Submit</button>
+        <button name="patch_button" @click="patchRecord(widget)">Patch</button>
       </div>
     </div>
   </div>

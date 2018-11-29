@@ -39,6 +39,12 @@ module.exports = {
     browser.clearValue('#input_color')
     browser.setValue('#input_color', 'red')
 
+    // Move so that element is in view (Firefox doesn't render items off-screen)
+    browser.getLocationInView('button[name=patch_button]')
+    browser.click('button[name=patch_button]')
+    // Pause for API response
+    browser.pause(1000)
+
     // Check changes propagate
     be.element('#span_name').text.to.equal('cog')
     be.element('#span_color').text.to.equal('red')
