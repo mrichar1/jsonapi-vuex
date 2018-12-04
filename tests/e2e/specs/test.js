@@ -63,6 +63,17 @@ module.exports = {
     be.element('#span_name_4').text.to.equal('wheel')
     be.element('#span_color_4').text.to.equal('green')
 
+    // Delete an item
+    be.element('#span_name_1').to.be.present
+    browser.setValue('#delete_id', '1')
+    // Move so that element is in view (Firefox doesn't render items off-screen)
+    browser.getLocationInView('button[name=delete_button]')
+    browser.click('button[name=delete_button]')
+    // Pause for API response
+    browser.pause(1000)
+
+    be.element('#span_name_1').to.not.be.present
+
     browser.end()
   }
 }

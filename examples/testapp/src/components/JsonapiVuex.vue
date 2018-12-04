@@ -36,14 +36,22 @@
       </div>
     </div>
     <div id="post">
-      <h2>Post new_widget</h2>
+      <h2>Post widget</h2>
       <label for="post_name">Name</label>
-      <input id="post_name" v-model="new_widget['name']"/>
+      <input id="post_name" v-model="post_widget['name']"/>
       <label for="post_color">Color</label>
-      <input id="post_color" v-model="new_widget['color']"/>
+      <input id="post_color" v-model="post_widget['color']"/>
+      <div>
+        <button name="post_button" @click="postRecord(post_widget)">Post</button>
+      </div>
     </div>
-    <div>
-      <button name="post_button" @click="postRecord(new_widget)">Post</button>
+    <div id="delete">
+      <h2>Delete widget</h2>
+      <label for="delete_id">Widget ID</label>
+      <input id="delete_id" v-model="del_widget_id"/>
+      <div>
+        <button name="delete_button" @click="deleteRecord(del_widget_id)">Delete</button>
+      </div>
     </div>
   </div>
 </template>
@@ -53,7 +61,8 @@ export default {
   name: 'JsonapiVuex',
   data: () => {
     return {
-      new_widget: {
+      del_widget_id: undefined,
+      post_widget: {
         '_jv': {
           'type': 'widget'
         }
@@ -77,6 +86,9 @@ export default {
     },
     postRecord (record) {
       this.$store.dispatch("jv/post", record)
+    },
+    deleteRecord (id) {
+      this.$store.dispatch("jv/delete", "widget" + "/" + id)
     }
   }
 }
