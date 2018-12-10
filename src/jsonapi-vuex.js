@@ -262,7 +262,7 @@ const followRelationships = (state, record) => {
   const rel_names = getNested(data, [ jvtag, 'relationships' ]) || {}
   for (let [ rel_name, rel_info ] of Object.entries(rel_names)) {
     // We can only work with data, not links since we need type & id
-    if ('data' in rel_info) {
+    if ('data' in rel_info && rel_info.data) {
       let rel_data = rel_info['data']
       data[jvtag]['rels'][rel_name] = {}
       if (!(Array.isArray(rel_data))) {
