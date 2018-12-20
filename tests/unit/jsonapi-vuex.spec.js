@@ -411,6 +411,18 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
+      it("should handle an empty rels 'data' object", (done) => {
+        jm = jsonapiModule(api, { 'follow_relationships_data': true })
+        // Delete contents of data and remove links
+        json_item1['relationships']['widgets']['data'] = {}
+        delete json_item1['relationships']['widgets']['links']
+        mock_api.onAny().reply(200, { data: json_item1 })
+        jm.actions.get(stub_context, norm_item1)
+          .then((res) => {
+            expect(res['_jv']['rels']['widgets']).to.deep.equal({})
+            done()
+          })
+      })
       it("should handle API errors", (done) => {
         mock_api.onAny().reply(500)
         jm.actions.get(stub_context, norm_item1)
