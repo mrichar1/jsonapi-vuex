@@ -59,7 +59,7 @@ These actions take 2 arguments: the path/object to be acted on, and an (optional
 
 *Note* - Since the `dispatch` method can only accept a single argument, if both arguments are used, the argument must be an array.
 
-The first argument is an object containing [restructured data](#restructured-data). Actions which take no `data` argument apart from the record (`get` and `delete`) can also accept a string which matches the path to fetch. This means you don't need to create an 'empty' restructured data object to get or delete a record. some examples:
+The first argument is an object containing [restructured data](#restructured-data). Actions which take no `data` argument apart from the record (`get` and `delete`) can also accept a string which matches the path to fetch. This means you don't need to create an 'empty' restructured data object to get or delete a record. Some examples:
 
 ```
 // Restructured representation of a record
@@ -84,7 +84,7 @@ this.$store.dispatch('jv/get', "widget")
   })
 
 // Get a specific record from the 'widget' endpoint, passing parameters to axios:
-this.$store.dispatch('jv/get', 'widget/1', [{params: params}])
+this.$store.dispatch('jv/get', ['widget/1', {params: params}])
   .then(data => {
     console.log(data)
   })
@@ -264,6 +264,7 @@ jm = jsonapiModule(api, config)
 
 * `jvtag` - The tag in restructured objects to hold object metadata (defaults to `_jv`)
 * `follow_relationships_data` - Whether to follow and expand relationships from the store in the `get` getter (defaults to `true`)
+* `preserve_json` - Whether actions should return the API response json (minus `data`) in `_jv/json` (for access to meta etc) (defaults to `false`)
 
 ## Restructured Data
 

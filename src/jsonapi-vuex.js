@@ -15,7 +15,9 @@ let jvConfig = {
   // key to store jsonapi-vuex-related data under when destructuring
   'jvtag': '_jv',
   // Follow relationships 'data' entries (from store)
-  'follow_relationships_data': true
+  'follow_relationships_data': true,
+  // Preserve API response json in return data
+  'preserve_json': false
 }
 
 const jvtag = jvConfig['jvtag']
@@ -80,6 +82,7 @@ const actions = (api, conf = {}) => {
               }
             }
           }
+          res_data = preserveJSON(res_data, results.data)
           return res_data
         })
         .catch((error) => {
@@ -140,13 +143,13 @@ const actions = (api, conf = {}) => {
       const type = getTypeId(data)[0]
       return api.post(type, normToJsonapi(data), config)
         .then((results) => {
-        // If the server handed back data, store it (to get id)
-        // spec says 201, but some servers (wrongly) return 200
+          // If the server handed back data, store it (to get id)
+          // spec says 201, but some servers (wrongly) return 200
           if (results.status === 200 || results.status === 201) {
             data = jsonapiToNorm(results.data.data)
           }
           context.commit('add_records', data)
-          return context.getters.get(data)
+          return preserveJSON(context.getters.get(data), results.data)
         })
         .catch((error) => {
           return error
@@ -165,7 +168,7 @@ const actions = (api, conf = {}) => {
             // Otherwise, try to update the store record from the patch
             context.commit('update_record', data)
           }
-          return context.getters.get(data)
+          return preserveJSON(context.getters.get(data), results.data)
         })
         .catch((error) => {
           return error
@@ -177,7 +180,7 @@ const actions = (api, conf = {}) => {
       return api.delete(path, config)
         .then((result) => {
           context.commit('delete_record', data)
-          return jsonapiToNorm(result.data.data)
+          return preserveJSON(jsonapiToNorm(result.data.data), result.data)
         })
         .catch((error) => {
           return error
@@ -252,6 +255,19 @@ const jsonapiModule = (api, conf) => {
 }
 
 // Helper methods
+
+// If enabled, store the response json in the returned data
+const preserveJSON = (data, json) => {
+  if (jvConfig.preserve_json) {
+    if (!(jvtag in data)) {
+      data[jvtag] = {}
+    }
+    // Store original json in _jv, then delete data section
+    data[jvtag]['json'] = json
+    delete data[jvtag]['json']['data']
+  }
+  return data
+}
 
 // Follow relationships and expand them into _jv/rels
 const followRelationships = (state, record) => {

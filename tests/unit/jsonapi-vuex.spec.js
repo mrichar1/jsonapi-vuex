@@ -10,7 +10,7 @@ chai.use(chaiAsPromised)
 
 // 'global' variables (redefined in beforeEach)
 var jm,
- json_item1, json_item2, json_item3, json_item1_patch, json_record,
+ json_item1, json_item2, json_item3, json_item1_patch, json_record, meta,
  norm_item1, norm_item2, norm_item3, norm_item1_3, norm_item1_rels, norm_item2_rels, norm_item3_rels, norm_item1_patch, norm_item1_update, norm_record, norm_record_rels, norm_state,
  store_item1, store_item1_update, store_item2, store_item1_3, store_record
 
@@ -22,7 +22,7 @@ let mock_api = new MockAdapter(api);
 // Stub the context's commit function to evaluate calls to it.
 const stub_context = {
   getters: {
-    get: sinon.stub()
+    get: sinon.stub().returns({})
   },
   commit: sinon.stub(),
   // Mock up dispatch('get')
@@ -53,7 +53,10 @@ beforeEach(() =>  {
 
   mock_api.reset()
   // Turn off following by default to simplify test data in most cases
-  jm = jsonapiModule(api, { 'follow_relationships_data': false })
+  jm = jsonapiModule(api, {
+    'follow_relationships_data': false,
+    'preserve_json': false
+  })
 
   json_item1 = {
     id: '1',
@@ -132,6 +135,8 @@ beforeEach(() =>  {
       }
     }
   }
+
+  meta = { 'meta': { 'token': 123456 }}
 
   norm_item1 = {
     'foo': 1,
@@ -423,6 +428,28 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
+      it("should preserve json in _jv in returned data", (done) => {
+        jm = jsonapiModule(api, { 'preserve_json': true })
+        // Mock server to only return a meta section
+        mock_api.onAny().reply(200, meta)
+        jm.actions.get(stub_context, "widget")
+          .then((res) => {
+            // json should now be nested in _jv/json
+            expect(res['_jv']['json']).to.deep.equal(meta)
+            done()
+          })
+      })
+      it("should not preserve json in _jv in returned data", (done) => {
+        jm = jsonapiModule(api, { 'preserve_json': false })
+        // Mock server to only return a meta section
+        mock_api.onAny().reply(200, meta)
+        jm.actions.get(stub_context, "widget")
+          .then((res) => {
+            // collections should have no top-level _jv
+            expect(res).to.not.have.key('_jv')
+            done()
+          })
+      })
       it("should handle API errors", (done) => {
         mock_api.onAny().reply(500)
         jm.actions.get(stub_context, norm_item1)
@@ -549,6 +576,17 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
+      it("should preserve json in _jv in returned data", (done) => {
+        jm = jsonapiModule(api, { 'preserve_json': true })
+        // Mock server data to include a meta section
+        mock_api.onAny().reply(201, { data: json_item1, ...meta })
+        jm.actions.post(stub_context, norm_item1)
+          .then((res) => {
+            // json should now be nested in _jv/json
+            expect(res['_jv']['json']).to.deep.equal(meta)
+            done()
+          })
+      })
       it("should handle API errors", (done) => {
         mock_api.onAny().reply(500)
         jm.actions.post(stub_context, norm_item1)
@@ -608,7 +646,17 @@ describe("jsonapi-vuex tests", () =>  {
             done()
           })
       })
-
+      it("should preserve json in _jv in returned data", (done) => {
+        jm = jsonapiModule(api, { 'preserve_json': true })
+        // Mock server data to include a meta section
+        mock_api.onAny().reply(200, { data: json_item1, ...meta })
+        jm.actions.patch(stub_context, norm_item1_patch)
+          .then((res) => {
+            // json should now be nested in _jv/json
+            expect(res['_jv']['json']).to.deep.equal(meta)
+            done()
+          })
+      })
       it("should handle API errors", (done) => {
         mock_api.onAny().reply(500)
         jm.actions.patch(stub_context, norm_item1)
