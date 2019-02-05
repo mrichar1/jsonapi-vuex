@@ -66,8 +66,10 @@ const actions = (api, conf = {}) => {
         .then((results) => {
           // Process included records
           if ('included' in results.data) {
-            const included_data = jsonapiToNorm(results.data.included)
-            context.commit('add_records', included_data)
+            for (let item of results.data.included) {
+              const included_item = jsonapiToNormItem(item)
+              context.commit('add_records', included_item)
+            }
           }
           let res_data = jsonapiToNorm(results.data.data)
           context.commit('add_records', res_data)

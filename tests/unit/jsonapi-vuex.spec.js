@@ -10,8 +10,10 @@ chai.use(chaiAsPromised)
 
 // 'global' variables (redefined in beforeEach)
 var jm,
- json_item1, json_item2, json_item3, json_item1_patch, json_record, meta,
- norm_item1, norm_item2, norm_item3, norm_item1_3, norm_item1_rels, norm_item2_rels, norm_item3_rels, norm_item1_patch, norm_item1_update, norm_record, norm_record_rels, norm_state,
+ json_item1, json_item2, json_item3, json_item4, json_item1_patch, json_record, meta,
+ norm_item1, norm_item2, norm_item3, norm_item4, norm_item1_3,
+ norm_item1_rels, norm_item2_rels, norm_item3_rels, norm_item1_patch, norm_item1_update,
+ norm_record, norm_record_rels, norm_state,
  store_item1, store_item1_update, store_item2, store_item1_3, store_record
 
 // Mock up a fake axios-like api instance
@@ -113,6 +115,14 @@ beforeEach(() =>  {
           'id': '1'
         }
       }
+    }
+  }
+
+  json_item4 = {
+    id: '1',
+    type: 'machine',
+    attributes: {
+      'foo': 1
     }
   }
 
@@ -221,6 +231,14 @@ beforeEach(() =>  {
           }
         }
       }
+    }
+  }
+
+  norm_item4 = {
+    'foo': 1,
+    '_jv': {
+      'type': 'machine',
+      'id': '1'
     }
   }
 
@@ -382,15 +400,17 @@ describe("jsonapi-vuex tests", () =>  {
           })
       })
       it("should add included record(s) to the store", (done) => {
+        // included array can include objects from different collections
         const data = {
           data: json_item1,
-          included: [ json_item2 ]
+          included: [ json_item2, json_item4 ]
         }
         mock_api.onAny().reply(200, data)
-        jm.actions.get(stub_context, norm_item1, { params: { included: "widgets" }})
+        // for a real API call, would need axios include params here
+        jm.actions.get(stub_context, norm_item1)
           .then(() => {
-            // included is always an array, so add_records data will have id index
-            expect(stub_context.commit).to.have.been.calledWith("add_records", { 2: norm_item2 })
+            expect(stub_context.commit).to.have.been.calledWith("add_records", norm_item2)
+            expect(stub_context.commit).to.have.been.calledWith("add_records", norm_item4)
             done()
           })
       })
