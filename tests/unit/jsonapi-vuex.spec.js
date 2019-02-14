@@ -891,6 +891,14 @@ describe("jsonapi-vuex tests", () =>  {
       })
     })
 
+    describe("followRelationships", () => {
+      it("Should expand relationships into rels for a single item", () => {
+        const { followRelationships } = _testing
+        let rels = followRelationships(store_record, norm_item1)['_jv']['rels']['widgets']
+        expect(rels).to.deep.equal(norm_item2)
+      })
+    })
+
   }); // Helper methods
 
   describe("jsonapiModule getters", () =>  {

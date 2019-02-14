@@ -419,6 +419,7 @@ const _testing = {
   normToJsonapiItem:normToJsonapiItem,
   normToStore: normToStore,
   unpackArgs: unpackArgs,
+  followRelationships: followRelationships,
   jvConfig: jvConfig,
   RecordError: RecordError
 
