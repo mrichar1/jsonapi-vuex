@@ -273,12 +273,12 @@ const preserveJSON = (data, json) => {
 
 // Follow relationships and expand them into _jv/rels
 const followRelationships = (state, record) => {
-  let is_item = false
   // Copy item before modifying
   const data = clone(record, true)
   data[jvtag]['rels'] = {}
   const rel_names = getNested(data, [ jvtag, 'relationships' ]) || {}
   for (let [ rel_name, rel_info ] of Object.entries(rel_names)) {
+    let is_item = false
     // We can only work with data, not links since we need type & id
     if ('data' in rel_info && rel_info.data) {
       let rel_data = rel_info['data']
