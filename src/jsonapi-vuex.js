@@ -287,6 +287,8 @@ const followRelationships = (state, record) => {
         // Convert to an array to keep things DRY
         is_item = true
         rel_data = [ rel_data ]
+      } else {
+        is_item = false
       }
       for (let rel_item of rel_data) {
         let [ type, id ] = getTypeId({ [jvtag]: rel_item })
