@@ -4,8 +4,6 @@
 
 A module to access JSONAPI data from an API, using a Vuex store, restructured to make life easier.
 
-This project was inspired by https://codingitwrong.com/2018/06/18/vuex-jsonapi-a-zero-config-data-layer.html
-
 ## Features
 
 * Creates a [Vuex](https://vuex.vuejs.org/) module to store API data.
@@ -15,6 +13,7 @@ This project was inspired by https://codingitwrong.com/2018/06/18/vuex-jsonapi-a
 * Relationships can be followed and expanded into records automatically.
 * Uses [Axios](https://github.com/axios/axios) (or your own axios-like module) as the HTTP client.
 * Uses [jsonpath](https://github.com/dchester/jsonpath) for filtering when getting objects from the store.
+* Records the status of actions (LOADING, SUCCESS, ERROR).
 
 ## Setup
 
@@ -49,7 +48,7 @@ The most common way to access the API and update the store is through high-level
 
 ### Actions
 
-The usual way to use this module is to use `actions` wherever possible. All actions are asynchronous, and both query the API and update the store, then return data in a normalized form.
+The usual way to use this module is to use `actions` wherever possible. All actions are asynchronous, and both query the API and update the store, then return data in a normalized form. Every action call's state is tracked as it progresses, and this status can be easily queried (see the `status` getter).
 
 There are 4 actions (with aliases): `get` (`fetch`), `post` (`create`), `patch` (`update`), and `delete` which correspond to RESTful methods. There is also a `getRelated` action which fetches a record's related items.
 
@@ -99,7 +98,7 @@ this.$store.dispatch('jv/post', [new_widget, {params: params}])
 
 #### getRelated
 
-*Note* - in many cases you may prefer to use the jsonapi server-side `include` option to get data on relationships included in your original query.
+*Note* - in many cases you may prefer to use the jsonapi server-side `include` option to get data on relationships included in your original query. (See `Related Items`).
 
 Like the RESTful actions, this takes 2 arguments - the path/object to be acted on, and an axios config object. It returns a deeply nested restructured tree - `relationship -> type -> id -> data`.
 
@@ -144,7 +143,11 @@ this.$store.dispatch('jv/getRelated', 'widget/1/widgets')
 
 ### Getters
 
-Since `actions` return results from the store, there is less need to use `getters` directly. However you may wish to call `get` directly, either for performance (to avoid revisiting the API) or for computed properties.
+There are 2 getters available. `get` and `status`.
+
+#### get
+
+Get returns information directly from the store for previously cached records. This is usefulf or performance reasons, or for use in computed properties.
 
 ```
 computed: {
@@ -187,9 +190,49 @@ this.$store.getters['jv/get']('widget/1', '[?(@.color=="red")]')
 
 ```
 
-#### Related items
+#### status
 
-By default the `get` action and getter is configured to follow and expand out relationships, if they are provided as `data` entries (i.e. `{type: 'widget', id: '1'}`).
+Every action is given a unique id, and this is both returned as a property of the promise, and preserved in `state` under the `jvtag` (as defined in config).
+
+The `status` getter accepts either an id, or a promise returned by an action, and returns the stored state of the action. This can be one of:
+
+* LOADING
+* SUCCESS
+* ERROR
+
+For example, to determine the state of an action:
+
+```
+// Get a promise from calling an action
+let action = this.$store.dispatch('jv/get', "widget")
+
+// Check the status of the action (and assuming it hasn't yet completed)
+let status = this.$store.getters['jv/status'](action)
+
+console.log(status)  // LOADING
+
+// Continue to handle the action results in the usual way
+action.then(data => {
+  // The action has returned
+  console.log(status)  // SUCCESS
+
+  // Continue as usual
+  console.log(data)
+})
+```
+
+The `status` getter is primarily designed to use useful for handling UI changes based on actions.
+
+For example, you might want to disable an attribute while an action is happening by 'watching' `status`:
+
+```
+<input type="text" :disabled="status == 'LOADING'">
+```
+
+
+### Related items
+
+By default the `get` action and getter are both configured to follow and expand out relationships, if they are provided as `data` entries (i.e. `{type: 'widget', id: '1'}`).
 
 *Note* - If using the `action` you may wish to also set the `include` parameter on the server query to include the relationships you are interested in. Any records returned in the `included` section of the jsonapi data will be automatically added to the store.
 
