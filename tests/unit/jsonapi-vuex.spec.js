@@ -1004,6 +1004,21 @@ describe("jsonapi-vuex tests", () =>  {
         expect(norm_record_rels).to.deep.equal(result)
       })
     })
+
+    describe("status", () => {
+      it("should return the status for a given id", () => {
+        const { status } = jm.getters
+        let state = { '_jv': { 1: { 'status': 'splat' }}}
+        const result = status(state)(1)
+        expect(result).to.equal('splat')
+      }),
+      it("should return the status for a given action (promise)", () => {
+        const { status } = jm.getters
+        let state = { '_jv': { 1: { 'status': 'splat' }}}
+        const result = status(state)({ '_jv_id': 1 })
+        expect(result).to.equal('splat')
+      })
+    })
   }); // getters
 
   describe("Custom Exceptions", () =>  {

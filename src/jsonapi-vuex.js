@@ -273,6 +273,13 @@ const getters = (api) => {  // eslint-disable-line no-unused-vars
         }
       }
       return result
+    },
+    status: (state) => (id) => {
+      // If id is an object (promise), extract id
+      if (typeof(id) === 'object') {
+        id = id[jvtag + '_id']
+      }
+      return state[jvtag][id]['status']
     }
   }
 }
