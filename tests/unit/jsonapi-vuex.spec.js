@@ -357,8 +357,8 @@ describe("jsonapi-vuex tests", () =>  {
     describe("get", () =>  {
       it("should make an api call to GET item(s)", (done) => {
         mock_api.onAny().reply(200, { data: json_widget_1 })
-        jm.actions.get(stub_context, norm_widget_1)
-          .then(() => {
+        let action = jm.actions.get(stub_context, norm_widget_1)
+        action.then(() => {
             expect(mock_api.history.get[0].url).to.equal(`/${norm_widget_1['_jv']['type']}/${norm_widget_1['_jv']['id']}`)
             done()
           })
@@ -484,6 +484,11 @@ describe("jsonapi-vuex tests", () =>  {
             expect(res.response.status).to.equal(500)
             done()
           })
+      }),
+      it("should have an associated action id", () => {
+        mock_api.onAny().reply(200, { data: json_widget_1 })
+        let action = jm.actions.get(stub_context, norm_widget_1)
+        expect(action).to.have.property('_jv_id')
       })
     })
 
@@ -621,6 +626,11 @@ describe("jsonapi-vuex tests", () =>  {
             expect(res.response.status).to.equal(500)
             done()
           })
+      }),
+      it("should have an associated action id", () => {
+        mock_api.onAny().reply(200, { data: json_widget_1 })
+        let action = jm.actions.post(stub_context, norm_widget_1)
+        expect(action).to.have.property('_jv_id')
       })
     })
 
@@ -691,6 +701,11 @@ describe("jsonapi-vuex tests", () =>  {
             expect(res.response.status).to.equal(500)
             done()
           })
+      }),
+      it("should have an associated action id", () => {
+        mock_api.onAny().reply(200, { data: json_widget_1 })
+        let action = jm.actions.patch(stub_context, norm_widget_1)
+        expect(action).to.have.property('_jv_id')
       })
     })
 
@@ -751,6 +766,11 @@ describe("jsonapi-vuex tests", () =>  {
             expect(res.response.status).to.equal(500)
             done()
           })
+      }),
+      it("should have an associated action id", () => {
+        mock_api.onAny().reply(200, { data: json_widget_1 })
+        let action = jm.actions.delete(stub_context, norm_widget_1)
+        expect(action).to.have.property('_jv_id')
       })
     })
   });
@@ -795,6 +815,15 @@ describe("jsonapi-vuex tests", () =>  {
         const { update_record } = jm.mutations
         // expect needs a function to call, not the return from a function
         expect(() => update_record(store_widget_1, { '_jv': {}})).to.throw(_testing.RecordError)
+      })
+    }),
+
+    describe("set_status", () => {
+      it("should set the status for a specific id", () => {
+        const state = { '_jv': {}}
+        const { set_status } = jm.mutations
+        set_status(state, { id: 2, status: 'splat' })
+        expect(state['_jv'][2]).to.have.keys([ 'status', 'time' ])
       })
     })
   })

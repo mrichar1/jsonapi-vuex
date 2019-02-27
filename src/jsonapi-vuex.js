@@ -11,6 +11,10 @@ class RecordError extends Error {
   }
 }
 
+const STATUS_LOAD = 'LOADING'
+const STATUS_SUCCESS = 'SUCCESS'
+const STATUS_ERROR = 'ERROR'
+
 let jvConfig = {
   // key to store jsonapi-vuex-related data under when destructuring
   'jvtag': '_jv',
@@ -21,6 +25,9 @@ let jvConfig = {
 }
 
 const jvtag = jvConfig['jvtag']
+
+// Global sequence counter for unique action ids
+let action_sequence = 0
 
 const mutations = (api) => {  // eslint-disable-line no-unused-vars
   return {
@@ -50,6 +57,9 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
       const store_record = normToStore(new_record)
       const old_record = getNested(state, [ type, id ])
       Vue.set(state[type], id, merge(old_record, store_record[type][id]))
+    },
+    set_status: (state, { id, status }) => {
+      Vue.set(state[jvtag], id, { status: status, time: Date.now() })
     }
   }
 }
@@ -62,7 +72,9 @@ const actions = (api, conf = {}) => {
       const path = getTypeId(data).join('/')
       // https://github.com/axios/axios/issues/362
       config['data'] = config['data'] || {}
-      return api.get(path, config)
+      const action_id = actionSequence()
+      context.commit('set_status', { id: action_id, status: STATUS_LOAD })
+      let action = api.get(path, config)
         .then((results) => {
           // Process included records
           if ('included' in results.data) {
@@ -85,11 +97,15 @@ const actions = (api, conf = {}) => {
             }
           }
           res_data = preserveJSON(res_data, results.data)
+          context.commit('set_status', { id: action_id, status: STATUS_SUCCESS })
           return res_data
         })
         .catch((error) => {
+          context.commit('set_status', { id: action_id, status: STATUS_ERROR })
           return error
         })
+        action[jvtag + '_id'] = action_id
+        return action
     },
     getRelated: async (context, args) => {
       let related = {}
@@ -143,7 +159,9 @@ const actions = (api, conf = {}) => {
     post: (context, args) => {
       let [ data, config ] = unpackArgs(args)
       const type = getTypeId(data)[0]
-      return api.post(type, normToJsonapi(data), config)
+      const action_id = actionSequence()
+      context.commit('set_status', { id: action_id, status: STATUS_LOAD })
+      let action = api.post(type, normToJsonapi(data), config)
         .then((results) => {
           // If the server handed back data, store it (to get id)
           // spec says 201, but some servers (wrongly) return 200
@@ -151,16 +169,22 @@ const actions = (api, conf = {}) => {
             data = jsonapiToNorm(results.data.data)
           }
           context.commit('add_records', data)
+          context.commit('set_status', { id: action_id, status: STATUS_SUCCESS })
           return preserveJSON(context.getters.get(data), results.data)
         })
         .catch((error) => {
+          context.commit('set_status', { id: action_id, status: STATUS_ERROR })
           return error
         })
+      action[jvtag + '_id'] = action_id
+      return action
     },
     patch: (context, args) => {
       const [ data, config ] = unpackArgs(args)
       const path = getTypeId(data).join('/')
-      return api.patch(path, normToJsonapi(data), config)
+      const action_id = actionSequence()
+      context.commit('set_status', { id: action_id, status: STATUS_LOAD })
+      let action = api.patch(path, normToJsonapi(data), config)
         .then((results) => {
           // If the server handed back data, store it
           if (results.status === 200) {
@@ -170,23 +194,33 @@ const actions = (api, conf = {}) => {
             // Otherwise, try to update the store record from the patch
             context.commit('update_record', data)
           }
+          context.commit('set_status', { id: action_id, status: STATUS_SUCCESS })
           return preserveJSON(context.getters.get(data), results.data)
         })
         .catch((error) => {
+          context.commit('set_status', { id: action_id, status: STATUS_ERROR })
           return error
         })
+      action[jvtag + '_id'] = action_id
+      return action
     },
     delete: (context, args) => {
       const [ data, config ] = unpackArgs(args)
       const path = getTypeId(data).join('/')
-      return api.delete(path, config)
+      const action_id = actionSequence()
+      context.commit('set_status', { id: action_id, status: STATUS_LOAD })
+      let action = api.delete(path, config)
         .then((result) => {
           context.commit('delete_record', data)
+          context.commit('set_status', { id: action_id, status: STATUS_SUCCESS })
           return preserveJSON(jsonapiToNorm(result.data.data), result.data)
         })
         .catch((error) => {
+          context.commit('set_status', { id: action_id, status: STATUS_ERROR })
           return error
         })
+      action[jvtag + '_id'] = action_id
+      return action
     },
     get fetch () { return this.get },
     get create () { return this.post },
@@ -248,7 +282,7 @@ const jsonapiModule = (api, conf) => {
   return {
     namespaced: true,
 
-    state: {},
+    state: { [jvtag]: {}},
 
     mutations: mutations(api, conf),
     actions: actions(api, conf),
@@ -257,6 +291,11 @@ const jsonapiModule = (api, conf) => {
 }
 
 // Helper methods
+
+const actionSequence = () => {
+  // Increment the global action id and return it
+  return ++action_sequence
+}
 
 // If enabled, store the response json in the returned data
 const preserveJSON = (data, json) => {
