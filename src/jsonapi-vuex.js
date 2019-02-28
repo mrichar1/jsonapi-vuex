@@ -142,12 +142,15 @@ const actions = (api, conf = {}) => {
               }
               for (let entry of rel_data) {
                 let data_action = context.dispatch('get', { [jvtag]: entry })
-                  .then((fetched) => {
-                    const { type: rel_type, id: rel_id } = fetched[jvtag]
-                    if (!(rel_type in related[rel_name])) {
-                      related[rel_name][rel_type] = {}
+                  .then((results) => {
+                    const { type: rel_type, id: rel_id } = results[jvtag]
+                    return {
+                      [rel_name]: {
+                        [rel_type]: {
+                          [rel_id]: results
+                        }
+                      }
                     }
-                    Object.assign(related[rel_name][rel_type], { [rel_id]: fetched })
                   })
                 // Add the promise to the array
                 rel_promises.push(data_action)
@@ -164,17 +167,24 @@ const actions = (api, conf = {}) => {
                   const rel_type = res_data[jvtag]['type']
                   const rel_id = res_data[jvtag]['id']
                   context.commit('add_records', res_data)
-                  if (!(rel_type in related[rel_name])) {
-                    related[rel_name][rel_type] = {}
+                  return {
+                    [rel_name]: {
+                      [rel_type]: {
+                        [rel_id]: res_data
+                      }
+                    }
                   }
-                  Object.assign(related[rel_name][rel_type], { [rel_id]: res_data })
                 })
               // Add the promise to the array
               rel_promises.push(links_action)
             }
           }
-          // Handle te array of promises 'as one', return related when all are complete
-          return Promise.all(rel_promises).then(() => {
+          // Handle te array of promises 'as one'
+          // merge each result into 'related' when all are complete to prevent races
+          return Promise.all(rel_promises).then((results) => {
+            for (let item of results) {
+              merge(related, item)
+            }
             return related
           })
         })
