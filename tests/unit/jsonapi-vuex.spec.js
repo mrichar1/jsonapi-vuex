@@ -501,8 +501,8 @@ describe("jsonapi-vuex tests", () =>  {
     describe("getRelated", () =>{
       it("Should throw an error if passed an object with no id", (done) => {
         delete norm_widget_1['_jv']['id']
-        // Look for promise rejection as action is async
-        expect(jm.actions.getRelated(stub_context, norm_widget_1)).to.be.rejected
+        // Wrap method in an empty method to catch transpiled throw (https://www.chaijs.com/api/bdd/#method_throw)
+        expect(() => jm.actions.getRelated(stub_context, norm_widget_1)).to.throw("No id specified")
         done()
       })
       it("should get a record's single related item (using 'data')", (done) => {
@@ -554,6 +554,11 @@ describe("jsonapi-vuex tests", () =>  {
             expect(res).to.deep.equal({ 'widgets': store_widget_1 })
             done()
           })
+      })
+      it("should have an associated action id", () => {
+        mock_api.onAny().reply(200, { data: json_widget_1 })
+        let action = jm.actions.getRelated(stub_context, "widget/2")
+        expect(action).to.have.property('_jv_id')
       })
     })
 

@@ -107,54 +107,80 @@ const actions = (api, conf = {}) => {
         action[jvtag + '_id'] = action_id
         return action
     },
-    getRelated: async (context, args) => {
+    getRelated: (context, args) => {
       let related = {}
       const data = unpackArgs(args)[0]
       let [ , id, rel ] = getTypeId(data)
       if (!id) {
         throw "No id specified"
       }
-      const record = await context.dispatch('get', args)
-      let rels = getNested(record, [ jvtag, 'relationships' ]) || {}
-      if (rel && rels) {
-        // Only process requested relname
-        rels = { [rel]: rels[rel] }
-      }
-      for (let [ rel_name, rel_items ] of Object.entries(rels)) {
-        if (!(rel_name in related)) {
-          related[rel_name] = {}
-        }
-        if ('data' in rel_items) {
-          let rel_data = rel_items['data']
-          if (!(Array.isArray(rel_data))) {
-            // Treat as if always an array
-            rel_data = [ rel_data ]
+      const action_id = actionSequence()
+      context.commit('set_status', { id: action_id, status: STATUS_LOAD })
+      let action = context.dispatch('get', args)
+        .then((record) => {
+          let rels = getNested(record, [ jvtag, 'relationships' ]) || {}
+          if (rel && rels) {
+            // Only process requested relname
+            rels = { [rel]: rels[rel] }
           }
-          for (let entry of rel_data) {
-            const fetched = await context.dispatch('get', { [jvtag]: entry })
-            const { type: rel_type, id: rel_id } = fetched[jvtag]
-            if (!(rel_type in related[rel_name])) {
-              related[rel_name][rel_type] = {}
+          return rels
+        }) // get initial record
+        .then((rels) => {
+          // Store an array of promises
+          let rel_promises = []
+          // Iterate over all records in rels
+          for (let [ rel_name, rel_items ] of Object.entries(rels)) {
+            if (!(rel_name in related)) {
+              related[rel_name] = {}
             }
-            Object.assign(related[rel_name][rel_type], { [rel_id]: fetched })
+            // Extract relationships from 'data' (type/id)
+            if ('data' in rel_items) {
+              let rel_data = rel_items['data']
+              if (!(Array.isArray(rel_data))) {
+                // Treat as if always an array
+                rel_data = [ rel_data ]
+              }
+              for (let entry of rel_data) {
+                let data_action = context.dispatch('get', { [jvtag]: entry })
+                  .then((fetched) => {
+                    const { type: rel_type, id: rel_id } = fetched[jvtag]
+                    if (!(rel_type in related[rel_name])) {
+                      related[rel_name][rel_type] = {}
+                    }
+                    Object.assign(related[rel_name][rel_type], { [rel_id]: fetched })
+                  })
+                // Add the promise to the array
+                rel_promises.push(data_action)
+              }
+            // Extract relationships from 'links' (url)
+            } else if ('links' in rel_items) {
+              let rel_links = rel_items['links']['related']
+              if (!(typeof rel_links === 'string')) {
+                rel_links = rel_links['href']
+              }
+              let links_action = api.get(rel_links, {})
+                .then((results) => {
+                  const res_data = jsonapiToNorm(results.data.data)
+                  const rel_type = res_data[jvtag]['type']
+                  const rel_id = res_data[jvtag]['id']
+                  context.commit('add_records', res_data)
+                  if (!(rel_type in related[rel_name])) {
+                    related[rel_name][rel_type] = {}
+                  }
+                  Object.assign(related[rel_name][rel_type], { [rel_id]: res_data })
+                })
+              // Add the promise to the array
+              rel_promises.push(links_action)
+            }
           }
-        } else if ('links' in rel_items) {
-          let rel_links = rel_items['links']['related']
-          if (!(typeof rel_links === 'string')) {
-            rel_links = rel_links['href']
-          }
-          const results = await api.get(rel_links, {})
-          const res_data = jsonapiToNorm(results.data.data)
-          const rel_type = res_data[jvtag]['type']
-          const rel_id = res_data[jvtag]['id']
-          context.commit('add_records', res_data)
-          if (!(rel_type in related[rel_name])) {
-            related[rel_name][rel_type] = {}
-          }
-          Object.assign(related[rel_name][rel_type], { [rel_id]: res_data })
-        }
-      }
-      return related
+          // Handle te array of promises 'as one', return related when all are complete
+          return Promise.all(rel_promises).then(() => {
+            return related
+          })
+        })
+        context.commit('set_status', { id: action_id, status: STATUS_SUCCESS })
+        action[jvtag + '_id'] = action_id
+        return action
     },
     post: (context, args) => {
       let [ data, config ] = unpackArgs(args)
