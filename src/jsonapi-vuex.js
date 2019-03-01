@@ -21,7 +21,11 @@ let jvConfig = {
   // Follow relationships 'data' entries (from store)
   'follow_relationships_data': true,
   // Preserve API response json in return data
-  'preserve_json': false
+  'preserve_json': false,
+  // Trigger a cleanup of action status records every N seconds (0 disables)
+  'action_status_clean_interval': 180,
+  // Age of action status records to clean (in seconds)
+  'action_status_clean_age': 600
 }
 
 const jvtag = jvConfig['jvtag']
@@ -64,8 +68,7 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
   }
 }
 
-const actions = (api, conf = {}) => {
-  Object.assign(jvConfig, conf)
+const actions = (api) => {
   return {
     get: (context, args) => {
       const [ data, config ] = unpackArgs(args)
@@ -323,19 +326,37 @@ const getters = (api) => {  // eslint-disable-line no-unused-vars
 }
 
 // Store Module
-const jsonapiModule = (api, conf) => {
+const jsonapiModule = (api, conf = {}) => {
+
+  Object.assign(jvConfig, conf)
+
+  let state = { [jvtag]: {}}
+
+  if (jvConfig.action_status_clean_interval > 0) {
+    setInterval(actionStatusClean, jvConfig.action_status_clean_interval * 1000, state)
+  }
+
   return {
     namespaced: true,
 
-    state: { [jvtag]: {}},
+    state: state,
 
-    mutations: mutations(api, conf),
-    actions: actions(api, conf),
-    getters: getters(api, conf)
+    mutations: mutations(api),
+    actions: actions(api),
+    getters: getters(api)
   }
 }
 
 // Helper methods
+
+const actionStatusClean = (state) => {
+  let now = Date.now()
+  for (let [ id, data ] of Object.entries(state['_jv'])) {
+    if (now - data.time > jvConfig.action_status_clean_age * 1000) {
+      Vue.delete(state[jvtag], id)
+      }
+  }
+}
 
 const actionSequence = () => {
   // Increment the global action id and return it
@@ -496,6 +517,7 @@ const normToStore = (record) => {
 
 // Export a single object with references to 'private' functions for the test suite
 const _testing = {
+  actionStatusClean: actionStatusClean,
   getTypeId: getTypeId,
   jsonapiToNorm: jsonapiToNorm,
   jsonapiToNormItem: jsonapiToNormItem,

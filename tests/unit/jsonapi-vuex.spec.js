@@ -9,7 +9,7 @@ chai.use(sinonChai)
 chai.use(chaiAsPromised)
 
 // 'global' variables (redefined in beforeEach)
-var jm,
+var jm, clock,
  json_widget_1, json_widget_2, json_widget_3, json_machine_1, json_widget_1_patch, json_record, meta,
  norm_widget_1, norm_widget_2, norm_widget_3, norm_machine_1, norm_widget_1_3,
  norm_widget_1_rels, norm_widget_2_rels, norm_widget_3_rels, norm_widget_1_patch, norm_widget_1_update,
@@ -51,7 +51,11 @@ const stub_context = {
 
 
 beforeEach(() =>  {
-// Set up commonly used data objects
+
+  // Set up fake timers
+  clock = sinon.useFakeTimers()
+
+  // Set up commonly used data objects
 
   mock_api.reset()
   // Turn off following by default to simplify test data in most cases
@@ -334,6 +338,13 @@ beforeEach(() =>  {
       ...store_widget_3['widget']
     }
   }
+
+})
+
+afterEach(() => {
+
+  // Undo fake timers
+  clock = sinon.restore()
 
 })
 
@@ -940,6 +951,50 @@ describe("jsonapi-vuex tests", () =>  {
       })
     })
 
+    describe("actionStatusClean", () => {
+      it("Should be called via setInterval", () => {
+        // Set an interval of 10 seconds
+        const interval = 10
+        // Spy on the fake clock's setInterval method
+        let spy = sinon.spy(clock, 'setInterval')
+        jm = jsonapiModule(api, { 'action_status_clean_interval': interval })
+        // Simulate time passing (1ms more than interval)
+        clock.tick(interval * 1000 + 1)
+        // Check that called with interval set correctly
+        expect(spy.firstCall.args[1]).to.equal(interval * 1000)
+      })
+      it("Should not be called is interval is 0", () => {
+        // Set an interval of 0 seconds = disable
+        const interval = 0
+        // Spy on the fake clock's setInterval method
+        let spy = sinon.spy(clock, 'setInterval')
+        jm = jsonapiModule(api, { 'action_status_clean_interval': interval })
+        // Simulate time passing
+        clock.tick(10000)
+        // Check that never called
+        expect(spy).to.not.have.been.called
+      })
+      it("Should remove an expired record, but not an unexpired one", () => {
+        let { actionStatusClean, jvConfig } = _testing
+        jvConfig['action_status_clean_age'] = 10
+        //jm = jsonapiModule(api, { 'action_status_clean_age': 10 })
+        let state = {
+          _jv: {
+            1: {
+              status: 'SUCCESS',
+              time: 0
+            },
+            2: {
+              status: 'SUCCESS',
+              time: 9000
+            }
+          }
+        }
+        clock.tick(11000)
+        actionStatusClean(state)
+        expect(state['_jv']).to.have.key(2).and.not.have.key(1)
+      })
+    })
   }); // Helper methods
 
   describe("jsonapiModule getters", () =>  {
