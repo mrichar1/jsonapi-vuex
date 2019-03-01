@@ -315,7 +315,9 @@ const getters = (api) => {  // eslint-disable-line no-unused-vars
       if (typeof(id) === 'object') {
         id = id[jvtag + '_id']
       }
-      return state[jvtag][id]['status']
+      if (id in state[jvtag]) {
+        return state[jvtag][id]['status']
+      }
     }
   }
 }
