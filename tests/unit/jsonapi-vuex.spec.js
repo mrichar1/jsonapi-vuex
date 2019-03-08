@@ -23,7 +23,7 @@ let mock_api = new MockAdapter(api);
 
 
 
-beforeEach(() =>  {
+beforeEach(function() {
 
   // Set up fake timers
   clock = sinon.useFakeTimers()
@@ -328,21 +328,21 @@ beforeEach(() =>  {
 
 })
 
-afterEach(() => {
+afterEach(function() {
 
   // Undo fake timers
   clock = sinon.restore()
 
 })
 
-describe("jsonapi-vuex tests", () =>  {
+describe("jsonapi-vuex tests", function() {
 
-  it("should export jsonapiModule", () =>  {
+  it("should export jsonapiModule", function()  {
     expect(jsonapiModule).to.exist;
   });
 
-  describe("config handling", () => {
-    it("Should override default config", () => {
+  describe("config handling", function() {
+    it("Should override default config", function() {
       const conf = { 'jvtag': '_splat' }
       const { jvConfig } = _testing
       jm = jsonapiModule(api, conf)
@@ -350,61 +350,43 @@ describe("jsonapi-vuex tests", () =>  {
     })
   });
 
-  describe("jsonapiModule actions", () =>  {
+  describe("jsonapiModule actions", function()  {
 
-    describe("get", () =>  {
-      it("should make an api call to GET item(s)", (done) => {
+    describe("get", function() {
+      it("should make an api call to GET item(s)", async function() {
         mock_api.onAny().reply(200, { data: json_widget_1 })
-        let action = jm.actions.get(stub_context, norm_widget_1)
-        action.then(() => {
-            expect(mock_api.history.get[0].url).to.equal(`/${norm_widget_1['_jv']['type']}/${norm_widget_1['_jv']['id']}`)
-            done()
-          })
+        await jm.actions.get(stub_context, norm_widget_1)
+        expect(mock_api.history.get[0].url).to.equal(`/${norm_widget_1['_jv']['type']}/${norm_widget_1['_jv']['id']}`)
       })
-      it("should make an api call to GET a collection", (done) => {
+      it("should make an api call to GET a collection", async function() {
         mock_api.onAny().reply(200, { data: json_widget_1 })
         delete norm_widget_1['_jv']['id']
-        jm.actions.get(stub_context, norm_widget_1)
-          .then(() => {
-            expect(mock_api.history.get[0].url).to.equal(`/${norm_widget_1['_jv']['type']}`)
-            done()
-          })
+        await jm.actions.get(stub_context, norm_widget_1)
+        expect(mock_api.history.get[0].url).to.equal(`/${norm_widget_1['_jv']['type']}`)
       })
-      it("should accept axios config as the 2nd arg in a list", (done) => {
+      it("should accept axios config as the 2nd arg in a list", async function() {
         mock_api.onAny().reply(200, { data: json_widget_1 })
         const params = { filter: "color" }
-        jm.actions.get(stub_context, [ norm_widget_1, { params: params } ])
-          .then(() => {
-            expect(mock_api.history.get[0].params).to.equal(params)
-            done()
-          })
+        await jm.actions.get(stub_context, [ norm_widget_1, { params: params } ])
+        expect(mock_api.history.get[0].params).to.equal(params)
       })
-      it("should add record(s) in the store", (done) => {
+      it("should add record(s) in the store", async function() {
         mock_api.onAny().reply(200, { data: json_widget_1 })
-        jm.actions.get(stub_context, norm_widget_1)
-          .then(() => {
-            expect(stub_context.commit).to.have.been.calledWith("add_records", norm_widget_1)
-            done()
-          })
+        await jm.actions.get(stub_context, norm_widget_1)
+        expect(stub_context.commit).to.have.been.calledWith("add_records", norm_widget_1)
       })
-      it("should add record(s) (string) in the store", (done) =>  {
-        mock_api.onAny().reply(204)
+      it("should add record(s) (string) in the store", async function()  {
+        mock_api.onAny().reply(200, { data: json_widget_1 })
         // Leading slash is incorrect syntax, but we should handle it so test with it in
-        jm.actions.get(stub_context, "/widget/1")
-          .then(() => {
-            expect(stub_context.commit).to.have.been.calledWith("add_records", norm_widget_1)
-            done()
-          })
+        await jm.actions.get(stub_context, "widget/1")
+        expect(stub_context.commit).to.have.been.calledWith("add_records", norm_widget_1)
       })
-      it("should return normalized data", (done) => {
+      it("should return normalized data", async function() {
         mock_api.onAny().reply(200, { data: json_widget_1 })
-        jm.actions.get(stub_context, norm_widget_1)
-          .then((res) => {
-            expect(res).to.deep.equal(norm_widget_1)
-            done()
-          })
+        let res = await jm.actions.get(stub_context, norm_widget_1)
+        expect(res).to.deep.equal(norm_widget_1)
       })
-      it("should add included record(s) to the store", (done) => {
+      it("should add included record(s) to the store", async function() {
         // included array can include objects from different collections
         const data = {
           data: json_widget_1,
@@ -412,395 +394,319 @@ describe("jsonapi-vuex tests", () =>  {
         }
         mock_api.onAny().reply(200, data)
         // for a real API call, would need axios include params here
-        jm.actions.get(stub_context, norm_widget_1)
-          .then(() => {
-            expect(stub_context.commit).to.have.been.calledWith("add_records", norm_widget_2)
-            expect(stub_context.commit).to.have.been.calledWith("add_records", norm_machine_1)
-            done()
-          })
+        await jm.actions.get(stub_context, norm_widget_1)
+        expect(stub_context.commit).to.have.been.calledWith("add_records", norm_widget_2)
+        expect(stub_context.commit).to.have.been.calledWith("add_records", norm_machine_1)
       })
-      it("should return normalized data with expanded rels (single item)", (done) => {
+      it("should return normalized data with expanded rels (single item)", async function() {
         jm = jsonapiModule(api, { 'follow_relationships_data': true })
         // Make state contain all records for rels to work
         stub_context['state'] = store_record
         mock_api.onAny().reply(200, { data: json_widget_1 })
-        jm.actions.get(stub_context, norm_widget_1)
-          .then((res) => {
-            expect(res).to.deep.equal(norm_widget_1_rels)
-            done()
-          })
+        let res = await jm.actions.get(stub_context, norm_widget_1)
+        expect(res).to.deep.equal(norm_widget_1_rels)
       })
-      it("should return normalized data with expanded rels (array)", (done) => {
+      it("should return normalized data with expanded rels (array)", async function() {
         jm = jsonapiModule(api, { 'follow_relationships_data': true })
         // Make state contain all records for rels to work
         stub_context['state'] = store_record
         mock_api.onAny().reply(200, json_record)
-        jm.actions.get(stub_context, "widget")
-          .then((res) => {
-            expect(res).to.deep.equal(norm_record_rels)
-            done()
-          })
+        let res = await jm.actions.get(stub_context, "widget")
+        expect(res).to.deep.equal(norm_record_rels)
       })
-      it("should handle an empty rels 'data' object", (done) => {
+      it("should handle an empty rels 'data' object", async function() {
         jm = jsonapiModule(api, { 'follow_relationships_data': true })
         // Delete contents of data and remove links
         json_widget_1['relationships']['widgets']['data'] = {}
         delete json_widget_1['relationships']['widgets']['links']
         mock_api.onAny().reply(200, { data: json_widget_1 })
-        jm.actions.get(stub_context, norm_widget_1)
-          .then((res) => {
-            expect(res['_jv']['rels']['widgets']).to.deep.equal({})
-            done()
-          })
+        let res = await jm.actions.get(stub_context, norm_widget_1)
+        expect(res['_jv']['rels']['widgets']).to.deep.equal({})
       })
-      it("should preserve json in _jv in returned data", (done) => {
+      it("should preserve json in _jv in returned data", async function() {
         jm = jsonapiModule(api, { 'preserve_json': true })
         // Mock server to only return a meta section
         mock_api.onAny().reply(200, meta)
-        jm.actions.get(stub_context, "widget")
-          .then((res) => {
-            // json should now be nested in _jv/json
-            expect(res['_jv']['json']).to.deep.equal(meta)
-            done()
-          })
+        let res = await jm.actions.get(stub_context, "widget")
+        // json should now be nested in _jv/json
+        expect(res['_jv']['json']).to.deep.equal(meta)
       })
-      it("should not preserve json in _jv in returned data", (done) => {
+      it("should not preserve json in _jv in returned data", async function() {
         jm = jsonapiModule(api, { 'preserve_json': false })
         // Mock server to only return a meta section
         mock_api.onAny().reply(200, meta)
-        jm.actions.get(stub_context, "widget")
-          .then((res) => {
-            // collections should have no top-level _jv
-            expect(res).to.not.have.key('_jv')
-            done()
-          })
+        let res = await jm.actions.get(stub_context, "widget")
+        // collections should have no top-level _jv
+        expect(res).to.not.have.key('_jv')
       })
-      it("should handle API errors", (done) => {
+      it("should handle API errors", async function() {
         mock_api.onAny().reply(500)
-        jm.actions.get(stub_context, norm_widget_1)
-          .then(res => {
-            expect(res.response.status).to.equal(500)
-            done()
-          })
-      }),
-      it("should have an associated action id", () => {
-        mock_api.onAny().reply(200, { data: json_widget_1 })
-        let action = jm.actions.get(stub_context, norm_widget_1)
-        expect(action).to.have.property('_jv_id')
+        try {
+          await jm.actions.get(stub_context, norm_widget_1)
+        } catch(error) {
+          expect(error.response.status).to.equal(500)
+        }
       })
     })
 
-    describe("fetch", () => {
-      it("should be an alias for get", () => {
+    describe("fetch", function() {
+      it("should be an alias for get", function() {
         expect(jm.actions.fetch).to.equal(jm.actions.get)
       })
     })
 
-    describe("getRelated", () =>{
-      it("Should throw an error if passed an object with no id", (done) => {
+    describe("getRelated", function() {
+      it("Should throw an error if passed an object with no id", function() {
         delete norm_widget_1['_jv']['id']
         // Wrap method in an empty method to catch transpiled throw (https://www.chaijs.com/api/bdd/#method_throw)
         expect(() => jm.actions.getRelated(stub_context, norm_widget_1)).to.throw("No id specified")
-        done()
       })
-      it("should get a record's single related item (using 'data')", (done) => {
-        jm.actions.getRelated(stub_context, norm_widget_1)
-          .then(res => {
-            expect(res).to.deep.equal({ 'widgets' : store_widget_2 })
-            done()
-          })
+      it("should get a record's single related item (using 'data')", async function() {
+        mock_api
+          .onGet().replyOnce(200, { data: json_widget_1 })
+          .onGet().replyOnce(200, { data: json_widget_2 })
+        let res = await jm.actions.getRelated(stub_context, norm_widget_1)
+        expect(res).to.deep.equal({ 'widgets' : store_widget_2 })
       })
-      it("should get a record's related items (using 'data')", (done) => {
-        jm.actions.getRelated(stub_context, norm_widget_2)
-          .then(res => {
-            expect(res).to.deep.equal({ 'widgets': store_widget_1_3 })
-            done()
-          })
+      it("should get a record's related items (using 'data')", async function() {
+        // Return main item, then its related items
+        mock_api
+          .onGet().replyOnce(200, { data: json_widget_2 })
+          .onGet().replyOnce(200, { data: json_widget_1 })
+          .onGet().replyOnce(200, { data: json_widget_3 })
+        let res = await jm.actions.getRelated(stub_context, norm_widget_2)
+        expect(res).to.deep.equal({ 'widgets': store_widget_1_3 })
       })
-      it("should get a record's related items (using 'links' string)", (done) => {
+      it("should get a record's related items (using 'links' string)", async function() {
         // Remove data so it will fallback to using links
-        delete norm_widget_1['_jv']['relationships']['widgets']['data']
-        mock_api.onAny().reply(200, { data: json_widget_2 })
-        jm.actions.getRelated(stub_context, norm_widget_1)
-          .then(res => {
-            expect(res).to.deep.equal({ 'widgets': store_widget_2 })
-            done()
-          })
+        delete json_widget_1['relationships']['widgets']['data']
+        mock_api
+          .onGet().replyOnce(200, { data: json_widget_1 })
+          .onGet().replyOnce(200, { data: json_widget_2 })
+        let res = await jm.actions.getRelated(stub_context, norm_widget_1)
+        expect(res).to.deep.equal({ 'widgets': store_widget_2 })
       })
-      it("should get a record's related items (using 'links' object)", (done) => {
+      it("should get a record's related items (using 'links' object)", async function() {
         // Remove data so it will fallback to using links
-        delete norm_widget_1['_jv']['relationships']['widgets']['data']
+        delete json_widget_1['relationships']['widgets']['data']
         // Replace links string with links object
-        norm_widget_1['_jv']['relationships']['widgets']['links']['related'] = { 'href': 'widget/1/widgets' }
-        mock_api.onAny().reply(200, { data: json_widget_2 })
-        jm.actions.getRelated(stub_context, norm_widget_1)
-          .then(res => {
-            expect(res).to.deep.equal({ 'widgets': store_widget_2 })
-            done()
-          })
+        json_widget_1['relationships']['widgets']['links']['related'] = { 'href': '/widget/1/widgets' }
+        mock_api
+          .onGet().replyOnce(200, { data: json_widget_1 })
+          .onGet().replyOnce(200, { data: json_widget_2 })
+        let res = await jm.actions.getRelated(stub_context, norm_widget_1)
+        expect(res).to.deep.equal({ 'widgets': store_widget_2 })
       })
-      it("should get a record's related items (string path)", (done) => {
-        jm.actions.getRelated(stub_context, "widget/2")
-          .then(res => {
-            expect(res).to.deep.equal({ 'widgets': store_widget_1_3 })
-            done()
-          })
+      it("should get a record's related items (string path)", async function() {
+        mock_api
+          .onGet().replyOnce(200, { data: json_widget_2 })
+          .onGet().replyOnce(200, { data: json_widget_1 })
+          .onGet().replyOnce(200, { data: json_widget_3 })
+        let res = await jm.actions.getRelated(stub_context, "widget/2")
+        expect(res).to.deep.equal({ 'widgets': store_widget_1_3 })
       })
-      it("should return related data for a specific relname", (done) => {
-        jm.actions.getRelated(stub_context, "widget/3/widgets")
-          .then((res) => {
-            expect(res).to.deep.equal({ 'widgets': store_widget_1 })
-            done()
-          })
+      it("should return related data for a specific relname", async function() {
+        mock_api
+          .onGet().replyOnce(200, { data: json_widget_3 })
+          .onGet().replyOnce(200, { data: json_widget_1 })
+        let res = await jm.actions.getRelated(stub_context, "widget/3/widgets")
+        expect(res).to.deep.equal({ 'widgets': store_widget_1 })
       })
-      it("should have an associated action id", () => {
-        mock_api.onAny().reply(200, { data: json_widget_1 })
-        let action = jm.actions.getRelated(stub_context, "widget/2")
-        expect(action).to.have.property('_jv_id')
+      it("Should handle API errors", async function() {
+        // Fake an API error response
+        mock_api.onGet().replyOnce(500)
+        try {
+          await jm.actions.getRelated(stub_context, "none/1")
+        } catch (error) {
+          expect(error.response.status).to.equal(500)
+        }
+      })
+      it("Should handle API errors (in the links)", async function() {
+        // Remove data so it will fallback to using links
+        delete json_widget_1['relationships']['widgets']['data']
+        mock_api
+          .onGet().replyOnce(200, { data: json_widget_1 })
+          .onGet().replyOnce(500)
+        try {
+          await jm.actions.getRelated(stub_context, norm_widget_1)
+        } catch (error) {
+          expect(error.response.status).to.equal(500)
+        }
       })
     })
 
-    describe("post", () =>  {
-      it("should make an api call to POST item(s)", (done) => {
+    describe("post", function() {
+      it("should make an api call to POST item(s)", async function() {
         mock_api.onAny().reply(201, { data: json_widget_1 })
-        jm.actions.post(stub_context, norm_widget_1)
-          .then(() => {
-            expect(mock_api.history.post[0].url).to.equal(`/${norm_widget_1['_jv']['type']}`)
-            done()
-          })
+        await jm.actions.post(stub_context, norm_widget_1)
+        expect(mock_api.history.post[0].url).to.equal(`/${norm_widget_1['_jv']['type']}`)
       })
-      it("should accept axios config as the 2nd arg in a list", (done) => {
+      it("should accept axios config as the 2nd arg in a list", async function() {
         mock_api.onAny().reply(201, { data: json_widget_1 })
         const params = { filter: "color" }
-        jm.actions.post(stub_context, [ norm_widget_1, { params: params } ])
-          .then(() => {
-            expect(mock_api.history.post[0].params).to.equal(params)
-            done()
-          })
+        await jm.actions.post(stub_context, [ norm_widget_1, { params: params } ])
+        expect(mock_api.history.post[0].params).to.equal(params)
       })
-      it("should add record(s) to the store", (done) => {
+      it("should add record(s) to the store", async function() {
         mock_api.onAny().reply(201, { data: json_widget_1 })
-        jm.actions.post(stub_context, norm_widget_1)
-          .then(() => {
-            expect(stub_context.commit).to.have.been.calledWith("add_records", norm_widget_1)
-            done()
-          })
+        await jm.actions.post(stub_context, norm_widget_1)
+        expect(stub_context.commit).to.have.been.calledWith("add_records", norm_widget_1)
       })
-      it("should add record(s) in the store (no server response)", (done) => {
+      it("should add record(s) in the store (no server response)", async function() {
         mock_api.onAny().reply(204)
-        jm.actions.post(stub_context, norm_widget_1)
-          .then(() => {
-            expect(stub_context.commit).to.have.been.calledWith("add_records", norm_widget_1)
-            done()
-          })
+        await jm.actions.post(stub_context, norm_widget_1)
+        expect(stub_context.commit).to.have.been.calledWith("add_records", norm_widget_1)
       })
-      it("should return data via the 'get' getter", (done) => {
+      it("should return data via the 'get' getter", async function() {
         mock_api.onAny().reply(201, { data: json_widget_1 })
-        jm.actions.post(stub_context, norm_widget_1)
-          .then(() => {
-              expect(stub_context.getters.get).to.have.been.calledWith(norm_widget_1)
-            done()
-          })
+        await jm.actions.post(stub_context, norm_widget_1)
+        expect(stub_context.getters.get).to.have.been.calledWith(norm_widget_1)
       })
-      it("should POST data", (done) => {
+      it("should POST data", async function() {
         mock_api.onAny().reply(201, { data: json_widget_1 })
-        jm.actions.post(stub_context, norm_widget_1)
-          .then(() => {
-            // History stores data as JSON string, so parse back to object
-            expect(JSON.parse(mock_api.history.post[0].data)).to.deep.equal({ data: json_widget_1 })
-            done()
-          })
+        await jm.actions.post(stub_context, norm_widget_1)
+        // History stores data as JSON string, so parse back to object
+        expect(JSON.parse(mock_api.history.post[0].data)).to.deep.equal({ data: json_widget_1 })
       })
-      it("should preserve json in _jv in returned data", (done) => {
+      it("should preserve json in _jv in returned data", async function() {
         jm = jsonapiModule(api, { 'preserve_json': true })
         // Mock server data to include a meta section
         mock_api.onAny().reply(201, { data: json_widget_1, ...meta })
-        jm.actions.post(stub_context, norm_widget_1)
-          .then((res) => {
-            // json should now be nested in _jv/json
-            expect(res['_jv']['json']).to.deep.equal(meta)
-            done()
-          })
+        let res = await jm.actions.post(stub_context, norm_widget_1)
+        // json should now be nested in _jv/json
+        expect(res['_jv']['json']).to.deep.equal(meta)
       })
-      it("should handle API errors", (done) => {
+      it("should handle API errors", async function() {
         mock_api.onAny().reply(500)
-        jm.actions.post(stub_context, norm_widget_1)
-          .then(res => {
-            expect(res.response.status).to.equal(500)
-            done()
-          })
-      }),
-      it("should have an associated action id", () => {
-        mock_api.onAny().reply(200, { data: json_widget_1 })
-        let action = jm.actions.post(stub_context, norm_widget_1)
-        expect(action).to.have.property('_jv_id')
+        try {
+          await jm.actions.post(stub_context, norm_widget_1)
+        } catch(error) {
+            expect(error.response.status).to.equal(500)
+        }
       })
     })
 
-    describe("create", () => {
-      it("should be an alias for post", () => {
+    describe("create", function() {
+      it("should be an alias for post", function() {
         expect(jm.actions.create).to.equal(jm.actions.post)
       })
     })
 
-    describe("patch", () =>  {
-      it("should make an api call to PATCH item(s)", (done) => {
+    describe("patch", function() {
+      it("should make an api call to PATCH item(s)", async function() {
         mock_api.onAny().reply(200, { data: json_widget_1 })
-        jm.actions.patch(stub_context, norm_widget_1_patch)
-          .then(() => {
-            expect(mock_api.history.patch[0].url).to.equal(`/${norm_widget_1_patch['_jv']['type']}/${norm_widget_1_patch['_jv']['id']}`)
-            done()
-          })
+        await jm.actions.patch(stub_context, norm_widget_1_patch)
+        expect(mock_api.history.patch[0].url).to.equal(`/${norm_widget_1_patch['_jv']['type']}/${norm_widget_1_patch['_jv']['id']}`)
       })
-      it("should accept axios config as the 2nd arg in a list", (done) => {
+      it("should accept axios config as the 2nd arg in a list", async function() {
         mock_api.onAny().reply(200, { data: json_widget_1 })
         const params = { filter: "color" }
-        jm.actions.patch(stub_context, [ norm_widget_1_patch, { params: params } ])
-          .then(() => {
-            expect(mock_api.history.patch[0].params).to.equal(params)
-            done()
-          })
+        await jm.actions.patch(stub_context, [ norm_widget_1_patch, { params: params } ])
+        expect(mock_api.history.patch[0].params).to.equal(params)
       })
-      it("should delete then add record(s) in the store (from server response)", (done) => {
+      it("should delete then add record(s) in the store (from server response)", async function() {
         mock_api.onAny().reply(200,  { data: json_widget_1_patch })
-        jm.actions.patch(stub_context, norm_widget_1_patch)
-          .then(() => {
-            expect(stub_context.commit).to.have.been.calledWith("delete_record", norm_widget_1_patch)
-            expect(stub_context.commit).to.have.been.calledWith("add_records", norm_widget_1_update)
-            done()
-          })
+        await jm.actions.patch(stub_context, norm_widget_1_patch)
+        expect(stub_context.commit).to.have.been.calledWith("delete_record", norm_widget_1_patch)
+        expect(stub_context.commit).to.have.been.calledWith("add_records", norm_widget_1_update)
       })
-      it("should update record(s) in the store (no server response)", (done) => {
+      it("should update record(s) in the store (no server response)", async function() {
         mock_api.onAny().reply(204)
-        jm.actions.patch(stub_context, norm_widget_1_patch)
-          .then(() => {
-            expect(stub_context.commit).to.have.been.calledWith("update_record", norm_widget_1_patch)
-            done()
-          })
+        await jm.actions.patch(stub_context, norm_widget_1_patch)
+        expect(stub_context.commit).to.have.been.calledWith("update_record", norm_widget_1_patch)
       })
-      it("should return data via the 'get' getter", (done) => {
-        mock_api.onAny().reply(200, { data: json_widget_1 })
-        jm.actions.patch(stub_context, norm_widget_1_patch)
-          .then(() => {
-              expect(stub_context.getters.get).to.have.been.calledWith(norm_widget_1)
-            done()
-          })
+      it("should return data via the 'get' getter", async function() {
+        mock_api.onAny().reply(204)
+        await jm.actions.patch(stub_context, norm_widget_1_patch)
+        expect(stub_context.getters.get).to.have.been.calledWith(norm_widget_1_patch)
       })
-      it("should preserve json in _jv in returned data", (done) => {
+      it("should preserve json in _jv in returned data", async function() {
         jm = jsonapiModule(api, { 'preserve_json': true })
         // Mock server data to include a meta section
         mock_api.onAny().reply(200, { data: json_widget_1, ...meta })
-        jm.actions.patch(stub_context, norm_widget_1_patch)
-          .then((res) => {
-            // json should now be nested in _jv/json
-            expect(res['_jv']['json']).to.deep.equal(meta)
-            done()
-          })
+        let res = await jm.actions.patch(stub_context, norm_widget_1_patch)
+        // json should now be nested in _jv/json
+        expect(res['_jv']['json']).to.deep.equal(meta)
       })
-      it("should handle API errors", (done) => {
+      it("should handle API errors", async function() {
         mock_api.onAny().reply(500)
-        jm.actions.patch(stub_context, norm_widget_1)
-          .then(res => {
-            expect(res.response.status).to.equal(500)
-            done()
-          })
-      }),
-      it("should have an associated action id", () => {
-        mock_api.onAny().reply(200, { data: json_widget_1 })
-        let action = jm.actions.patch(stub_context, norm_widget_1)
-        expect(action).to.have.property('_jv_id')
+        try {
+          await jm.actions.patch(stub_context, norm_widget_1)
+        } catch (error) {
+          expect(error.response.status).to.equal(500)
+        }
       })
     })
 
-    describe("update", () => {
-      it("should be an alias for patch", () => {
+    describe("update", function() {
+      it("should be an alias for patch", function() {
         expect(jm.actions.update).to.equal(jm.actions.patch)
       })
     })
 
-    describe("delete", () =>  {
-      it("should make an api call to DELETE item(s)", (done) => {
+    describe("delete", function() {
+      it("should make an api call to DELETE item(s)", async function() {
         mock_api.onAny().reply(204)
-        jm.actions.delete(stub_context, norm_widget_1)
-          .then(() => {
-            expect(mock_api.history.delete[0].url).to.equal(`/${norm_widget_1['_jv']['type']}/${norm_widget_1['_jv']['id']}`)
-            done()
-          })
+        await jm.actions.delete(stub_context, norm_widget_1)
+        expect(mock_api.history.delete[0].url).to.equal(`/${norm_widget_1['_jv']['type']}/${norm_widget_1['_jv']['id']}`)
       })
-      it("should accept axios config as the 2nd arg in a list", (done) => {
+      it("should accept axios config as the 2nd arg in a list", async function() {
         mock_api.onAny().reply(200, { data: json_widget_1 })
         const params = { filter: "color" }
-        jm.actions.delete(stub_context, [ norm_widget_1, { params: params } ])
-          .then(() => {
-            expect(mock_api.history.delete[0].params).to.equal(params)
-            done()
-          })
+        await jm.actions.delete(stub_context, [ norm_widget_1, { params: params } ])
+        expect(mock_api.history.delete[0].params).to.equal(params)
       })
-      it("should delete a record from the store", (done) => {
+      it("should delete a record from the store", async function() {
         mock_api.onAny().reply(204)
-        jm.actions.delete(stub_context, norm_widget_1)
-          .then(() => {
-            expect(stub_context.commit).to.have.been.calledWith("delete_record", norm_widget_1)
-            done()
-          })
+        await jm.actions.delete(stub_context, norm_widget_1)
+        expect(stub_context.commit).to.have.been.calledWith("delete_record", norm_widget_1)
       })
-      it("should delete a record (string) from the store", (done) =>  {
+      it("should delete a record (string) from the store", async function()  {
         mock_api.onAny().reply(204)
         // Leading slash is incorrect syntax, but we should handle it so test with it in
-        jm.actions.delete(stub_context, "/widget/1")
-          .then(() => {
-            expect(stub_context.commit).to.have.been.calledWith("delete_record", norm_widget_1)
-            done()
-          })
+        await jm.actions.delete(stub_context, "widget/1")
+        expect(stub_context.commit).to.have.been.calledWith("delete_record", "widget/1")
       })
-      it("should return deleted object if passed back by server", (done) =>  {
+      it("should return deleted object if passed back by server", async function() {
         mock_api.onAny().reply(200, { data: json_widget_1 })
         // Leading slash is incorrect syntax, but we should handle it so test with it in
-        jm.actions.delete(stub_context, norm_widget_1)
-          .then((res) => {
-            expect(res).to.deep.equal(norm_widget_1)
-            done()
-          })
+        let res = await jm.actions.delete(stub_context, norm_widget_1)
+        expect(res).to.deep.equal(norm_widget_1)
       })
-      it("should handle API errors", (done) => {
+      it("should handle API errors", async function() {
         mock_api.onAny().reply(500)
-        jm.actions.delete(stub_context, norm_widget_1)
-          .then(res => {
-            expect(res.response.status).to.equal(500)
-            done()
-          })
-      }),
-      it("should have an associated action id", () => {
-        mock_api.onAny().reply(200, { data: json_widget_1 })
-        let action = jm.actions.delete(stub_context, norm_widget_1)
-        expect(action).to.have.property('_jv_id')
+        try {
+          await jm.actions.delete(stub_context, norm_widget_1)
+        } catch (error) {
+          expect(error.response.status).to.equal(500)
+        }
       })
     })
   });
 
-  describe("jsonapiModule mutations", () =>  {
+  describe("jsonapiModule mutations", function() {
 
-    describe("delete_record", () =>  {
-      it("should delete a record (data) from the Vue store", () =>  {
+    describe("delete_record", function() {
+      it("should delete a record (data) from the Vue store", function() {
         const { delete_record } = jm.mutations
         delete_record(store_widget_1, norm_widget_1)
         expect(store_widget_1[norm_widget_1['_jv']['type']]).to.not.have.key(norm_widget_1['_jv']['id'])
       })
-      it("should delete a record (string) from the store", () =>  {
+      it("should delete a record (string) from the store", function() {
         const { delete_record } = jm.mutations
         // Leading slash is incorrect syntax, but we should handle it so test with it in
-        delete_record(store_widget_1, "/widget/1")
+        delete_record(store_widget_1, "widget/1")
         expect(store_widget_1[norm_widget_1['_jv']['type']]).to.not.have.key(norm_widget_1['_jv']['id'])
     })
-      it("should throw an error if no type or id present.", () => {
-        const { delete_record } = jm.mutations
-        // expect needs a function to call, not the return from a function
-        expect(() => delete_record(store_widget_1, { '_jv': {}})).to.throw(_testing.RecordError)
+      it("should throw an error if no type or id present.", function() {
+       const { delete_record } = jm.mutations
+       // expect needs a function to call, not the return from a function
+       expect(() => delete_record(store_widget_1, { '_jv': {}})).to.throw(_testing.RecordError)
       })
     })
 
-    describe("add_records", () => {
-      it("should add several records to the store", () => {
+    describe("add_records", function() {
+      it("should add several records to the store", function() {
         const { add_records } = jm.mutations
         const state = {}
         add_records(state, norm_record)
@@ -808,21 +714,21 @@ describe("jsonapi-vuex tests", () =>  {
       })
     })
 
-    describe("update_record", () => {
-      it("should update a specific attribute of a record already in the store", () => {
+    describe("update_record", function() {
+      it("should update a specific attribute of a record already in the store", function() {
         const { update_record } = jm.mutations
         update_record(store_widget_1, norm_widget_1_patch)
         expect(store_widget_1).to.deep.equal(store_widget_1_update)
       })
-      it("should throw an error if no type or id present.", () => {
+      it("should throw an error if no type or id present.", function() {
         const { update_record } = jm.mutations
         // expect needs a function to call, not the return from a function
         expect(() => update_record(store_widget_1, { '_jv': {}})).to.throw(_testing.RecordError)
       })
-    }),
+    })
 
-    describe("set_status", () => {
-      it("should set the status for a specific id", () => {
+    describe("set_status", function() {
+      it("should set the status for a specific id", function() {
         const state = { '_jv': {}}
         const { set_status } = jm.mutations
         set_status(state, { id: 2, status: 'splat' })
@@ -831,77 +737,77 @@ describe("jsonapi-vuex tests", () =>  {
     })
   })
 
-  describe("jsonapiModule helpers", () =>  {
-    describe("getTypeId", () => {
-      it("should get type & id from string", () => {
+  describe("jsonapiModule helpers", function() {
+    describe("getTypeId", function() {
+      it("should get type & id from string", function() {
         const { getTypeId } = _testing
         expect(getTypeId("widget/1")).to.deep.equal([ 'widget', '1' ])
       })
-      it("should get type only from string", () => {
+      it("should get type only from string", function() {
         const { getTypeId } = _testing
         expect(getTypeId("widget")).to.deep.equal([ 'widget' ])
       })
-      it("should get type, id & relname from string", () => {
+      it("should get type, id & relname from string", function() {
         const { getTypeId } = _testing
         expect(getTypeId("widget/1/relname")).to.deep.equal([ 'widget', '1', 'relname' ])
       })
-      it("should get type & id from norm data", () => {
+      it("should get type & id from norm data", function() {
         const { getTypeId } = _testing
         expect(getTypeId(norm_widget_1)).to.deep.equal([ 'widget', '1' ])
       })
-      it("should get type only from norm data", () => {
+      it("should get type only from norm data", function() {
         const { getTypeId } = _testing
         delete norm_widget_1['_jv']['id']
         expect(getTypeId(norm_widget_1)).to.deep.equal([ 'widget' ])
       })
     })
 
-    describe("jsonapiToNormItem", () =>  {
-      it("should convert jsonapi to normalized for a single item", () =>  {
+    describe("jsonapiToNormItem", function() {
+      it("should convert jsonapi to normalized for a single item", function() {
         const { jsonapiToNormItem } = _testing
         expect(jsonapiToNormItem(json_widget_1)).to.deep.equal(norm_widget_1)
       });
-      it("should preserve deeply nested '_jv' keys", () =>  {
+      it("should preserve deeply nested '_jv' keys", function() {
         const { jsonapiToNormItem } = _testing
         expect(jsonapiToNormItem(json_widget_1)).to.deep.equal(norm_widget_1)
       });
     })
 
-    describe("jsonapiToNorm", () =>  {
-      it("should convert jsonapi to normalized for a single item", () =>  {
+    describe("jsonapiToNorm", function() {
+      it("should convert jsonapi to normalized for a single item", function() {
         const { jsonapiToNorm } = _testing
         expect(jsonapiToNorm(json_widget_1)).to.deep.equal(norm_widget_1)
       });
 
-      it("should convert jsonapi to normalized for an array of records", () =>  {
+      it("should convert jsonapi to normalized for an array of records", function() {
         const { jsonapiToNorm } = _testing
         expect(jsonapiToNorm(json_record['data'])).to.deep.equal(norm_record)
       });
 
-      it("should return an empty object if input is undefined", () =>  {
+      it("should return an empty object if input is undefined", function() {
         const { jsonapiToNorm } = _testing
         expect(jsonapiToNorm(undefined)).to.deep.equal({})
       })
     });
 
-    describe("normToJsonapi", () =>  {
-      it("should convert normalized to jsonapi for multiple items", () =>  {
+    describe("normToJsonapi", function() {
+      it("should convert normalized to jsonapi for multiple items", function() {
         const { normToJsonapi } = _testing
         expect(normToJsonapi(norm_record)).to.deep.equal(json_record)
       });
 
-      it("should convert normalized to jsonapi for a single item", () =>  {
+      it("should convert normalized to jsonapi for a single item", function() {
         const { normToJsonapi } = _testing
         expect(normToJsonapi(norm_widget_1)).to.deep.equal({ data: json_widget_1 })
       });
     });
 
-    describe("normToJsonapiItem", () => {
-      it("should convert normalized to jsonapi for a single item", () =>  {
+    describe("normToJsonapiItem", function() {
+      it("should convert normalized to jsonapi for a single item", function() {
         const { normToJsonapiItem } = _testing
         expect(normToJsonapiItem(norm_widget_1)).to.deep.equal(json_widget_1)
       });
-      it("should convert normalized to jsonapi for a single item with no id (POST)", () =>  {
+      it("should convert normalized to jsonapi for a single item with no id (POST)", function() {
         const { normToJsonapiItem } = _testing
         delete norm_widget_1['_jv']['id']
         delete json_widget_1['id']
@@ -909,37 +815,37 @@ describe("jsonapi-vuex tests", () =>  {
       });
     })
 
-    describe("normToStore", () => {
-      it("should convert normalized to store", () => {
+    describe("normToStore", function() {
+      it("should convert normalized to store", function() {
         const { normToStore } = _testing
         expect(normToStore(norm_record)).to.deep.equal(store_record)
       })
-      it("should convert normalized to store for a single item", () => {
+      it("should convert normalized to store for a single item", function() {
         const { normToStore } = _testing
         expect(normToStore(norm_widget_1)).to.deep.equal(store_widget_1)
       })
     })
-    describe("unpackArgs", () => {
-      it("Should convert a single arg into an array with empty config", () => {
+    describe("unpackArgs", function() {
+      it("Should convert a single arg into an array with empty config", function() {
         const { unpackArgs } = _testing
         expect(unpackArgs('splat')).to.deep.equal([ 'splat', {} ])
       })
-      it("Should leave an args array as-is", () => {
+      it("Should leave an args array as-is", function() {
         const { unpackArgs } = _testing
         expect(unpackArgs([ 'splat', {} ])).to.deep.equal([ 'splat', {} ])
       })
     })
 
-    describe("followRelationships", () => {
-      it("Should expand relationships into rels for a single item", () => {
+    describe("followRelationships", function() {
+      it("Should expand relationships into rels for a single item", function() {
         const { followRelationships } = _testing
         let rels = followRelationships(store_record, norm_widget_1)['_jv']['rels']['widgets']
         expect(rels).to.deep.equal(norm_widget_2)
       })
     })
 
-    describe("actionStatusClean", () => {
-      it("Should be called via setInterval", () => {
+    describe("actionStatusClean", function() {
+      it("Should be called via setInterval", function() {
         // Set an interval of 10 seconds
         const interval = 10
         // Spy on the fake clock's setInterval method
@@ -950,7 +856,7 @@ describe("jsonapi-vuex tests", () =>  {
         // Check that called with interval set correctly
         expect(spy.firstCall.args[1]).to.equal(interval * 1000)
       })
-      it("Should not be called is interval is 0", () => {
+      it("Should not be called is interval is 0", function() {
         // Set an interval of 0 seconds = disable
         const interval = 0
         // Spy on the fake clock's setInterval method
@@ -961,7 +867,7 @@ describe("jsonapi-vuex tests", () =>  {
         // Check that never called
         expect(spy).to.not.have.been.called
       })
-      it("Should remove an expired record, but not an unexpired one", () => {
+      it("Should remove an expired record, but not an unexpired one", function() {
         let { actionStatusClean, jvConfig } = _testing
         jvConfig['action_status_clean_age'] = 10
         //jm = jsonapiModule(api, { 'action_status_clean_age': 10 })
@@ -984,67 +890,67 @@ describe("jsonapi-vuex tests", () =>  {
     })
   }); // Helper methods
 
-  describe("jsonapiModule getters", () =>  {
+  describe("jsonapiModule getters", function() {
 
-    describe("get", () => {
-      it("should return all state", () => {
+    describe("get", function() {
+      it("should return all state", function() {
         const { get } = jm.getters
         const result = get(store_record)()
         expect(result).to.deep.equal(store_record)
       })
-      it("should return all state for a single endpoint", () => {
+      it("should return all state for a single endpoint", function() {
         const { get } = jm.getters
         const result = get(store_record)({ '_jv': { 'type': 'widget' }})
         expect(result).to.deep.equal(norm_record)
       })
-      it("should return all state for a single endpoint with a single record", () => {
+      it("should return all state for a single endpoint with a single record", function() {
         const { get } = jm.getters
         const result = get(store_widget_1)({ '_jv': { 'type': 'widget' }})
         expect(result).to.deep.equal(store_widget_1['widget'])
       })
-      it("should return a single id from state", () => {
+      it("should return a single id from state", function() {
         const { get } = jm.getters
         const result = get(store_widget_1)({ '_jv': { 'type': 'widget', 'id': '1' }})
         expect(result).to.deep.equal(norm_widget_1)
       })
-      it("should accept a string path to object", () => {
+      it("should accept a string path to object", function() {
         const { get } = jm.getters
         const result = get(store_widget_1)('widget/1')
         expect(result).to.deep.equal(norm_widget_1)
       })
-      it("should filter results using jsonpath, returning a single item", () => {
+      it("should filter results using jsonpath, returning a single item", function() {
         const { get } = jm.getters
         const result = get(store_record)('widget', '$[?(@.bar=="baz")]')
         expect(result).to.deep.equal({ [norm_widget_1['_jv']['id']] : norm_widget_1 })
       })
-      it("should filter results using jsonpath, returning multiple items", () => {
+      it("should filter results using jsonpath, returning multiple items", function() {
         const { get } = jm.getters
         const result = get(store_record)('widget', '$[?(@.foo)]')
         expect(result).to.deep.equal(norm_record)
       })
-      it("should filter results using jsonpath, returning no items", () => {
+      it("should filter results using jsonpath, returning no items", function() {
         const { get } = jm.getters
         const result = get(store_record)('widget', '$[?(@.nosuchkey)]')
         expect(result).to.deep.equal({})
       })
-      it("should return empty object if type not in state", () => {
+      it("should return empty object if type not in state", function() {
         const { get } = jm.getters
         const result = get({})('widget')
         expect(result).to.deep.equal({})
       })
-      it("should follow relationships data (single item)", () => {
+      it("should follow relationships data (single item)", function() {
         jm = jsonapiModule(api, { 'follow_relationships_data': true })
         const { get } = jm.getters
         const result = get(store_record, { 'get': get })('widget/1')
         expect(norm_widget_1_rels).to.deep.equal(result)
       })
-      it("should follow relationships data (array)", () => {
+      it("should follow relationships data (array)", function() {
         jm = jsonapiModule(api, { 'follow_relationships_data': true })
         const { get } = jm.getters
         const result = get(store_record, { 'get': get })('widget/2')
         expect(norm_widget_2_rels).to.deep.equal(result)
       })
-      it("should follow relationships data (array) for a collection", () => {
+      it("should follow relationships data (array) for a collection", function() {
         jm = jsonapiModule(api, { 'follow_relationships_data': true })
         const { get } = jm.getters
         const result = get(store_record, { 'get': get })('widget')
@@ -1052,14 +958,14 @@ describe("jsonapi-vuex tests", () =>  {
       })
     })
 
-    describe("status", () => {
-      it("should return the status for a given id", () => {
+    describe("status", function() {
+      it("should return the status for a given id", function() {
         const { status } = jm.getters
         let state = { '_jv': { 1: { 'status': 'splat' }}}
         const result = status(state)(1)
         expect(result).to.equal('splat')
-      }),
-      it("should return the status for a given action (promise)", () => {
+      })
+      it("should return the status for a given action (promise)", function() {
         const { status } = jm.getters
         let state = { '_jv': { 1: { 'status': 'splat' }}}
         const result = status(state)({ '_jv_id': 1 })
@@ -1068,10 +974,10 @@ describe("jsonapi-vuex tests", () =>  {
     })
   }); // getters
 
-  describe("Custom Exceptions", () =>  {
+  describe("Custom Exceptions", function() {
 
-    describe("RecordError", () => {
-      it("Should have a message and object", () => {
+    describe("RecordError", function() {
+      it("Should have a message and object", function() {
         const msg = "hello"
         const obj = { invalid: "json" }
         const exc = new _testing.RecordError(msg, obj)
