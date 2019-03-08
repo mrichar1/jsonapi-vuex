@@ -9,7 +9,7 @@ chai.use(sinonChai)
 chai.use(chaiAsPromised)
 
 // 'global' variables (redefined in beforeEach)
-var jm, clock,
+var jm, clock, stub_context,
  json_widget_1, json_widget_2, json_widget_3, json_machine_1, json_widget_1_patch, json_record, meta,
  norm_widget_1, norm_widget_2, norm_widget_3, norm_machine_1, norm_widget_1_3,
  norm_widget_1_rels, norm_widget_2_rels, norm_widget_3_rels, norm_widget_1_patch, norm_widget_1_update,
@@ -21,33 +21,6 @@ const api = axios.create({ baseURL: '' })
 
 let mock_api = new MockAdapter(api);
 
-// Stub the context's commit function to evaluate calls to it.
-const stub_context = {
-  getters: {
-    get: sinon.stub().returns({})
-  },
-  commit: sinon.stub(),
-  // Mock up dispatch('get')
-  dispatch: (method, data) => {
-    return new Promise(function(resolve) {
-      if (method == 'get') {
-        let id
-        if (typeof(data) === 'string') {
-          id = data.replace(/^\//, "").split('/')[1]
-        } else {
-          id = data['_jv']['id']
-        }
-        if (id === '1') {
-          resolve(norm_widget_1)
-        } else if (id === '2') {
-          resolve(norm_widget_2)
-        } else if (id === '3'){
-          resolve(norm_widget_3)
-        }
-      }
-    })
-  }
-}
 
 
 beforeEach(() =>  {
@@ -67,6 +40,17 @@ beforeEach(() =>  {
     'action_status_clean_interval': 0
   })
 
+  // Stub the context's commit function to evaluate calls to it.
+  stub_context = {
+    getters: {
+      get: sinon.stub().returns({})
+    },
+    commit: sinon.stub(),
+    // Map dispatch to jm.actions, with this stub_context as it's context
+    dispatch: (method, data) => {
+      return jm.actions[method](stub_context, data)
+    }
+  }
 
   // Data in JSONAPI JSON form
 
