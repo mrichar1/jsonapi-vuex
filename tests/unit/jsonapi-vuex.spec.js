@@ -17,7 +17,7 @@ var jm, clock,
  store_widget_1, store_widget_1_update, store_widget_2, store_widget_3, store_widget_1_3, store_record
 
 // Mock up a fake axios-like api instance
-const api = axios.create({ baseURL: 'http://example.com' })
+const api = axios.create({ baseURL: '' })
 
 let mock_api = new MockAdapter(api);
 
@@ -55,13 +55,16 @@ beforeEach(() =>  {
   // Set up fake timers
   clock = sinon.useFakeTimers()
 
+  // Remove mock handlers
+  mock_api.reset()
+
   // Set up commonly used data objects
 
-  mock_api.reset()
   // Turn off following by default to simplify test data in most cases
   jm = jsonapiModule(api, {
     'follow_relationships_data': false,
-    'preserve_json': false
+    'preserve_json': false,
+    'action_status_clean_interval': 0
   })
 
 
