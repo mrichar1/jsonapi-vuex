@@ -84,7 +84,7 @@ beforeEach(() =>  {
           'id': '2'
         },
         'links': {
-          'related': 'widget/1/widgets'
+          'related': '/widget/1/widgets'
         }
       }
     }
@@ -150,7 +150,7 @@ beforeEach(() =>  {
           'id': '2'
         },
         'links': {
-          'related': 'widget/1/widgets'
+          'related': '/widget/1/widgets'
         }
       }
     }
@@ -182,7 +182,7 @@ beforeEach(() =>  {
             'id': '2'
           },
           'links': {
-            'related': 'widget/1/widgets'
+            'related': '/widget/1/widgets'
           }
         }
       }
@@ -210,7 +210,7 @@ beforeEach(() =>  {
             'id': '2'
           },
           'links': {
-            'related': 'widget/1/widgets'
+            'related': '/widget/1/widgets'
           }
         }
       }

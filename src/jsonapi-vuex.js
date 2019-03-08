@@ -72,7 +72,7 @@ const actions = (api) => {
   return {
     get: (context, args) => {
       const [ data, config ] = unpackArgs(args)
-      const path = getTypeId(data).join('/')
+      const path = getURL(data)
       // https://github.com/axios/axios/issues/362
       config['data'] = config['data'] || {}
       const action_id = actionSequence()
@@ -105,7 +105,7 @@ const actions = (api) => {
         })
         .catch((error) => {
           context.commit('set_status', { id: action_id, status: STATUS_ERROR })
-          return error
+          throw error
         })
         action[jvtag + '_id'] = action_id
         return action
@@ -113,7 +113,7 @@ const actions = (api) => {
     getRelated: (context, args) => {
       let related = {}
       const data = unpackArgs(args)[0]
-      let [ , id, rel ] = getTypeId(data)
+      let [ , id, rel_name ] = getTypeId(data)
       if (!id) {
         throw "No id specified"
       }
@@ -122,9 +122,9 @@ const actions = (api) => {
       let action = context.dispatch('get', args)
         .then((record) => {
           let rels = getNested(record, [ jvtag, 'relationships' ]) || {}
-          if (rel && rels) {
+          if (rel_name && rels) {
             // Only process requested relname
-            rels = { [rel]: rels[rel] }
+            rels = { [rel_name]: rels[rel_name] }
           }
           return rels
         }) // get initial record
@@ -197,10 +197,10 @@ const actions = (api) => {
     },
     post: (context, args) => {
       let [ data, config ] = unpackArgs(args)
-      const type = getTypeId(data)[0]
+      const path = getURL(data, true)
       const action_id = actionSequence()
       context.commit('set_status', { id: action_id, status: STATUS_LOAD })
-      let action = api.post(type, normToJsonapi(data), config)
+      let action = api.post(path, normToJsonapi(data), config)
         .then((results) => {
           // If the server handed back data, store it (to get id)
           // spec says 201, but some servers (wrongly) return 200
@@ -213,14 +213,14 @@ const actions = (api) => {
         })
         .catch((error) => {
           context.commit('set_status', { id: action_id, status: STATUS_ERROR })
-          return error
+          throw error
         })
       action[jvtag + '_id'] = action_id
       return action
     },
     patch: (context, args) => {
-      const [ data, config ] = unpackArgs(args)
-      const path = getTypeId(data).join('/')
+      let [ data, config ] = unpackArgs(args)
+      const path = getURL(data)
       const action_id = actionSequence()
       context.commit('set_status', { id: action_id, status: STATUS_LOAD })
       let action = api.patch(path, normToJsonapi(data), config)
@@ -228,7 +228,8 @@ const actions = (api) => {
           // If the server handed back data, store it
           if (results.status === 200) {
             context.commit('delete_record', data)
-            context.commit('add_records', jsonapiToNorm(results.data.data))
+            data = jsonapiToNorm(results.data.data)
+            context.commit('add_records', data)
           } else if (results.status === 204) {
             // Otherwise, try to update the store record from the patch
             context.commit('update_record', data)
@@ -238,25 +239,29 @@ const actions = (api) => {
         })
         .catch((error) => {
           context.commit('set_status', { id: action_id, status: STATUS_ERROR })
-          return error
+          throw error
         })
       action[jvtag + '_id'] = action_id
       return action
     },
     delete: (context, args) => {
       const [ data, config ] = unpackArgs(args)
-      const path = getTypeId(data).join('/')
+      const path = getURL(data)
       const action_id = actionSequence()
       context.commit('set_status', { id: action_id, status: STATUS_LOAD })
       let action = api.delete(path, config)
         .then((result) => {
           context.commit('delete_record', data)
           context.commit('set_status', { id: action_id, status: STATUS_SUCCESS })
-          return preserveJSON(jsonapiToNorm(result.data.data), result.data)
+          if (result.data) {
+            return preserveJSON(jsonapiToNorm(result.data.data), result.data)
+          } else {
+            return data
+          }
         })
         .catch((error) => {
           context.commit('set_status', { id: action_id, status: STATUS_ERROR })
-          return error
+          throw error
         })
       action[jvtag + '_id'] = action_id
       return action
@@ -365,7 +370,7 @@ const actionSequence = () => {
 
 // If enabled, store the response json in the returned data
 const preserveJSON = (data, json) => {
-  if (jvConfig.preserve_json) {
+  if (jvConfig.preserve_json && data) {
     if (!(jvtag in data)) {
       data[jvtag] = {}
     }
@@ -421,7 +426,7 @@ const unpackArgs = (args) => {
   return [ args, {} ]
 }
 
-// Get type and id from data, either a string, or a restructured object
+// Get type, id, rels from a restructured object
 const getTypeId = (data) => {
   let type, id, rel
   if (typeof(data) === 'string') {
@@ -431,6 +436,23 @@ const getTypeId = (data) => {
   }
   // Strip any empty strings (falsey items)
   return [ type, id, rel ].filter(Boolean)
+}
+
+// Return path, or construct one if restructured data
+const getURL = (data, post=false) => {
+  let path = data
+  if (typeof(data) === 'object') {
+    let { type, id } = data[jvtag]
+    path = type
+    // POST endpoints are always to collections, not items
+    if (id && !(post)) {
+      path += "/" + id
+    }
+  }
+  if (!(path.startsWith("/"))) {
+    path = "/" + path
+  }
+  return path
 }
 
 // Walk an object looking for children, returning undefined rather than an error

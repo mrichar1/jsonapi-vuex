@@ -58,7 +58,7 @@ These actions take 2 arguments: the path/object to be acted on, and an (optional
 
 *Note* - Since the `dispatch` method can only accept a single argument, if both arguments are used, the argument must be an array.
 
-The first argument is an object containing [restructured data](#restructured-data). Actions which take no `data` argument apart from the record (`get` and `delete`) can also accept a string which matches the path to fetch. This means you don't need to create an 'empty' restructured data object to get or delete a record. Some examples:
+The first argument is an object containing [restructured data](#restructured-data). Actions which take no `data` argument apart from the record (`get` and `delete`) can also accept a URL to fetch (relative to `axios` `baseURL` (if set) leading slash is optional). This means you don't need to create an 'empty' restructured data object to get or delete a record. Some examples:
 
 ```
 // Restructured representation of a record
@@ -100,9 +100,9 @@ this.$store.dispatch('jv/post', [new_widget, {params: params}])
 
 *Note* - in many cases you may prefer to use the jsonapi server-side `include` option to get data on relationships included in your original query. (See `Related Items`).
 
-Like the RESTful actions, this takes 2 arguments - the path/object to be acted on, and an axios config object. It returns a deeply nested restructured tree - `relationship -> type -> id -> data`.
+Like the RESTful actions, this takes 2 arguments - the URL/object to be acted on, and an axios config object. It returns a deeply nested restructured tree - `relationship -> type -> id -> data`.
 
-*Note* - `getRelated` using a string only accepts a path to a specific record (with an id), not a collection.
+*Note* - `getRelated` only works on specific items, not collections.
 
 ```
 // Assuming the API holds the following data
