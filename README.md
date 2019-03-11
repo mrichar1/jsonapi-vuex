@@ -10,7 +10,7 @@ A module to access JSONAPI data from an API, using a Vuex store, restructured to
 * High-level methods to wrap common RESTful operations (GET, POST, PUT, DELETE).
 * Restructures/normalizes data, making record handling easier.
 * Makes fetching related objects easy.
-* Relationships can be followed and expanded into records automatically.
+* Relationships can be followed and expanded into records automatically (recursively).
 * Uses [Axios](https://github.com/axios/axios) (or your own axios-like module) as the HTTP client.
 * Uses [jsonpath](https://github.com/dchester/jsonpath) for filtering when getting objects from the store.
 * Records the status of actions (LOADING, SUCCESS, ERROR).
@@ -237,7 +237,7 @@ For example, you might want to disable an attribute while an action is happening
 
 ### Related items
 
-By default the `get` action and getter are both configured to follow and expand out relationships, if they are provided as `data` entries (i.e. `{type: 'widget', id: '1'}`).
+By default the `get` action and getter are both configured to follow and expand out relationships recursively, if they are provided as `data` entries (i.e. `{type: 'widget', id: '1'}`).
 
 *Note* - If using the `action` you may wish to also set the `include` parameter on the server query to include the relationships you are interested in. Any records returned in the `included` section of the jsonapi data will be automatically added to the store.
 

@@ -5,7 +5,6 @@ import createJsonapiModule from '../utils/create-jsonapi-module';
 import {
   jsonFormat as createJsonWidget1,
   normFormat as createNormWidget1,
-  normFormatWithRels as createNormWidget1WithRels,
 } from '../fixtures/widget_1';
 import {
   jsonFormat as createJsonWidget2,
@@ -36,9 +35,9 @@ describe("get", function() {
     json_widget_1 = createJsonWidget1();
     json_widget_2 = createJsonWidget2();
     norm_widget_1 = createNormWidget1();
-    norm_widget_1_rels = createNormWidget1WithRels();
     norm_widget_2 = createNormWidget2();
     norm_record_rels = createNormRecordRels();
+    norm_widget_1_rels = norm_record_rels[norm_widget_1['_jv']['id']];
     store_record = createStoreRecord();
     json_record = createJsonRecord();
     meta = createResponseMeta();

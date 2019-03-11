@@ -10,14 +10,12 @@ import createJsonapiModule from './utils/create-jsonapi-module';
 import {
   jsonFormat as createJsonWidget1,
   normFormat as createNormWidget1,
-  normFormatWithRels as createNormWidget1WithRels,
   normFormatPatch as createNormWidget1Patch,
   normFormatUpdate as createNormWidget1Update,
   storeFormat as createStoreWidget1,
 } from './fixtures/widget_1';
 import {
   normFormat as createNormWidget2,
-  normFormatWithRels as createNormWidget2WithRels,
 } from './fixtures/widget_2';
 import {
   normFormat as createNormWidget3,
@@ -75,9 +73,6 @@ beforeEach(function() {
   norm_widget_2 = createNormWidget2();
   norm_widget_3 = createNormWidget3();
 
-  norm_widget_1_rels = createNormWidget1WithRels();
-  norm_widget_2_rels = createNormWidget2WithRels();
-
   norm_record = {
     [norm_widget_1['_jv']['id']]: norm_widget_1,
     [norm_widget_2['_jv']['id']]: norm_widget_2,
@@ -85,6 +80,8 @@ beforeEach(function() {
   }
 
   norm_record_rels = createNormRecordRels();
+  norm_widget_1_rels = norm_record_rels[norm_widget_1['_jv']['id']];
+  norm_widget_2_rels = norm_record_rels[norm_widget_2['_jv']['id']];
 
   // Data in Store form
 
@@ -309,7 +306,7 @@ describe("jsonapi-vuex tests", function() {
       it("Should expand relationships into rels for a single item", function() {
         const { followRelationships } = _testing
         let rels = followRelationships(store_record, norm_widget_1)['_jv']['rels']['widgets']
-        expect(rels).to.deep.equal(norm_widget_2)
+        expect(rels).to.deep.equal(norm_widget_2_rels)
       })
     })
 
