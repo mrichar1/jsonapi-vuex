@@ -277,35 +277,36 @@ const actions = (api) => {
 const getters = (api) => {  // eslint-disable-line no-unused-vars
   return {
     get: (state) => (data, jsonpath) => {
-      if (!data) {
-        // No data arg - return whole state object
-        return state
-      }
 
       let result
-      const [ type, id ] = getTypeId(data)
+      if (!data) {
+        // No data arg - return whole state object
+        result = state
+      } else {
+        const [ type, id ] = getTypeId(data)
 
-      if (type in state) {
-        if (id && id in state[type]) {
-          // single item
-          result = state[type][id]
-          if (jvConfig.follow_relationships_data) {
-            result = followRelationships(state, result)
+        if (type in state) {
+          if (id && id in state[type]) {
+            // single item
+            result = state[type][id]
+            if (jvConfig.follow_relationships_data) {
+              result = followRelationships(state, result)
+            }
+          } else {
+            // whole collection, indexed by id
+            result = state[type]
+            if (jvConfig.follow_relationships_data) {
+              let result_rels = {}
+              for (let [ key, item ] of Object.entries(result)) {
+                result_rels[key] = followRelationships(state, item)
+              }
+              result = result_rels
+            }
           }
         } else {
-          // whole collection, indexed by id
-          result = state[type]
-          if (jvConfig.follow_relationships_data) {
-            let result_rels = {}
-            for (let [ key, item ] of Object.entries(result)) {
-              result_rels[key] = followRelationships(state, item)
-            }
-            result = result_rels
-          }
+          // no records for that type in state
+          return {}
         }
-      } else {
-        // no records for that type in state
-        return {}
       }
 
       // Filter by jsonpath

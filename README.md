@@ -147,7 +147,7 @@ There are 2 getters available. `get` and `status`.
 
 #### get
 
-Get returns information directly from the store for previously cached records. This is usefulf or performance reasons, or for use in computed properties.
+Get returns information directly from the store for previously cached records. This is useful for performance reasons, or for use in computed properties.
 
 ```
 computed: {
@@ -162,6 +162,8 @@ computed: {
   }
 }
 ```
+
+Like actions, `get` takes an object or string indicating the desired resources. This can be an empty string, type, or type and id, to return the whole store, a collection, or an item.
 
 `get` takes an optional 2nd argument - a `jsonpath` string to filter the record(s) which are being retrieved. See the project page for [JSONPath Syntax](https://github.com/dchester/jsonpath#jsonpath-syntax)
 
@@ -180,6 +182,9 @@ store = {
     }
   }
 }
+
+// Get all records (of any type) with id = 10 (useful if your API has globally unique UUIDs)
+this.$store.getters['jv/get']('', '$.*.10')
 
 // Get all widgets that are red:
 this.$store.getters['jv/get']('widget', '[?(@.color=="red")]')

@@ -925,6 +925,12 @@ describe("jsonapi-vuex tests", function() {
         const result = get(store_record)('widget', '$[?(@.nosuchkey)]')
         expect(result).to.deep.equal({})
       })
+      it("should filter whole store using jsonpath, returning a single item", function() {
+        const { get } = jm.getters
+        // Return all records of any type with id: 1
+        const result = get(store_record)('', '$.*.1')
+        expect(result).to.deep.equal({ [norm_widget_1['_jv']['id']] : norm_widget_1 })
+      })
       it("should return empty object if type not in state", function() {
         const { get } = jm.getters
         const result = get({})('widget')
