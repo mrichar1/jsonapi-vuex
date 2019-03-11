@@ -682,7 +682,7 @@ describe("jsonapi-vuex tests", function() {
         }
       })
     })
-  });
+  }) // actions
 
   describe("jsonapiModule mutations", function() {
 
@@ -735,7 +735,28 @@ describe("jsonapi-vuex tests", function() {
         expect(state['_jv'][2]).to.have.keys([ 'status', 'time' ])
       })
     })
-  })
+
+    describe("delete_status", function() {
+      it("should delete the status for a specific id", function() {
+        const state = {
+          '_jv': {
+            1: {
+              status: 'SUCCESS',
+              time: 0
+            }
+          }
+        }
+        const { delete_status } = jm.mutations
+        delete_status(state, 1)
+        expect(state['_jv']).to.deep.equal({})
+      }),
+      it("should not error if deleting a non-existent id", function() {
+        const state = { '_jv': {}}
+        const { delete_status } = jm.mutations
+        expect(() => delete_status(state, 2)).to.not.throw()
+      })
+    })
+  })  // mutations
 
   describe("jsonapiModule helpers", function() {
     describe("getTypeId", function() {
@@ -844,48 +865,19 @@ describe("jsonapi-vuex tests", function() {
       })
     })
 
-    describe("actionStatusClean", function() {
-      it("Should be called via setInterval", function() {
-        // Set an interval of 10 seconds
-        const interval = 10
-        // Spy on the fake clock's setInterval method
-        let spy = sinon.spy(clock, 'setInterval')
-        jm = jsonapiModule(api, { 'action_status_clean_interval': interval })
-        // Simulate time passing (1ms more than interval)
-        clock.tick(interval * 1000 + 1)
-        // Check that called with interval set correctly
-        expect(spy.firstCall.args[1]).to.equal(interval * 1000)
+    describe("actionSequence", function() {
+      it("Should return incrementing numbers", function() {
+        // Set fake context for timeout callback
+        let context = { commit: () => {} }
+        let { actionSequence } = _testing
+        expect(actionSequence(context)).to.be.below(actionSequence(context))
       })
-      it("Should not be called is interval is 0", function() {
-        // Set an interval of 0 seconds = disable
-        const interval = 0
-        // Spy on the fake clock's setInterval method
-        let spy = sinon.spy(clock, 'setInterval')
-        jm = jsonapiModule(api, { 'action_status_clean_interval': interval })
-        // Simulate time passing
-        clock.tick(10000)
-        // Check that never called
-        expect(spy).to.not.have.been.called
-      })
-      it("Should remove an expired record, but not an unexpired one", function() {
-        let { actionStatusClean, jvConfig } = _testing
+      it("Should call delete_status after timeout", function() {
+        let { actionSequence, jvConfig } = _testing
         jvConfig['action_status_clean_age'] = 10
-        //jm = jsonapiModule(api, { 'action_status_clean_age': 10 })
-        let state = {
-          _jv: {
-            1: {
-              status: 'SUCCESS',
-              time: 0
-            },
-            2: {
-              status: 'SUCCESS',
-              time: 9000
-            }
-          }
-        }
+        actionSequence(stub_context)
         clock.tick(11000)
-        actionStatusClean(state)
-        expect(state['_jv']).to.have.key(2).and.not.have.key(1)
+        expect(stub_context.commit).to.have.been.calledWith('delete_status')
       })
     })
   }); // Helper methods

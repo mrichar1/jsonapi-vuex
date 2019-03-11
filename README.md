@@ -308,8 +308,7 @@ jm = jsonapiModule(api, config)
 * `jvtag` - The tag in restructured objects to hold object metadata (defaults to `_jv`)
 * `follow_relationships_data` - Whether to follow and expand relationships from the store in the `get` getter (defaults to `true`)
 * `preserve_json` - Whether actions should return the API response json (minus `data`) in `_jv/json` (for access to meta etc) (defaults to `false`)
-* `action_status_clean_interval` - How often to clean out old action status records (defaults to 180 seconds).
-* `action_status_clean_age` - What age must action status records be before they are removed (defaults to 600 seconds).
+* `action_status_clean_age` - What age must action status records be before they are removed (defaults to 600 seconds). Set to `0` to disable.
 
 ## Restructured Data
 

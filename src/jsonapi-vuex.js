@@ -22,9 +22,7 @@ let jvConfig = {
   'follow_relationships_data': true,
   // Preserve API response json in return data
   'preserve_json': false,
-  // Trigger a cleanup of action status records every N seconds (0 disables)
-  'action_status_clean_interval': 180,
-  // Age of action status records to clean (in seconds)
+  // Age of action status records to clean (in seconds). (0 disables).
   'action_status_clean_age': 600
 }
 
@@ -64,6 +62,11 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
     },
     set_status: (state, { id, status }) => {
       Vue.set(state[jvtag], id, { status: status, time: Date.now() })
+    },
+    delete_status: (state, id) => {
+      if (id in state[jvtag]) {
+        Vue.delete(state[jvtag], id)
+      }
     }
   }
 }
@@ -75,7 +78,7 @@ const actions = (api) => {
       const path = getURL(data)
       // https://github.com/axios/axios/issues/362
       config['data'] = config['data'] || {}
-      const action_id = actionSequence()
+      const action_id = actionSequence(context)
       context.commit('set_status', { id: action_id, status: STATUS_LOAD })
       let action = api.get(path, config)
         .then((results) => {
@@ -116,7 +119,7 @@ const actions = (api) => {
       if (!id) {
         throw "No id specified"
       }
-      const action_id = actionSequence()
+      const action_id = actionSequence(context)
       context.commit('set_status', { id: action_id, status: STATUS_LOAD })
       // We can't pass multiple/non-promise vars in a promise chain,
       // so must define such vars in a higher scope
@@ -197,7 +200,7 @@ const actions = (api) => {
     post: (context, args) => {
       let [ data, config ] = unpackArgs(args)
       const path = getURL(data, true)
-      const action_id = actionSequence()
+      const action_id = actionSequence(context)
       context.commit('set_status', { id: action_id, status: STATUS_LOAD })
       let action = api.post(path, normToJsonapi(data), config)
         .then((results) => {
@@ -220,7 +223,7 @@ const actions = (api) => {
     patch: (context, args) => {
       let [ data, config ] = unpackArgs(args)
       const path = getURL(data)
-      const action_id = actionSequence()
+      const action_id = actionSequence(context)
       context.commit('set_status', { id: action_id, status: STATUS_LOAD })
       let action = api.patch(path, normToJsonapi(data), config)
         .then((results) => {
@@ -246,7 +249,7 @@ const actions = (api) => {
     delete: (context, args) => {
       const [ data, config ] = unpackArgs(args)
       const path = getURL(data)
-      const action_id = actionSequence()
+      const action_id = actionSequence(context)
       context.commit('set_status', { id: action_id, status: STATUS_LOAD })
       let action = api.delete(path, config)
         .then((result) => {
@@ -336,10 +339,6 @@ const jsonapiModule = (api, conf = {}) => {
 
   let state = { [jvtag]: {}}
 
-  if (jvConfig.action_status_clean_interval > 0) {
-    setInterval(actionStatusClean, jvConfig.action_status_clean_interval * 1000, state)
-  }
-
   return {
     namespaced: true,
 
@@ -353,18 +352,13 @@ const jsonapiModule = (api, conf = {}) => {
 
 // Helper methods
 
-const actionStatusClean = (state) => {
-  let now = Date.now()
-  for (let [ id, data ] of Object.entries(state['_jv'])) {
-    if (now - data.time > jvConfig.action_status_clean_age * 1000) {
-      Vue.delete(state[jvtag], id)
-      }
+const actionSequence = (context) => {
+  // Increment the global action id, set up a cleanup timeout and return it
+  let id = ++action_sequence
+  if (jvConfig.action_status_clean_age > 0) {
+    setTimeout(context.commit, jvConfig.action_status_clean_age * 1000, 'delete_status', id)
   }
-}
-
-const actionSequence = () => {
-  // Increment the global action id and return it
-  return ++action_sequence
+  return id
 }
 
 // If enabled, store the response json in the returned data
@@ -538,7 +532,7 @@ const normToStore = (record) => {
 
 // Export a single object with references to 'private' functions for the test suite
 const _testing = {
-  actionStatusClean: actionStatusClean,
+  actionSequence: actionSequence,
   getTypeId: getTypeId,
   jsonapiToNorm: jsonapiToNorm,
   jsonapiToNormItem: jsonapiToNormItem,
