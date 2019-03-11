@@ -3,6 +3,9 @@
     <h1>JSONAPI Vuex Test App</h1>
     <div id="raw_data" style="border: 1px solid;">
       <h2>Raw Data</h2>
+      <h3>Action Sessions</h3>
+      <pre>{{ sessions }} </pre>
+      <h3>API State</h3>
       <pre>{{ widgets }}</pre>
     </div>
     <div id="render_data" style="border: 1px solid;">
@@ -70,6 +73,9 @@ export default {
     }
   },
   computed: {
+    sessions () {
+      return this.$store.state.jv._jv
+   },
     widgets () {
       return this.$store.getters["jv/get"]('widget')
     },
