@@ -383,3 +383,49 @@ The above structure is actually how records are maintained in the store, nested 
   }
 }
 ```
+
+## Development
+
+Any bugs, enhancements or questions welcome as Issues (or even PRs!)
+
+Development is currently being done with [yarn](https://yarnpkg.com/en/) - `npm` should work, but if you hit unexpected issues, please try `yarn` before filing a bug.
+
+### Setup
+
+Having cloned this repository, simply run:
+
+`yarn`
+
+This should pull in all dependencies and development dependencies.
+
+### Testing
+
+There are several scripts set up in `package.json`:
+
+`yarn unit` - Run the unit tests (uses `karma`, `mocha`, `chai`, `sinon`)
+
+`yarn e2e` - Run the e2e tests (uses `nightwatch`)
+
+`yarn testapp` - Runs the example `testapp` used in e2e testing for interactive testing/debugging.
+
+`yarn fakeapiserver` - Runs a fake JSONAPI server used by the testapp for interactive testing/debugging.
+
+`yarn test` - Runs both unit and e2e tests. (Used by `travis`).
+
+*Note* - All code is pre-processed with `babel` and `eslint` when testing for backwards compatability and linting.
+
+### Coding Standards
+
+Please follow these guidelines when writing and submitting code:
+
+* **eslint** - This is run over both the main code and the test suite during tests. See `.eslint.rc.js` for changes to the default rules.
+
+* **>= ES6** - Please try to use ES6 and newer methods (matching the policy that `Vue` has).
+
+* **Tests** - This project aspires to test-driven development. Please submit unit tests (and ideally e2e tests) with all PRs (unless there's a good reason not to).
+
+* **Versioning** - Semantic versioning should be used, see https://semver.org for details.
+
+* **Continuous Integration** - The project uses [travis(https://travis-ci.com) to run tests against all submissions - PRs that are not passing will not be accepted (without good reason).
+
+* **Specific Commits** - Please make all commits/PRs as atomic and specific as possible.
