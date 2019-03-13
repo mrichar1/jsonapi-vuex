@@ -6,6 +6,7 @@ import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
 
 import { _testing, jsonapiModule } from '../../src/jsonapi-vuex';
+import createStubContext from './stubs/context';
 import {
   jsonFormat as createJsonWidget1,
   jsonFormatPatch as createJsonWidget1Patch,
@@ -30,6 +31,9 @@ import {
   normFormatWithRels as createNormRecordRels,
   storeFormat as createStoreRecord
 } from './fixtures/record';
+import {
+  createResponseMeta
+} from './fixtures/server_response';
 
 chai.use(sinonChai)
 chai.use(chaiAsPromised)
@@ -64,16 +68,7 @@ beforeEach(function() {
   })
 
   // Stub the context's commit function to evaluate calls to it.
-  stub_context = {
-    getters: {
-      get: sinon.stub().returns({})
-    },
-    commit: sinon.stub(),
-    // Map dispatch to jm.actions, with this stub_context as it's context
-    dispatch: (method, data) => {
-      return jm.actions[method](stub_context, data)
-    }
-  }
+  stub_context = createStubContext(jm);
 
   // Data in JSONAPI JSON form
 
@@ -84,7 +79,7 @@ beforeEach(function() {
   json_record = createJsonRecord();
 
   // META only data
-  meta = { 'meta': { 'token': 123456 }}
+  meta = createResponseMeta();
 
   // Data in Normalised/Restructured form
 
@@ -132,12 +127,9 @@ beforeEach(function() {
 
   store_record = createStoreRecord();
 
-  // TODO: Import these instead of relying on `this`.
   this.api = api;
   this.mock_api = mock_api;
-  this.jm = jm;
-  this.stub_context = stub_context;
-  this.meta = meta;
+  this.jsonapiModule = jm;
 })
 
 afterEach(function() {
