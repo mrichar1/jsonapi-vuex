@@ -8,14 +8,20 @@ import { _testing, jsonapiModule } from '../../src/jsonapi-vuex';
 import {
   createJsonWidget1,
   createJsonWidget2,
-  createJsonWidget3
+  createJsonWidget3,
+  createJsonWidget1Patch,
+  createNormWidget1,
+  createNormWidget1Patch,
+  createNormWidget1Update,
+  createNormWidget2,
+  createNormWidget3,
 } from './fixtures/index';
 
 chai.use(sinonChai)
 chai.use(chaiAsPromised)
 
 // 'global' variables (redefined in beforeEach)
-var jm, clock, stub_context,
+let jm, clock, stub_context,
  json_widget_1, json_widget_2, json_widget_3, json_widget_1_patch, json_record, meta,
  norm_widget_1, norm_widget_2, norm_widget_3, norm_widget_1_3,
  norm_widget_1_rels, norm_widget_2_rels, norm_widget_3_rels, norm_widget_1_patch, norm_widget_1_update,
@@ -59,26 +65,7 @@ beforeEach(function() {
   json_widget_1 = createJsonWidget1();
   json_widget_2 = createJsonWidget2();
   json_widget_3 = createJsonWidget3();
-
-  json_widget_1_patch = {
-    id: '1',
-    type: 'widget',
-    attributes: {
-      'foo': 'update',
-      'bar': 'baz'
-    },
-    relationships: {
-      'widgets': {
-        'data': {
-          'type': 'widget',
-          'id': '2'
-        },
-        'links': {
-          'related': '/widget/1/widgets'
-        }
-      }
-    }
-  }
+  json_widget_1_patch = createJsonWidget1Patch();
 
   json_record = {
     data: [
@@ -86,98 +73,17 @@ beforeEach(function() {
     ]
   }
 
-
   // META only data
   meta = { 'meta': { 'token': 123456 }}
 
-
   // Data in Normalised/Restructured form
 
-  norm_widget_1 = {
-    'foo': 1,
-    'bar': 'baz',
-    '_jv': {
-      'type': 'widget',
-      'id': '1',
-      'relationships': {
-        'widgets': {
-          'data': {
-            'type': 'widget',
-            'id': '2'
-          },
-          'links': {
-            'related': '/widget/1/widgets'
-          }
-        }
-      }
-    }
-  }
+  norm_widget_1 = createNormWidget1();
+  norm_widget_1_patch = createNormWidget1Patch();
+  norm_widget_1_update = createNormWidget1Update();
 
-  norm_widget_1_patch = {
-    'foo': 'update',
-    '_jv': {
-      'type': 'widget',
-      'id': '1'
-    }
-  }
-
-  norm_widget_1_update = {
-    'foo': 'update',
-    'bar': 'baz',
-    '_jv': {
-      'type': 'widget',
-      'id': '1',
-      'relationships': {
-        'widgets': {
-          'data': {
-            'type': 'widget',
-            'id': '2'
-          },
-          'links': {
-            'related': '/widget/1/widgets'
-          }
-        }
-      }
-    }
-  }
-
-  norm_widget_2 = {
-    'foo': 2,
-    '_jv': {
-      'type': 'widget',
-      'id': '2',
-      'relationships': {
-        'widgets': {
-          'data': [
-            {
-              'type': 'widget',
-              'id': '1'
-            },
-            {
-              'type': 'widget',
-              'id': '3'
-            }
-          ]
-        }
-      }
-    }
-  }
-
-  norm_widget_3 = {
-    'foo': 3,
-    '_jv': {
-      'type': 'widget',
-      'id': '3',
-      'relationships': {
-        'widgets': {
-          'data': {
-            'type': 'widget',
-            'id': '1'
-          }
-        }
-      }
-    }
-  }
+  norm_widget_2 = createNormWidget2();
+  norm_widget_3 = createNormWidget3();
 
   norm_widget_1_3 = {
     '1': norm_widget_1,
