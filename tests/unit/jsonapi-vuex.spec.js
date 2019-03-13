@@ -1,5 +1,6 @@
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
+import chaiExclude from 'chai-exclude';
 import sinonChai from 'sinon-chai';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
@@ -9,6 +10,7 @@ import {
   jsonFormat as createJsonWidget1,
   jsonFormatPatch as createJsonWidget1Patch,
   normFormat as createNormWidget1,
+  normFormatWithRels as createNormWidget1WithRels,
   normFormatPatch as createNormWidget1Patch,
   normFormatUpdate as createNormWidget1Update,
   storeFormat as createStoreWidget1,
@@ -16,24 +18,30 @@ import {
 import {
   jsonFormat as createJsonWidget2,
   normFormat as createNormWidget2,
+  normFormatWithRels as createNormWidget2WithRels,
   storeFormat as createStoreWidget2,
 } from './fixtures/widget_2';
 import {
   jsonFormat as createJsonWidget3,
   normFormat as createNormWidget3,
-  storeFormat as createStoreWidget3,
 } from './fixtures/widget_3';
+import {
+  jsonFormat as createJsonRecord,
+  normFormatWithRels as createNormRecordRels,
+  storeFormat as createStoreRecord
+} from './fixtures/record';
 
 chai.use(sinonChai)
 chai.use(chaiAsPromised)
+chai.use(chaiExclude)
 
 // 'global' variables (redefined in beforeEach)
 let jm, clock, stub_context,
  json_widget_1, json_widget_2, json_widget_3, json_widget_1_patch, json_record, meta,
- norm_widget_1, norm_widget_2, norm_widget_3, norm_widget_1_3,
- norm_widget_1_rels, norm_widget_2_rels, norm_widget_3_rels, norm_widget_1_patch, norm_widget_1_update,
+ norm_widget_1, norm_widget_2, norm_widget_3,
+ norm_widget_1_rels, norm_widget_2_rels, norm_widget_1_patch, norm_widget_1_update,
  norm_record, norm_record_rels,
- store_widget_1, store_widget_1_update, store_widget_2, store_widget_3, store_widget_1_3, store_record
+ store_widget_1, store_widget_1_update, store_widget_2, store_widget_1_3, store_record
 
 // Mock up a fake axios-like api instance
 const api = axios.create({ baseURL: '' })
@@ -73,12 +81,7 @@ beforeEach(function() {
   json_widget_2 = createJsonWidget2();
   json_widget_3 = createJsonWidget3();
   json_widget_1_patch = createJsonWidget1Patch();
-
-  json_record = {
-    data: [
-      json_widget_1, json_widget_2, json_widget_3
-    ]
-  }
+  json_record = createJsonRecord();
 
   // META only data
   meta = { 'meta': { 'token': 123456 }}
@@ -92,18 +95,8 @@ beforeEach(function() {
   norm_widget_2 = createNormWidget2();
   norm_widget_3 = createNormWidget3();
 
-  norm_widget_1_3 = {
-    '1': norm_widget_1,
-    '3': norm_widget_3
-  }
-
-  // Copy norm_widget_* and add expanded rels
-  norm_widget_1_rels = JSON.parse(JSON.stringify(norm_widget_1))
-  norm_widget_2_rels = JSON.parse(JSON.stringify(norm_widget_2))
-  norm_widget_3_rels = JSON.parse(JSON.stringify(norm_widget_3))
-  norm_widget_1_rels['_jv']['rels'] = { 'widgets': norm_widget_2 }
-  norm_widget_2_rels['_jv']['rels'] = { 'widgets': norm_widget_1_3 }
-  norm_widget_3_rels['_jv']['rels'] = { 'widgets': norm_widget_1 }
+  norm_widget_1_rels = createNormWidget1WithRels();
+  norm_widget_2_rels = createNormWidget2WithRels();
 
   norm_record = {
     [norm_widget_1['_jv']['id']]: norm_widget_1,
@@ -111,17 +104,12 @@ beforeEach(function() {
     [norm_widget_3['_jv']['id']]: norm_widget_3
   }
 
-  norm_record_rels = {
-    [norm_widget_1['_jv']['id']]: norm_widget_1_rels,
-    [norm_widget_2['_jv']['id']]: norm_widget_2_rels,
-    [norm_widget_3['_jv']['id']]: norm_widget_3_rels
-  }
+  norm_record_rels = createNormRecordRels();
 
   // Data in Store form
 
-  store_widget_1 = createStoreWidget1(norm_widget_1);
-  store_widget_2 = createStoreWidget2(norm_widget_2);
-  store_widget_3 = createStoreWidget3(norm_widget_3);
+  store_widget_1 = createStoreWidget1();
+  store_widget_2 = createStoreWidget2();
 
   store_widget_1_3 = {
     'widget':{
@@ -142,26 +130,13 @@ beforeEach(function() {
     }
   }
 
-  store_record = {
-    'widget': {
-      ...store_widget_1['widget'],
-      ...store_widget_2['widget'],
-      ...store_widget_3['widget']
-    }
-  }
+  store_record = createStoreRecord();
 
-  // Variables Used by required submodules.
-  // HACK: Rely on `this` so that submodules can access them. Eventually, we
-  // will want to define these in fixture files and import them as needed.
-  // Could use a factory library. See `fixtures/widget_1.js`.
+  // TODO: Import these instead of relying on `this`.
   this.api = api;
   this.mock_api = mock_api;
   this.jm = jm;
   this.stub_context = stub_context;
-  this.norm_widget_1_rels = norm_widget_1_rels
-  this.norm_record_rels = norm_record_rels;
-  this.store_record = store_record;
-  this.json_record = json_record;
   this.meta = meta;
 })
 
@@ -688,13 +663,13 @@ describe("jsonapi-vuex tests", function() {
         jm = jsonapiModule(api, { 'follow_relationships_data': true })
         const { get } = jm.getters
         const result = get(store_record, { 'get': get })('widget/2')
-        expect(norm_widget_2_rels).to.deep.equal(result)
+        expect(norm_widget_2_rels).excludingEvery('_jv').to.deep.equal(result)
       })
       it("should follow relationships data (array) for a collection", function() {
         jm = jsonapiModule(api, { 'follow_relationships_data': true })
         const { get } = jm.getters
         const result = get(store_record, { 'get': get })('widget')
-        expect(norm_record_rels).to.deep.equal(result)
+        expect(norm_record_rels).excludingEvery('_jv').to.deep.equal(result)
       })
     })
 

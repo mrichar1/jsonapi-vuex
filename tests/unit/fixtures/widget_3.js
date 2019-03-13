@@ -1,3 +1,7 @@
+import {
+  normFormat as createNormWidget1,
+} from './widget_1';
+
 export function jsonFormat() {
   return {
     id: '3',
@@ -34,11 +38,17 @@ export function normFormat() {
   }
 }
 
-export function storeFormat(normalizedFormat = normFormat()) {
+export function normFormatWithRels() {
+  const widget = normFormat()
+  widget._jv.rels = { widgets: createNormWidget1() }
+  return widget
+}
+
+export function storeFormat() {
   return {
     'widget':{
       '3': {
-        ...normalizedFormat
+        ...normFormat()
       }
     }
   }

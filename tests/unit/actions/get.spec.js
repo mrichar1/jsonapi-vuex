@@ -4,6 +4,7 @@ import { jsonapiModule } from '../../../src/jsonapi-vuex.js';
 import {
   jsonFormat as createJsonWidget1,
   normFormat as createNormWidget1,
+  normFormatWithRels as createNormWidget1WithRels,
 } from '../fixtures/widget_1';
 import {
   jsonFormat as createJsonWidget2,
@@ -13,11 +14,17 @@ import {
   jsonFormat as createJsonMachine1,
   normFormat as createNormMachine1,
 } from '../fixtures/machine_1';
+import {
+  jsonFormat as createJsonRecord,
+  normFormatWithRels as createNormRecordRels,
+  storeFormat as createStoreRecord,
+} from '../fixtures/record';
 
 describe("get", function() {
 
   let json_machine_1, norm_machine_1, json_widget_1, json_widget_2,
-    norm_widget_1, norm_widget_2;
+    norm_widget_1, norm_widget_1_rels, norm_widget_2, norm_record_rels,
+    store_record, json_record;
 
   beforeEach(function() {
     json_machine_1 = createJsonMachine1();
@@ -25,7 +32,11 @@ describe("get", function() {
     json_widget_1 = createJsonWidget1();
     json_widget_2 = createJsonWidget2();
     norm_widget_1 = createNormWidget1();
+    norm_widget_1_rels = createNormWidget1WithRels();
     norm_widget_2 = createNormWidget2();
+    norm_record_rels = createNormRecordRels();
+    store_record = createStoreRecord();
+    json_record = createJsonRecord();
   });
 
   it("should make an api call to GET item(s)", async function() {
@@ -97,23 +108,23 @@ describe("get", function() {
   it("should return normalized data with expanded rels (single item)", async function() {
     const jm = jsonapiModule(this.api, { 'follow_relationships_data': true })
     // Make state contain all records for rels to work
-    this.stub_context['state'] = this.store_record
+    this.stub_context['state'] = store_record
     this.mock_api.onAny().reply(200, { data: json_widget_1 })
 
     let res = await jm.actions.get(this.stub_context, norm_widget_1)
 
-    expect(res).to.deep.equal(this.norm_widget_1_rels)
+    expect(res).to.deep.equal(norm_widget_1_rels)
   })
 
   it("should return normalized data with expanded rels (array)", async function() {
     const jm = jsonapiModule(this.api, { 'follow_relationships_data': true })
     // Make state contain all records for rels to work
-    this.stub_context['state'] = this.store_record
-    this.mock_api.onAny().reply(200, this.json_record)
+    this.stub_context['state'] = store_record
+    this.mock_api.onAny().reply(200, json_record)
 
     let res = await jm.actions.get(this.stub_context, "widget")
 
-    expect(res).to.deep.equal(this.norm_record_rels)
+    expect(res).excludingEvery('_jv').to.deep.equal(norm_record_rels)
   })
 
   it("should handle an empty rels 'data' object", async function() {
