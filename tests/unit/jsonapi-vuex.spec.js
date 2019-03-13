@@ -6,16 +6,23 @@ import MockAdapter from 'axios-mock-adapter';
 
 import { _testing, jsonapiModule } from '../../src/jsonapi-vuex';
 import {
-  createJsonWidget1,
-  createJsonWidget2,
-  createJsonWidget3,
-  createJsonWidget1Patch,
-  createNormWidget1,
-  createNormWidget1Patch,
-  createNormWidget1Update,
-  createNormWidget2,
-  createNormWidget3,
-} from './fixtures/index';
+  jsonFormat as createJsonWidget1,
+  jsonFormatPatch as createJsonWidget1Patch,
+  normFormat as createNormWidget1,
+  normFormatPatch as createNormWidget1Patch,
+  normFormatUpdate as createNormWidget1Update,
+  storeFormat as createStoreWidget1,
+} from './fixtures/widget_1';
+import {
+  jsonFormat as createJsonWidget2,
+  normFormat as createNormWidget2,
+  storeFormat as createStoreWidget2,
+} from './fixtures/widget_2';
+import {
+  jsonFormat as createJsonWidget3,
+  normFormat as createNormWidget3,
+  storeFormat as createStoreWidget3,
+} from './fixtures/widget_3';
 
 chai.use(sinonChai)
 chai.use(chaiAsPromised)
@@ -110,32 +117,11 @@ beforeEach(function() {
     [norm_widget_3['_jv']['id']]: norm_widget_3_rels
   }
 
-
   // Data in Store form
 
-  store_widget_1 = {
-    'widget':{
-      '1': {
-        ...norm_widget_1
-      }
-    }
-  }
-
-  store_widget_2 = {
-    'widget':{
-      '2': {
-        ...norm_widget_2
-      }
-    }
-  }
-
-  store_widget_3 = {
-    'widget':{
-      '3': {
-        ...norm_widget_3
-      }
-    }
-  }
+  store_widget_1 = createStoreWidget1(norm_widget_1);
+  store_widget_2 = createStoreWidget2(norm_widget_2);
+  store_widget_3 = createStoreWidget3(norm_widget_3);
 
   store_widget_1_3 = {
     'widget':{
@@ -167,7 +153,7 @@ beforeEach(function() {
   // Variables Used by required submodules.
   // HACK: Rely on `this` so that submodules can access them. Eventually, we
   // will want to define these in fixture files and import them as needed.
-  // Could use a factory library. See `fixtures/json_index_1.js`.
+  // Could use a factory library. See `fixtures/widget_1.js`.
   this.api = api;
   this.mock_api = mock_api;
   this.jm = jm;

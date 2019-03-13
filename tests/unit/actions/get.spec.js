@@ -2,11 +2,17 @@ import { expect } from 'chai';
 
 import { jsonapiModule } from '../../../src/jsonapi-vuex.js';
 import {
-  createJsonWidget1,
-  createJsonWidget2,
-  createNormWidget1,
-  createNormWidget2,
-} from '../fixtures/index';
+  jsonFormat as createJsonWidget1,
+  normFormat as createNormWidget1,
+} from '../fixtures/widget_1';
+import {
+  jsonFormat as createJsonWidget2,
+  normFormat as createNormWidget2,
+} from '../fixtures/widget_2';
+import {
+  jsonFormat as createJsonMachine1,
+  normFormat as createNormMachine1,
+} from '../fixtures/machine_1';
 
 describe("get", function() {
 
@@ -14,22 +20,8 @@ describe("get", function() {
     norm_widget_1, norm_widget_2;
 
   beforeEach(function() {
-    json_machine_1 = {
-      id: '1',
-      type: 'machine',
-      attributes: {
-        'foo': 1
-      }
-    }
-
-    norm_machine_1 = {
-      'foo': 1,
-      '_jv': {
-        'type': 'machine',
-        'id': '1'
-      }
-    }
-
+    json_machine_1 = createJsonMachine1();
+    norm_machine_1 = createNormMachine1();
     json_widget_1 = createJsonWidget1();
     json_widget_2 = createJsonWidget2();
     norm_widget_1 = createNormWidget1();
