@@ -1,6 +1,10 @@
 module.exports = {
   mode: 'production',
   performance: { 'hints': false },
+  // Re-enable Errors (disabled in production mode) to allow eslint to stop build
+  optimization: {
+    noEmitOnErrors: false
+  },
   module: {
     rules: [
       {
@@ -8,6 +12,10 @@ module.exports = {
         test: /\.js$/,
         exclude: /(node_modules|bower_components)/,
         loader: "eslint-loader",
+        options: {
+          failOnWarning: true,
+          failOnError: true
+        }
       },
       {
         test: /\.js$/,
