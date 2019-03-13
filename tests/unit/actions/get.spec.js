@@ -1,11 +1,17 @@
 import { expect } from 'chai';
 
 import { jsonapiModule } from '../../../src/jsonapi-vuex.js';
-import { createJsonWidget1, createJsonWidget2 } from '../fixtures/index';
+import {
+  createJsonWidget1,
+  createJsonWidget2,
+  createNormWidget1,
+  createNormWidget2,
+} from '../fixtures/index';
 
 describe("get", function() {
 
-  let json_machine_1, norm_machine_1, json_widget_1, json_widget_2;
+  let json_machine_1, norm_machine_1, json_widget_1, json_widget_2,
+    norm_widget_1, norm_widget_2;
 
   beforeEach(function() {
     json_machine_1 = {
@@ -26,30 +32,32 @@ describe("get", function() {
 
     json_widget_1 = createJsonWidget1();
     json_widget_2 = createJsonWidget2();
+    norm_widget_1 = createNormWidget1();
+    norm_widget_2 = createNormWidget2();
   });
 
   it("should make an api call to GET item(s)", async function() {
     this.mock_api.onAny().reply(200, { data: json_widget_1 })
 
-    await this.jm.actions.get(this.stub_context, this.norm_widget_1)
+    await this.jm.actions.get(this.stub_context, norm_widget_1)
 
-    expect(this.mock_api.history.get[0].url).to.equal(`/${this.norm_widget_1['_jv']['type']}/${this.norm_widget_1['_jv']['id']}`)
+    expect(this.mock_api.history.get[0].url).to.equal(`/${norm_widget_1['_jv']['type']}/${norm_widget_1['_jv']['id']}`)
   })
 
   it("should make an api call to GET a collection", async function() {
     this.mock_api.onAny().reply(200, { data: json_widget_1 })
-    delete this.norm_widget_1['_jv']['id']
+    delete norm_widget_1['_jv']['id']
 
-    await this.jm.actions.get(this.stub_context, this.norm_widget_1)
+    await this.jm.actions.get(this.stub_context, norm_widget_1)
 
-    expect(this.mock_api.history.get[0].url).to.equal(`/${this.norm_widget_1['_jv']['type']}`)
+    expect(this.mock_api.history.get[0].url).to.equal(`/${norm_widget_1['_jv']['type']}`)
   })
 
   it("should accept axios config as the 2nd arg in a list", async function() {
     this.mock_api.onAny().reply(200, { data: json_widget_1 })
     const params = { filter: "color" }
 
-    await this.jm.actions.get(this.stub_context, [ this.norm_widget_1, { params: params } ])
+    await this.jm.actions.get(this.stub_context, [ norm_widget_1, { params: params } ])
 
     expect(this.mock_api.history.get[0].params).to.equal(params)
   })
@@ -57,9 +65,9 @@ describe("get", function() {
   it("should add record(s) in the store", async function() {
     this.mock_api.onAny().reply(200, { data: json_widget_1 })
 
-    await this.jm.actions.get(this.stub_context, this.norm_widget_1)
+    await this.jm.actions.get(this.stub_context, norm_widget_1)
 
-    expect(this.stub_context.commit).to.have.been.calledWith("add_records", this.norm_widget_1)
+    expect(this.stub_context.commit).to.have.been.calledWith("add_records", norm_widget_1)
   })
 
   it("should add record(s) (string) in the store", async function()  {
@@ -68,15 +76,15 @@ describe("get", function() {
     // Leading slash is incorrect syntax, but we should handle it so test with it in
     await this.jm.actions.get(this.stub_context, "widget/1")
 
-    expect(this.stub_context.commit).to.have.been.calledWith("add_records", this.norm_widget_1)
+    expect(this.stub_context.commit).to.have.been.calledWith("add_records", norm_widget_1)
   })
 
   it("should return normalized data", async function() {
     this.mock_api.onAny().reply(200, { data: json_widget_1 })
 
-    let res = await this.jm.actions.get(this.stub_context, this.norm_widget_1)
+    let res = await this.jm.actions.get(this.stub_context, norm_widget_1)
 
-    expect(res).to.deep.equal(this.norm_widget_1)
+    expect(res).to.deep.equal(norm_widget_1)
   })
 
   it("should add included record(s) to the store", async function() {
@@ -88,9 +96,9 @@ describe("get", function() {
     this.mock_api.onAny().reply(200, data)
 
     // for a real API call, would need axios include params here
-    await this.jm.actions.get(this.stub_context, this.norm_widget_1)
+    await this.jm.actions.get(this.stub_context, norm_widget_1)
 
-    expect(this.stub_context.commit).to.have.been.calledWith("add_records", this.norm_widget_2)
+    expect(this.stub_context.commit).to.have.been.calledWith("add_records", norm_widget_2)
     expect(this.stub_context.commit).to.have.been.calledWith("add_records", norm_machine_1)
   })
 
@@ -100,7 +108,7 @@ describe("get", function() {
     this.stub_context['state'] = this.store_record
     this.mock_api.onAny().reply(200, { data: json_widget_1 })
 
-    let res = await jm.actions.get(this.stub_context, this.norm_widget_1)
+    let res = await jm.actions.get(this.stub_context, norm_widget_1)
 
     expect(res).to.deep.equal(this.norm_widget_1_rels)
   })
@@ -123,7 +131,7 @@ describe("get", function() {
     delete json_widget_1['relationships']['widgets']['links']
     this.mock_api.onAny().reply(200, { data: json_widget_1 })
 
-    let res = await jm.actions.get(this.stub_context, this.norm_widget_1)
+    let res = await jm.actions.get(this.stub_context, norm_widget_1)
 
     expect(res['_jv']['rels']['widgets']).to.deep.equal({})
   })
@@ -154,7 +162,7 @@ describe("get", function() {
     this.mock_api.onAny().reply(500)
 
     try {
-      await this.jm.actions.get(this.stub_context, this.norm_widget_1)
+      await this.jm.actions.get(this.stub_context, norm_widget_1)
     } catch(error) {
       expect(error.response.status).to.equal(500)
     }

@@ -172,8 +172,6 @@ beforeEach(function() {
   this.mock_api = mock_api;
   this.jm = jm;
   this.stub_context = stub_context;
-  this.norm_widget_1 = norm_widget_1;
-  this.norm_widget_2 = norm_widget_2;
   this.norm_widget_1_rels = norm_widget_1_rels
   this.norm_record_rels = norm_record_rels;
   this.store_record = store_record;
