@@ -1,30 +1,32 @@
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import { _testing, jsonapiModule } from '../../src/jsonapi-vuex.js';
+import sinonChai from 'sinon-chai';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
-import sinonChai from 'sinon-chai';
+
+import { _testing, jsonapiModule } from '../../src/jsonapi-vuex';
+import {
+  createJsonWidget1,
+  createJsonWidget2,
+  createJsonWidget3
+} from './fixtures/index';
 
 chai.use(sinonChai)
 chai.use(chaiAsPromised)
 
 // 'global' variables (redefined in beforeEach)
 var jm, clock, stub_context,
- json_widget_1, json_widget_2, json_widget_3, json_machine_1, json_widget_1_patch, json_record, meta,
- norm_widget_1, norm_widget_2, norm_widget_3, norm_machine_1, norm_widget_1_3,
+ json_widget_1, json_widget_2, json_widget_3, json_widget_1_patch, json_record, meta,
+ norm_widget_1, norm_widget_2, norm_widget_3, norm_widget_1_3,
  norm_widget_1_rels, norm_widget_2_rels, norm_widget_3_rels, norm_widget_1_patch, norm_widget_1_update,
  norm_record, norm_record_rels,
  store_widget_1, store_widget_1_update, store_widget_2, store_widget_3, store_widget_1_3, store_record
 
 // Mock up a fake axios-like api instance
 const api = axios.create({ baseURL: '' })
-
 let mock_api = new MockAdapter(api);
 
-
-
 beforeEach(function() {
-
   // Set up fake timers
   clock = sinon.useFakeTimers()
 
@@ -54,71 +56,9 @@ beforeEach(function() {
 
   // Data in JSONAPI JSON form
 
-  json_widget_1 = {
-    id: '1',
-    type: 'widget',
-    attributes: {
-      'foo': 1,
-      'bar': 'baz'
-    },
-    relationships: {
-      'widgets': {
-        'data': {
-          'type': 'widget',
-          'id': '2'
-        },
-        'links': {
-          'related': '/widget/1/widgets'
-        }
-      }
-    }
-  }
-
-  json_widget_2 = {
-    id: '2',
-    type: 'widget',
-    attributes: {
-      'foo': 2
-    },
-    'relationships': {
-      'widgets': {
-        'data': [
-          {
-            'type': 'widget',
-            'id': '1'
-          },
-          {
-            'type': 'widget',
-            'id': '3'
-          }
-        ]
-      }
-    }
-  }
-
-  json_widget_3 = {
-    id: '3',
-    type: 'widget',
-    attributes: {
-      'foo': 3
-    },
-    'relationships': {
-      'widgets': {
-        'data': {
-          'type': 'widget',
-          'id': '1'
-        }
-      }
-    }
-  }
-
-  json_machine_1 = {
-    id: '1',
-    type: 'machine',
-    attributes: {
-      'foo': 1
-    }
-  }
+  json_widget_1 = createJsonWidget1();
+  json_widget_2 = createJsonWidget2();
+  json_widget_3 = createJsonWidget3();
 
   json_widget_1_patch = {
     id: '1',
@@ -239,14 +179,6 @@ beforeEach(function() {
     }
   }
 
-  norm_machine_1 = {
-    'foo': 1,
-    '_jv': {
-      'type': 'machine',
-      'id': '1'
-    }
-  }
-
   norm_widget_1_3 = {
     '1': norm_widget_1,
     '3': norm_widget_3
@@ -326,6 +258,21 @@ beforeEach(function() {
     }
   }
 
+  // Variables Used by required submodules.
+  // HACK: Rely on `this` so that submodules can access them. Eventually, we
+  // will want to define these in fixture files and import them as needed.
+  // Could use a factory library. See `fixtures/json_index_1.js`.
+  this.api = api;
+  this.mock_api = mock_api;
+  this.jm = jm;
+  this.stub_context = stub_context;
+  this.norm_widget_1 = norm_widget_1;
+  this.norm_widget_2 = norm_widget_2;
+  this.norm_widget_1_rels = norm_widget_1_rels
+  this.norm_record_rels = norm_record_rels;
+  this.store_record = store_record;
+  this.json_record = json_record;
+  this.meta = meta;
 })
 
 afterEach(function() {
@@ -352,102 +299,7 @@ describe("jsonapi-vuex tests", function() {
 
   describe("jsonapiModule actions", function()  {
 
-    describe("get", function() {
-      it("should make an api call to GET item(s)", async function() {
-        mock_api.onAny().reply(200, { data: json_widget_1 })
-        await jm.actions.get(stub_context, norm_widget_1)
-        expect(mock_api.history.get[0].url).to.equal(`/${norm_widget_1['_jv']['type']}/${norm_widget_1['_jv']['id']}`)
-      })
-      it("should make an api call to GET a collection", async function() {
-        mock_api.onAny().reply(200, { data: json_widget_1 })
-        delete norm_widget_1['_jv']['id']
-        await jm.actions.get(stub_context, norm_widget_1)
-        expect(mock_api.history.get[0].url).to.equal(`/${norm_widget_1['_jv']['type']}`)
-      })
-      it("should accept axios config as the 2nd arg in a list", async function() {
-        mock_api.onAny().reply(200, { data: json_widget_1 })
-        const params = { filter: "color" }
-        await jm.actions.get(stub_context, [ norm_widget_1, { params: params } ])
-        expect(mock_api.history.get[0].params).to.equal(params)
-      })
-      it("should add record(s) in the store", async function() {
-        mock_api.onAny().reply(200, { data: json_widget_1 })
-        await jm.actions.get(stub_context, norm_widget_1)
-        expect(stub_context.commit).to.have.been.calledWith("add_records", norm_widget_1)
-      })
-      it("should add record(s) (string) in the store", async function()  {
-        mock_api.onAny().reply(200, { data: json_widget_1 })
-        // Leading slash is incorrect syntax, but we should handle it so test with it in
-        await jm.actions.get(stub_context, "widget/1")
-        expect(stub_context.commit).to.have.been.calledWith("add_records", norm_widget_1)
-      })
-      it("should return normalized data", async function() {
-        mock_api.onAny().reply(200, { data: json_widget_1 })
-        let res = await jm.actions.get(stub_context, norm_widget_1)
-        expect(res).to.deep.equal(norm_widget_1)
-      })
-      it("should add included record(s) to the store", async function() {
-        // included array can include objects from different collections
-        const data = {
-          data: json_widget_1,
-          included: [ json_widget_2, json_machine_1 ]
-        }
-        mock_api.onAny().reply(200, data)
-        // for a real API call, would need axios include params here
-        await jm.actions.get(stub_context, norm_widget_1)
-        expect(stub_context.commit).to.have.been.calledWith("add_records", norm_widget_2)
-        expect(stub_context.commit).to.have.been.calledWith("add_records", norm_machine_1)
-      })
-      it("should return normalized data with expanded rels (single item)", async function() {
-        jm = jsonapiModule(api, { 'follow_relationships_data': true })
-        // Make state contain all records for rels to work
-        stub_context['state'] = store_record
-        mock_api.onAny().reply(200, { data: json_widget_1 })
-        let res = await jm.actions.get(stub_context, norm_widget_1)
-        expect(res).to.deep.equal(norm_widget_1_rels)
-      })
-      it("should return normalized data with expanded rels (array)", async function() {
-        jm = jsonapiModule(api, { 'follow_relationships_data': true })
-        // Make state contain all records for rels to work
-        stub_context['state'] = store_record
-        mock_api.onAny().reply(200, json_record)
-        let res = await jm.actions.get(stub_context, "widget")
-        expect(res).to.deep.equal(norm_record_rels)
-      })
-      it("should handle an empty rels 'data' object", async function() {
-        jm = jsonapiModule(api, { 'follow_relationships_data': true })
-        // Delete contents of data and remove links
-        json_widget_1['relationships']['widgets']['data'] = {}
-        delete json_widget_1['relationships']['widgets']['links']
-        mock_api.onAny().reply(200, { data: json_widget_1 })
-        let res = await jm.actions.get(stub_context, norm_widget_1)
-        expect(res['_jv']['rels']['widgets']).to.deep.equal({})
-      })
-      it("should preserve json in _jv in returned data", async function() {
-        jm = jsonapiModule(api, { 'preserve_json': true })
-        // Mock server to only return a meta section
-        mock_api.onAny().reply(200, meta)
-        let res = await jm.actions.get(stub_context, "widget")
-        // json should now be nested in _jv/json
-        expect(res['_jv']['json']).to.deep.equal(meta)
-      })
-      it("should not preserve json in _jv in returned data", async function() {
-        jm = jsonapiModule(api, { 'preserve_json': false })
-        // Mock server to only return a meta section
-        mock_api.onAny().reply(200, meta)
-        let res = await jm.actions.get(stub_context, "widget")
-        // collections should have no top-level _jv
-        expect(res).to.not.have.key('_jv')
-      })
-      it("should handle API errors", async function() {
-        mock_api.onAny().reply(500)
-        try {
-          await jm.actions.get(stub_context, norm_widget_1)
-        } catch(error) {
-          expect(error.response.status).to.equal(500)
-        }
-      })
-    })
+    require('./actions/get.spec');
 
     describe("fetch", function() {
       it("should be an alias for get", function() {

@@ -1,7 +1,7 @@
 // Karma configuration
 
 const src = './src/**/*.js'
-const tests = './tests/unit/*.spec.js'
+const tests = './tests/unit/jsonapi-vuex.spec.js'
 const ci = process.env.CI || process.env.TRAVIS || false
 
 module.exports = function(config) {
