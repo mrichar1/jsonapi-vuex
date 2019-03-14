@@ -7,9 +7,9 @@ import MockAdapter from 'axios-mock-adapter';
 
 import { _testing, jsonapiModule } from '../../src/jsonapi-vuex';
 import createStubContext from './stubs/context';
+import createJsonapiModule from './utils/create-jsonapi-module';
 import {
   jsonFormat as createJsonWidget1,
-  jsonFormatPatch as createJsonWidget1Patch,
   normFormat as createNormWidget1,
   normFormatWithRels as createNormWidget1WithRels,
   normFormatPatch as createNormWidget1Patch,
@@ -17,13 +17,10 @@ import {
   storeFormat as createStoreWidget1,
 } from './fixtures/widget_1';
 import {
-  jsonFormat as createJsonWidget2,
   normFormat as createNormWidget2,
   normFormatWithRels as createNormWidget2WithRels,
-  storeFormat as createStoreWidget2,
 } from './fixtures/widget_2';
 import {
-  jsonFormat as createJsonWidget3,
   normFormat as createNormWidget3,
 } from './fixtures/widget_3';
 import {
@@ -31,25 +28,26 @@ import {
   normFormatWithRels as createNormRecordRels,
   storeFormat as createStoreRecord
 } from './fixtures/record';
-import {
-  createResponseMeta
-} from './fixtures/server_response';
 
 chai.use(sinonChai)
 chai.use(chaiAsPromised)
 chai.use(chaiExclude)
 
 // 'global' variables (redefined in beforeEach)
-let jm, clock, stub_context,
- json_widget_1, json_widget_2, json_widget_3, json_widget_1_patch, json_record, meta,
- norm_widget_1, norm_widget_2, norm_widget_3,
- norm_widget_1_rels, norm_widget_2_rels, norm_widget_1_patch, norm_widget_1_update,
- norm_record, norm_record_rels,
- store_widget_1, store_widget_1_update, store_widget_2, store_widget_1_3, store_record
+let jm, clock, stub_context, json_widget_1, json_record, norm_widget_1,
+  norm_widget_2, norm_widget_3, norm_widget_1_rels, norm_widget_2_rels,
+  norm_widget_1_patch, norm_widget_1_update, norm_record, norm_record_rels,
+  store_widget_1, store_widget_1_update, store_record
 
 // Mock up a fake axios-like api instance
 const api = axios.create({ baseURL: '' })
-let mock_api = new MockAdapter(api);
+const mock_api = new MockAdapter(api);
+
+before(function() {
+  // Common variables shared by `require`d submodules.
+  this.api = api;
+  this.mock_api = mock_api;
+});
 
 beforeEach(function() {
   // Set up fake timers
@@ -60,12 +58,7 @@ beforeEach(function() {
 
   // Set up commonly used data objects
 
-  // Turn off following by default to simplify test data in most cases
-  jm = jsonapiModule(api, {
-    'follow_relationships_data': false,
-    'preserve_json': false,
-    'action_status_clean_interval': 0
-  })
+  jm = createJsonapiModule(api);
 
   // Stub the context's commit function to evaluate calls to it.
   stub_context = createStubContext(jm);
@@ -73,13 +66,7 @@ beforeEach(function() {
   // Data in JSONAPI JSON form
 
   json_widget_1 = createJsonWidget1();
-  json_widget_2 = createJsonWidget2();
-  json_widget_3 = createJsonWidget3();
-  json_widget_1_patch = createJsonWidget1Patch();
   json_record = createJsonRecord();
-
-  // META only data
-  meta = createResponseMeta();
 
   // Data in Normalised/Restructured form
 
@@ -104,19 +91,6 @@ beforeEach(function() {
   // Data in Store form
 
   store_widget_1 = createStoreWidget1();
-  store_widget_2 = createStoreWidget2();
-
-  store_widget_1_3 = {
-    'widget':{
-      '1': {
-        ...norm_widget_1
-      },
-      '3': {
-        ...norm_widget_3
-      }
-    }
-  }
-
   store_widget_1_update = {
     'widget': {
       '1': {
@@ -124,12 +98,7 @@ beforeEach(function() {
       }
     }
   }
-
   store_record = createStoreRecord();
-
-  this.api = api;
-  this.mock_api = mock_api;
-  this.jsonapiModule = jm;
 })
 
 afterEach(function() {
@@ -155,243 +124,15 @@ describe("jsonapi-vuex tests", function() {
   });
 
   describe("jsonapiModule actions", function()  {
-
     require('./actions/get.spec');
-
-    describe("fetch", function() {
-      it("should be an alias for get", function() {
-        expect(jm.actions.fetch).to.equal(jm.actions.get)
-      })
-    })
-
-    describe("getRelated", function() {
-      it("Should throw an error if passed an object with no id", function() {
-        delete norm_widget_1['_jv']['id']
-        // Wrap method in an empty method to catch transpiled throw (https://www.chaijs.com/api/bdd/#method_throw)
-        expect(() => jm.actions.getRelated(stub_context, norm_widget_1)).to.throw("No id specified")
-      })
-      it("should get a record's single related item (using 'data')", async function() {
-        mock_api
-          .onGet().replyOnce(200, { data: json_widget_1 })
-          .onGet().replyOnce(200, { data: json_widget_2 })
-        let res = await jm.actions.getRelated(stub_context, norm_widget_1)
-        expect(res).to.deep.equal({ 'widgets' : store_widget_2 })
-      })
-      it("should get a record's related items (using 'data')", async function() {
-        // Return main item, then its related items
-        mock_api
-          .onGet().replyOnce(200, { data: json_widget_2 })
-          .onGet().replyOnce(200, { data: json_widget_1 })
-          .onGet().replyOnce(200, { data: json_widget_3 })
-        let res = await jm.actions.getRelated(stub_context, norm_widget_2)
-        expect(res).to.deep.equal({ 'widgets': store_widget_1_3 })
-      })
-      it("should get a record's related items (using 'links' string)", async function() {
-        // Remove data so it will fallback to using links
-        delete json_widget_1['relationships']['widgets']['data']
-        mock_api
-          .onGet().replyOnce(200, { data: json_widget_1 })
-          .onGet().replyOnce(200, { data: json_widget_2 })
-        let res = await jm.actions.getRelated(stub_context, norm_widget_1)
-        expect(res).to.deep.equal({ 'widgets': store_widget_2 })
-      })
-      it("should get a record's related items (using 'links' object)", async function() {
-        // Remove data so it will fallback to using links
-        delete json_widget_1['relationships']['widgets']['data']
-        // Replace links string with links object
-        json_widget_1['relationships']['widgets']['links']['related'] = { 'href': '/widget/1/widgets' }
-        mock_api
-          .onGet().replyOnce(200, { data: json_widget_1 })
-          .onGet().replyOnce(200, { data: json_widget_2 })
-        let res = await jm.actions.getRelated(stub_context, norm_widget_1)
-        expect(res).to.deep.equal({ 'widgets': store_widget_2 })
-      })
-      it("should get a record's related items (string path)", async function() {
-        mock_api
-          .onGet().replyOnce(200, { data: json_widget_2 })
-          .onGet().replyOnce(200, { data: json_widget_1 })
-          .onGet().replyOnce(200, { data: json_widget_3 })
-        let res = await jm.actions.getRelated(stub_context, "widget/2")
-        expect(res).to.deep.equal({ 'widgets': store_widget_1_3 })
-      })
-      it("should return related data for a specific relname", async function() {
-        mock_api
-          .onGet().replyOnce(200, { data: json_widget_3 })
-          .onGet().replyOnce(200, { data: json_widget_1 })
-        let res = await jm.actions.getRelated(stub_context, "widget/3/widgets")
-        expect(res).to.deep.equal({ 'widgets': store_widget_1 })
-      })
-      it("Should handle API errors", async function() {
-        // Fake an API error response
-        mock_api.onGet().replyOnce(500)
-        try {
-          await jm.actions.getRelated(stub_context, "none/1")
-        } catch (error) {
-          expect(error.response.status).to.equal(500)
-        }
-      })
-      it("Should handle API errors (in the links)", async function() {
-        // Remove data so it will fallback to using links
-        delete json_widget_1['relationships']['widgets']['data']
-        mock_api
-          .onGet().replyOnce(200, { data: json_widget_1 })
-          .onGet().replyOnce(500)
-        try {
-          await jm.actions.getRelated(stub_context, norm_widget_1)
-        } catch (error) {
-          expect(error.response.status).to.equal(500)
-        }
-      })
-    })
-
-    describe("post", function() {
-      it("should make an api call to POST item(s)", async function() {
-        mock_api.onAny().reply(201, { data: json_widget_1 })
-        await jm.actions.post(stub_context, norm_widget_1)
-        expect(mock_api.history.post[0].url).to.equal(`/${norm_widget_1['_jv']['type']}`)
-      })
-      it("should accept axios config as the 2nd arg in a list", async function() {
-        mock_api.onAny().reply(201, { data: json_widget_1 })
-        const params = { filter: "color" }
-        await jm.actions.post(stub_context, [ norm_widget_1, { params: params } ])
-        expect(mock_api.history.post[0].params).to.equal(params)
-      })
-      it("should add record(s) to the store", async function() {
-        mock_api.onAny().reply(201, { data: json_widget_1 })
-        await jm.actions.post(stub_context, norm_widget_1)
-        expect(stub_context.commit).to.have.been.calledWith("add_records", norm_widget_1)
-      })
-      it("should add record(s) in the store (no server response)", async function() {
-        mock_api.onAny().reply(204)
-        await jm.actions.post(stub_context, norm_widget_1)
-        expect(stub_context.commit).to.have.been.calledWith("add_records", norm_widget_1)
-      })
-      it("should return data via the 'get' getter", async function() {
-        mock_api.onAny().reply(201, { data: json_widget_1 })
-        await jm.actions.post(stub_context, norm_widget_1)
-        expect(stub_context.getters.get).to.have.been.calledWith(norm_widget_1)
-      })
-      it("should POST data", async function() {
-        mock_api.onAny().reply(201, { data: json_widget_1 })
-        await jm.actions.post(stub_context, norm_widget_1)
-        // History stores data as JSON string, so parse back to object
-        expect(JSON.parse(mock_api.history.post[0].data)).to.deep.equal({ data: json_widget_1 })
-      })
-      it("should preserve json in _jv in returned data", async function() {
-        jm = jsonapiModule(api, { 'preserve_json': true })
-        // Mock server data to include a meta section
-        mock_api.onAny().reply(201, { data: json_widget_1, ...meta })
-        let res = await jm.actions.post(stub_context, norm_widget_1)
-        // json should now be nested in _jv/json
-        expect(res['_jv']['json']).to.deep.equal(meta)
-      })
-      it("should handle API errors", async function() {
-        mock_api.onAny().reply(500)
-        try {
-          await jm.actions.post(stub_context, norm_widget_1)
-        } catch(error) {
-            expect(error.response.status).to.equal(500)
-        }
-      })
-    })
-
-    describe("create", function() {
-      it("should be an alias for post", function() {
-        expect(jm.actions.create).to.equal(jm.actions.post)
-      })
-    })
-
-    describe("patch", function() {
-      it("should make an api call to PATCH item(s)", async function() {
-        mock_api.onAny().reply(200, { data: json_widget_1 })
-        await jm.actions.patch(stub_context, norm_widget_1_patch)
-        expect(mock_api.history.patch[0].url).to.equal(`/${norm_widget_1_patch['_jv']['type']}/${norm_widget_1_patch['_jv']['id']}`)
-      })
-      it("should accept axios config as the 2nd arg in a list", async function() {
-        mock_api.onAny().reply(200, { data: json_widget_1 })
-        const params = { filter: "color" }
-        await jm.actions.patch(stub_context, [ norm_widget_1_patch, { params: params } ])
-        expect(mock_api.history.patch[0].params).to.equal(params)
-      })
-      it("should delete then add record(s) in the store (from server response)", async function() {
-        mock_api.onAny().reply(200,  { data: json_widget_1_patch })
-        await jm.actions.patch(stub_context, norm_widget_1_patch)
-        expect(stub_context.commit).to.have.been.calledWith("delete_record", norm_widget_1_patch)
-        expect(stub_context.commit).to.have.been.calledWith("add_records", norm_widget_1_update)
-      })
-      it("should update record(s) in the store (no server response)", async function() {
-        mock_api.onAny().reply(204)
-        await jm.actions.patch(stub_context, norm_widget_1_patch)
-        expect(stub_context.commit).to.have.been.calledWith("update_record", norm_widget_1_patch)
-      })
-      it("should return data via the 'get' getter", async function() {
-        mock_api.onAny().reply(204)
-        await jm.actions.patch(stub_context, norm_widget_1_patch)
-        expect(stub_context.getters.get).to.have.been.calledWith(norm_widget_1_patch)
-      })
-      it("should preserve json in _jv in returned data", async function() {
-        jm = jsonapiModule(api, { 'preserve_json': true })
-        // Mock server data to include a meta section
-        mock_api.onAny().reply(200, { data: json_widget_1, ...meta })
-        let res = await jm.actions.patch(stub_context, norm_widget_1_patch)
-        // json should now be nested in _jv/json
-        expect(res['_jv']['json']).to.deep.equal(meta)
-      })
-      it("should handle API errors", async function() {
-        mock_api.onAny().reply(500)
-        try {
-          await jm.actions.patch(stub_context, norm_widget_1)
-        } catch (error) {
-          expect(error.response.status).to.equal(500)
-        }
-      })
-    })
-
-    describe("update", function() {
-      it("should be an alias for patch", function() {
-        expect(jm.actions.update).to.equal(jm.actions.patch)
-      })
-    })
-
-    describe("delete", function() {
-      it("should make an api call to DELETE item(s)", async function() {
-        mock_api.onAny().reply(204)
-        await jm.actions.delete(stub_context, norm_widget_1)
-        expect(mock_api.history.delete[0].url).to.equal(`/${norm_widget_1['_jv']['type']}/${norm_widget_1['_jv']['id']}`)
-      })
-      it("should accept axios config as the 2nd arg in a list", async function() {
-        mock_api.onAny().reply(200, { data: json_widget_1 })
-        const params = { filter: "color" }
-        await jm.actions.delete(stub_context, [ norm_widget_1, { params: params } ])
-        expect(mock_api.history.delete[0].params).to.equal(params)
-      })
-      it("should delete a record from the store", async function() {
-        mock_api.onAny().reply(204)
-        await jm.actions.delete(stub_context, norm_widget_1)
-        expect(stub_context.commit).to.have.been.calledWith("delete_record", norm_widget_1)
-      })
-      it("should delete a record (string) from the store", async function()  {
-        mock_api.onAny().reply(204)
-        // Leading slash is incorrect syntax, but we should handle it so test with it in
-        await jm.actions.delete(stub_context, "widget/1")
-        expect(stub_context.commit).to.have.been.calledWith("delete_record", "widget/1")
-      })
-      it("should return deleted object if passed back by server", async function() {
-        mock_api.onAny().reply(200, { data: json_widget_1 })
-        // Leading slash is incorrect syntax, but we should handle it so test with it in
-        let res = await jm.actions.delete(stub_context, norm_widget_1)
-        expect(res).to.deep.equal(norm_widget_1)
-      })
-      it("should handle API errors", async function() {
-        mock_api.onAny().reply(500)
-        try {
-          await jm.actions.delete(stub_context, norm_widget_1)
-        } catch (error) {
-          expect(error.response.status).to.equal(500)
-        }
-      })
-    })
-  }) // actions
+    require('./actions/fetch.spec');
+    require('./actions/get-related.spec');
+    require('./actions/post.spec');
+    require('./actions/create.spec');
+    require('./actions/patch.spec');
+    require('./actions/update.spec');
+    require('./actions/delete.spec');
+  })
 
   describe("jsonapiModule mutations", function() {
 
