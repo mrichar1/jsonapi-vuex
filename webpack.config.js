@@ -27,7 +27,7 @@ module.exports = {
             plugins: [
               ['istanbul', {
               "exclude": [
-                "**/*.spec.js"
+                "tests"
               ]
               }],
 	    ],
