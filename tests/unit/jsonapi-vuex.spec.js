@@ -394,7 +394,6 @@ describe("jsonapi-vuex tests", function() {
         jm = jsonapiModule(api, { 'follow_relationships_data': true })
         const { get } = jm.getters
         const result = get(store_record, { 'get': get })('widget/2')
-
         expect(norm_widget_2_rels).to.deep.equal(result)
       })
       it("should follow relationships data (array) for a collection", function() {
