@@ -1,4 +1,5 @@
 import Vue from 'vue'
+import get from 'lodash.get';
 import merge from 'lodash.merge';
 import clone from 'lodash.clone';
 // https://github.com/dchester/jsonpath/issues/89
@@ -57,7 +58,7 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
         throw new RecordError("update_record: Missing type or id", new_record)
       }
       const store_record = normToStore(new_record)
-      const old_record = getNested(state, [ type, id ])
+      const old_record = get(state, `${type}.${id}`)
       Vue.set(state[type], id, merge(old_record, store_record[type][id]))
     },
     set_status: (state, { id, status }) => {
@@ -128,7 +129,7 @@ const actions = (api) => {
       //Get initial record
       let action = context.dispatch('get', args)
         .then((record) => {
-          let rels = getNested(record, [ jvtag, 'relationships' ]) || {}
+          let rels = get(record, `${jvtag}.relationships`) || {}
           if (rel_name && rels) {
             // Only process requested relname
             rels = { [rel_name]: rels[rel_name] }
@@ -378,9 +379,9 @@ const preserveJSON = (data, json) => {
 // Follow relationships and expand them into _jv/rels
 const followRelationships = (state, record) => {
   // Copy item before modifying
-  const data = clone(record, true)
+  const data = clone(record)
   data[jvtag]['rels'] = {}
-  const rel_names = getNested(data, [ jvtag, 'relationships' ]) || {}
+  const rel_names = get(data, `${jvtag}.relationships`) || {}
   for (let [ rel_name, rel_info ] of Object.entries(rel_names)) {
     let is_item = false
     // We can only work with data, not links since we need type & id
@@ -394,10 +395,10 @@ const followRelationships = (state, record) => {
       }
       for (let rel_item of rel_data) {
         let [ type, id ] = getTypeId({ [jvtag]: rel_item })
-        let result = getNested(state, [ type, id ])
+        let result = get(state, `${type}.${id}`)
         if (result) {
           // Copy rather than ref to avoid circular JSON issues
-          result = clone(result, true)
+          result = clone(result)
           if (is_item) {
             // Store attrs directly under rel_name
             data[jvtag]['rels'][rel_name] = result
@@ -447,13 +448,6 @@ const getURL = (data, post=false) => {
     path = "/" + path
   }
   return path
-}
-
-// Walk an object looking for children, returning undefined rather than an error
-// Use: getNested('object', ['path', 'to', 'child'])
-const getNested = (nestedObj, pathArray) => {
-    return pathArray.reduce((obj, key) =>
-        (obj && obj[key] !== 'undefined') ? obj[key] : undefined, nestedObj)
 }
 
 // Normalize a single jsonapi item
