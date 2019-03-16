@@ -1,6 +1,6 @@
 module.exports = {
-  mode: 'production',
-  performance: { 'hints': false },
+  mode: "production",
+  performance: { hints: false },
   // Re-enable Errors (disabled in production mode) to allow eslint to stop build
   optimization: {
     noEmitOnErrors: false
@@ -20,20 +20,21 @@ module.exports = {
       {
         test: /\.js$/,
         exclude: /(node_modules|bower_components)/,
-	use: {
-          loader: 'babel-loader',
+        use: {
+          loader: "babel-loader",
           options: {
-            presets: ['@babel/preset-env'],
+            presets: ["@babel/preset-env"],
             plugins: [
-              ['istanbul', {
-              "exclude": [
-                "tests"
+              [
+                "istanbul",
+                {
+                  exclude: ["tests"]
+                }
               ]
-              }],
-	    ],
+            ]
           }
         }
       }
     ]
   }
-}
+};

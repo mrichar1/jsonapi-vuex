@@ -1,4 +1,4 @@
-import createJsonapiModule from '../utils/create-jsonapi-module';
+import createJsonapiModule from "../utils/create-jsonapi-module";
 
 describe("create", function() {
   let jsonapiModule;
@@ -8,6 +8,6 @@ describe("create", function() {
   });
 
   it("should be an alias for post", function() {
-    expect(jsonapiModule.actions.create).to.equal(jsonapiModule.actions.post)
-  })
-})
+    expect(jsonapiModule.actions.create).to.equal(jsonapiModule.actions.post);
+  });
+});

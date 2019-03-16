@@ -1,4 +1,4 @@
-import createJsonapiModule from '../utils/create-jsonapi-module';
+import createJsonapiModule from "../utils/create-jsonapi-module";
 
 describe("update", function() {
   let jsonapiModule;
@@ -8,6 +8,6 @@ describe("update", function() {
   });
 
   it("should be an alias for patch", function() {
-    expect(jsonapiModule.actions.update).to.equal(jsonapiModule.actions.patch)
-  })
-})
+    expect(jsonapiModule.actions.update).to.equal(jsonapiModule.actions.patch);
+  });
+});

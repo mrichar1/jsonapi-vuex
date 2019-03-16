@@ -1,5 +1,5 @@
 export function createResponseMeta() {
   return {
-    'meta': { 'token': 123456 }
-  }
+    meta: { token: 123456 }
+  };
 }

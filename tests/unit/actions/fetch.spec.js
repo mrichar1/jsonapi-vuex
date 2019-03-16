@@ -1,6 +1,6 @@
-import { expect } from 'chai';
+import { expect } from "chai";
 
-import createJsonapiModule from '../utils/create-jsonapi-module';
+import createJsonapiModule from "../utils/create-jsonapi-module";
 
 describe("fetch", function() {
   let jsonapiModule;
@@ -10,6 +10,6 @@ describe("fetch", function() {
   });
 
   it("should be an alias for get", function() {
-    expect(jsonapiModule.actions.fetch).to.equal(jsonapiModule.actions.get)
-  })
-})
+    expect(jsonapiModule.actions.fetch).to.equal(jsonapiModule.actions.get);
+  });
+});

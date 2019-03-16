@@ -1,34 +1,25 @@
 module.exports = {
-  "env": {
-   "browser": true,
-    "es6": true,
-    "mocha": true
+  extends: ["plugin:prettier/recommended"],
+  env: {
+    browser: true,
+    es6: true
   },
-  "parserOptions": {
-    "ecmaVersion": 2018,
-    "sourceType": "module"
+  parserOptions: {
+    ecmaVersion: 2018,
+    sourceType: "module"
   },
-  "rules": {
+  rules: {
+    "prettier/prettier": [
+      "error",
+      {
+        singleQuote: true
+      }
+    ],
     "no-unused-vars": [
       "error",
       {
-        "varsIgnorePattern": "should|expect"
-      }
-    ],
-    "object-curly-spacing": [
-      "error",
-      "always",
-      {
-        "objectsInObjects": false
-      }
-    ],
-    "array-bracket-spacing": [
-      "error",
-      "always",
-      {
-        "singleValue": true,
-        "arraysInArrays": false
+        varsIgnorePattern: "should|expect"
       }
     ]
   }
-}
+};
