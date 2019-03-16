@@ -1,6 +1,5 @@
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import chaiExclude from 'chai-exclude';
 import sinonChai from 'sinon-chai';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
@@ -31,7 +30,6 @@ import {
 
 chai.use(sinonChai)
 chai.use(chaiAsPromised)
-chai.use(chaiExclude)
 
 // 'global' variables (redefined in beforeEach)
 let jm, clock, stub_context, json_widget_1, json_record, norm_widget_1,
@@ -396,13 +394,14 @@ describe("jsonapi-vuex tests", function() {
         jm = jsonapiModule(api, { 'follow_relationships_data': true })
         const { get } = jm.getters
         const result = get(store_record, { 'get': get })('widget/2')
-        expect(norm_widget_2_rels).excludingEvery('_jv').to.deep.equal(result)
+
+        expect(norm_widget_2_rels).to.deep.equal(result)
       })
       it("should follow relationships data (array) for a collection", function() {
         jm = jsonapiModule(api, { 'follow_relationships_data': true })
         const { get } = jm.getters
         const result = get(store_record, { 'get': get })('widget')
-        expect(norm_record_rels).excludingEvery('_jv').to.deep.equal(result)
+        expect(norm_record_rels).to.deep.equal(result)
       })
     })
 

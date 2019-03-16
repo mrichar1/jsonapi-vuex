@@ -14,7 +14,6 @@
     "babel-polyfill": "^6.26.0",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
-    "chai-exclude": "^2.0.1",
     "concurrently": "^4.0.1",
     "eslint": "^5.6.1",
     "eslint-loader": "^2.1.1",
@@ -71,7 +70,7 @@
   },
   "dependencies": {
     "jsonpath": "^1.0.0",
-    "lodash.clone": "^4.5.0",
+    "lodash.clonedeep": "^4.5.0",
     "lodash.merge": "^4.6.1",
     "vue": "^2.5.17",
     "vuex": "^3.0.1"
