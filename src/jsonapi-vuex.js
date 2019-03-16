@@ -1,8 +1,8 @@
-import Vue from "vue";
-import merge from "lodash.merge";
-import clone from "lodash.clone";
+import Vue from 'vue';
+import merge from 'lodash.merge';
+import clone from 'lodash.clone';
 // https://github.com/dchester/jsonpath/issues/89
-import jp from "jsonpath/jsonpath.min";
+import jp from 'jsonpath/jsonpath.min';
 
 class RecordError extends Error {
   constructor(message, value) {
@@ -11,22 +11,22 @@ class RecordError extends Error {
   }
 }
 
-const STATUS_LOAD = "LOADING";
-const STATUS_SUCCESS = "SUCCESS";
-const STATUS_ERROR = "ERROR";
+const STATUS_LOAD = 'LOADING';
+const STATUS_SUCCESS = 'SUCCESS';
+const STATUS_ERROR = 'ERROR';
 
 let jvConfig = {
   // key to store jsonapi-vuex-related data under when destructuring
-  jvtag: "_jv",
+  jvtag: '_jv',
   // Follow relationships 'data' entries (from store)
   follow_relationships_data: true,
   // Preserve API response json in return data
   preserve_json: false,
   // Age of action status records to clean (in seconds). (0 disables).
-  action_status_clean_age: 600
+  action_status_clean_age: 600,
 };
 
-const jvtag = jvConfig["jvtag"];
+const jvtag = jvConfig['jvtag'];
 
 // Global sequence counter for unique action ids
 let action_sequence = 0;
@@ -36,7 +36,7 @@ const mutations = (/* api */) => {
     delete_record: (state, record) => {
       const [type, id] = getTypeId(record);
       if (!type || !id) {
-        throw new RecordError("delete_record: Missing type or id", record);
+        throw new RecordError('delete_record: Missing type or id', record);
       }
       Vue.delete(state[type], id);
     },
@@ -54,7 +54,7 @@ const mutations = (/* api */) => {
     update_record: (state, new_record) => {
       const [type, id] = getTypeId(new_record);
       if (!type || !id) {
-        throw new RecordError("update_record: Missing type or id", new_record);
+        throw new RecordError('update_record: Missing type or id', new_record);
       }
       const store_record = normToStore(new_record);
       const old_record = getNested(state, [type, id]);
@@ -67,7 +67,7 @@ const mutations = (/* api */) => {
       if (id in state[jvtag]) {
         Vue.delete(state[jvtag], id);
       }
-    }
+    },
   };
 };
 
@@ -77,21 +77,21 @@ const actions = api => {
       const [data, config] = unpackArgs(args);
       const path = getURL(data);
       // https://github.com/axios/axios/issues/362
-      config["data"] = config["data"] || {};
+      config['data'] = config['data'] || {};
       const action_id = actionSequence(context);
-      context.commit("set_status", { id: action_id, status: STATUS_LOAD });
+      context.commit('set_status', { id: action_id, status: STATUS_LOAD });
       let action = api
         .get(path, config)
         .then(results => {
           // Process included records
-          if ("included" in results.data) {
+          if ('included' in results.data) {
             for (let item of results.data.included) {
               const included_item = jsonapiToNormItem(item);
-              context.commit("add_records", included_item);
+              context.commit('add_records', included_item);
             }
           }
           let res_data = jsonapiToNorm(results.data.data);
-          context.commit("add_records", res_data);
+          context.commit('add_records', res_data);
           if (jvConfig.follow_relationships_data) {
             if (jvtag in res_data) {
               // single item
@@ -104,36 +104,36 @@ const actions = api => {
             }
           }
           res_data = preserveJSON(res_data, results.data);
-          context.commit("set_status", {
+          context.commit('set_status', {
             id: action_id,
-            status: STATUS_SUCCESS
+            status: STATUS_SUCCESS,
           });
           return res_data;
         })
         .catch(error => {
-          context.commit("set_status", { id: action_id, status: STATUS_ERROR });
+          context.commit('set_status', { id: action_id, status: STATUS_ERROR });
           throw error;
         });
-      action[jvtag + "_id"] = action_id;
+      action[jvtag + '_id'] = action_id;
       return action;
     },
     getRelated: (context, args) => {
       const data = unpackArgs(args)[0];
       let [, id, rel_name] = getTypeId(data);
       if (!id) {
-        throw "No id specified";
+        throw 'No id specified';
       }
       const action_id = actionSequence(context);
-      context.commit("set_status", { id: action_id, status: STATUS_LOAD });
+      context.commit('set_status', { id: action_id, status: STATUS_LOAD });
       // We can't pass multiple/non-promise vars in a promise chain,
       // so must define such vars in a higher scope
 
       let rel_names = [];
       //Get initial record
       let action = context
-        .dispatch("get", args)
+        .dispatch('get', args)
         .then(record => {
-          let rels = getNested(record, [jvtag, "relationships"]) || {};
+          let rels = getNested(record, [jvtag, 'relationships']) || {};
           if (rel_name && rels) {
             // Only process requested relname
             rels = { [rel_name]: rels[rel_name] };
@@ -142,7 +142,7 @@ const actions = api => {
         })
         .catch(error => {
           // Log and re-throw if 'get' action fails
-          context.commit("set_status", { id: action_id, status: STATUS_ERROR });
+          context.commit('set_status', { id: action_id, status: STATUS_ERROR });
           throw error;
         })
         .then(rels => {
@@ -153,26 +153,26 @@ const actions = api => {
           for (let [rel_name, rel_items] of Object.entries(rels)) {
             let rel_data;
             // Extract relationships from 'data' (type/id)
-            if ("data" in rel_items) {
-              rel_data = rel_items["data"];
+            if ('data' in rel_items) {
+              rel_data = rel_items['data'];
               if (!Array.isArray(rel_data)) {
                 // Treat as if always an array
                 rel_data = [rel_data];
               }
-            } else if ("links" in rel_items) {
-              rel_data = rel_items["links"]["related"];
-              if (!(typeof rel_data === "string")) {
-                rel_data = rel_data["href"];
+            } else if ('links' in rel_items) {
+              rel_data = rel_items['links']['related'];
+              if (!(typeof rel_data === 'string')) {
+                rel_data = rel_data['href'];
               }
               rel_data = [rel_data];
             }
             for (let entry of rel_data) {
               // Rewrite 'data' objects to normalised form
-              if (!(typeof entry === "string")) {
+              if (!(typeof entry === 'string')) {
                 entry = { [jvtag]: entry };
               }
               rel_names.push(rel_name);
-              rel_promises.push(context.dispatch("get", entry));
+              rel_promises.push(context.dispatch('get', entry));
             }
           }
           // 'Merge' all promise resolution/rejection
@@ -185,31 +185,31 @@ const actions = api => {
             let rel_name = rel_names[i];
             let norm_item = {
               [rel_name]: {
-                [result[jvtag]["type"]]: {
-                  [result[jvtag]["id"]]: result
-                }
-              }
+                [result[jvtag]['type']]: {
+                  [result[jvtag]['id']]: result,
+                },
+              },
             };
             merge(related, norm_item);
           });
-          context.commit("set_status", {
+          context.commit('set_status', {
             id: action_id,
-            status: STATUS_SUCCESS
+            status: STATUS_SUCCESS,
           });
           return related;
         })
         .catch(error => {
-          context.commit("set_status", { id: action_id, status: STATUS_ERROR });
+          context.commit('set_status', { id: action_id, status: STATUS_ERROR });
           throw error;
         });
-      action[jvtag + "_id"] = action_id;
+      action[jvtag + '_id'] = action_id;
       return action;
     },
     post: (context, args) => {
       let [data, config] = unpackArgs(args);
       const path = getURL(data, true);
       const action_id = actionSequence(context);
-      context.commit("set_status", { id: action_id, status: STATUS_LOAD });
+      context.commit('set_status', { id: action_id, status: STATUS_LOAD });
       let action = api
         .post(path, normToJsonapi(data), config)
         .then(results => {
@@ -218,62 +218,62 @@ const actions = api => {
           if (results.status === 200 || results.status === 201) {
             data = jsonapiToNorm(results.data.data);
           }
-          context.commit("add_records", data);
-          context.commit("set_status", {
+          context.commit('add_records', data);
+          context.commit('set_status', {
             id: action_id,
-            status: STATUS_SUCCESS
+            status: STATUS_SUCCESS,
           });
           return preserveJSON(context.getters.get(data), results.data);
         })
         .catch(error => {
-          context.commit("set_status", { id: action_id, status: STATUS_ERROR });
+          context.commit('set_status', { id: action_id, status: STATUS_ERROR });
           throw error;
         });
-      action[jvtag + "_id"] = action_id;
+      action[jvtag + '_id'] = action_id;
       return action;
     },
     patch: (context, args) => {
       let [data, config] = unpackArgs(args);
       const path = getURL(data);
       const action_id = actionSequence(context);
-      context.commit("set_status", { id: action_id, status: STATUS_LOAD });
+      context.commit('set_status', { id: action_id, status: STATUS_LOAD });
       let action = api
         .patch(path, normToJsonapi(data), config)
         .then(results => {
           // If the server handed back data, store it
           if (results.status === 200) {
-            context.commit("delete_record", data);
+            context.commit('delete_record', data);
             data = jsonapiToNorm(results.data.data);
-            context.commit("add_records", data);
+            context.commit('add_records', data);
           } else if (results.status === 204) {
             // Otherwise, try to update the store record from the patch
-            context.commit("update_record", data);
+            context.commit('update_record', data);
           }
-          context.commit("set_status", {
+          context.commit('set_status', {
             id: action_id,
-            status: STATUS_SUCCESS
+            status: STATUS_SUCCESS,
           });
           return preserveJSON(context.getters.get(data), results.data);
         })
         .catch(error => {
-          context.commit("set_status", { id: action_id, status: STATUS_ERROR });
+          context.commit('set_status', { id: action_id, status: STATUS_ERROR });
           throw error;
         });
-      action[jvtag + "_id"] = action_id;
+      action[jvtag + '_id'] = action_id;
       return action;
     },
     delete: (context, args) => {
       const [data, config] = unpackArgs(args);
       const path = getURL(data);
       const action_id = actionSequence(context);
-      context.commit("set_status", { id: action_id, status: STATUS_LOAD });
+      context.commit('set_status', { id: action_id, status: STATUS_LOAD });
       let action = api
         .delete(path, config)
         .then(result => {
-          context.commit("delete_record", data);
-          context.commit("set_status", {
+          context.commit('delete_record', data);
+          context.commit('set_status', {
             id: action_id,
-            status: STATUS_SUCCESS
+            status: STATUS_SUCCESS,
           });
           if (result.data) {
             return preserveJSON(jsonapiToNorm(result.data.data), result.data);
@@ -282,10 +282,10 @@ const actions = api => {
           }
         })
         .catch(error => {
-          context.commit("set_status", { id: action_id, status: STATUS_ERROR });
+          context.commit('set_status', { id: action_id, status: STATUS_ERROR });
           throw error;
         });
-      action[jvtag + "_id"] = action_id;
+      action[jvtag + '_id'] = action_id;
       return action;
     },
     get fetch() {
@@ -296,7 +296,7 @@ const actions = api => {
     },
     get update() {
       return this.patch;
-    }
+    },
   };
 };
 
@@ -340,7 +340,7 @@ const getters = (/* api */) => {
         if (Array.isArray(filtered)) {
           result = {};
           for (let item of filtered) {
-            result[item[jvtag]["id"]] = item;
+            result[item[jvtag]['id']] = item;
           }
         }
       }
@@ -348,13 +348,13 @@ const getters = (/* api */) => {
     },
     status: state => id => {
       // If id is an object (promise), extract id
-      if (typeof id === "object") {
-        id = id[jvtag + "_id"];
+      if (typeof id === 'object') {
+        id = id[jvtag + '_id'];
       }
       if (id in state[jvtag]) {
-        return state[jvtag][id]["status"];
+        return state[jvtag][id]['status'];
       }
-    }
+    },
   };
 };
 
@@ -371,7 +371,7 @@ const jsonapiModule = (api, conf = {}) => {
 
     mutations: mutations(api),
     actions: actions(api),
-    getters: getters(api)
+    getters: getters(api),
   };
 };
 
@@ -384,7 +384,7 @@ const actionSequence = context => {
     setTimeout(
       context.commit,
       jvConfig.action_status_clean_age * 1000,
-      "delete_status",
+      'delete_status',
       id
     );
   }
@@ -398,8 +398,8 @@ const preserveJSON = (data, json) => {
       data[jvtag] = {};
     }
     // Store original json in _jv, then delete data section
-    data[jvtag]["json"] = json;
-    delete data[jvtag]["json"]["data"];
+    data[jvtag]['json'] = json;
+    delete data[jvtag]['json']['data'];
   }
   return data;
 };
@@ -408,14 +408,14 @@ const preserveJSON = (data, json) => {
 const followRelationships = (state, record) => {
   // Copy item before modifying
   const data = clone(record, true);
-  data[jvtag]["rels"] = {};
-  const rel_names = getNested(data, [jvtag, "relationships"]) || {};
+  data[jvtag]['rels'] = {};
+  const rel_names = getNested(data, [jvtag, 'relationships']) || {};
   for (let [rel_name, rel_info] of Object.entries(rel_names)) {
     let is_item = false;
     // We can only work with data, not links since we need type & id
-    if ("data" in rel_info && rel_info.data) {
-      let rel_data = rel_info["data"];
-      data[jvtag]["rels"][rel_name] = {};
+    if ('data' in rel_info && rel_info.data) {
+      let rel_data = rel_info['data'];
+      data[jvtag]['rels'][rel_name] = {};
       if (!Array.isArray(rel_data)) {
         // Convert to an array to keep things DRY
         is_item = true;
@@ -429,10 +429,10 @@ const followRelationships = (state, record) => {
           result = clone(result, true);
           if (is_item) {
             // Store attrs directly under rel_name
-            data[jvtag]["rels"][rel_name] = result;
+            data[jvtag]['rels'][rel_name] = result;
           } else {
             // Store attrs indexed by id
-            data[jvtag]["rels"][rel_name][id] = result;
+            data[jvtag]['rels'][rel_name][id] = result;
           }
         }
       }
@@ -452,8 +452,8 @@ const unpackArgs = args => {
 // Get type, id, rels from a restructured object
 const getTypeId = data => {
   let type, id, rel;
-  if (typeof data === "string") {
-    [type, id, rel] = data.replace(/^\//, "").split("/");
+  if (typeof data === 'string') {
+    [type, id, rel] = data.replace(/^\//, '').split('/');
   } else {
     ({ type, id } = data[jvtag]);
   }
@@ -464,16 +464,16 @@ const getTypeId = data => {
 // Return path, or construct one if restructured data
 const getURL = (data, post = false) => {
   let path = data;
-  if (typeof data === "object") {
+  if (typeof data === 'object') {
     let { type, id } = data[jvtag];
     path = type;
     // POST endpoints are always to collections, not items
     if (id && !post) {
-      path += "/" + id;
+      path += '/' + id;
     }
   }
-  if (!path.startsWith("/")) {
-    path = "/" + path;
+  if (!path.startsWith('/')) {
+    path = '/' + path;
   }
   return path;
 };
@@ -482,7 +482,7 @@ const getURL = (data, post = false) => {
 // Use: getNested('object', ['path', 'to', 'child'])
 const getNested = (nestedObj, pathArray) => {
   return pathArray.reduce(
-    (obj, key) => (obj && obj[key] !== "undefined" ? obj[key] : undefined),
+    (obj, key) => (obj && obj[key] !== 'undefined' ? obj[key] : undefined),
     nestedObj
   );
 };
@@ -493,7 +493,7 @@ const jsonapiToNormItem = data => {
     return {};
   }
   // Move attributes to top-level, nest original jsonapi under _jv
-  const norm = Object.assign({ [jvtag]: data }, data["attributes"]);
+  const norm = Object.assign({ [jvtag]: data }, data['attributes']);
   // Create a new object omitting attributes
   const { attributes, ...norm_no_attrs } = norm[jvtag]; // eslint-disable-line no-unused-vars
   norm[jvtag] = norm_no_attrs;
@@ -521,8 +521,8 @@ const jsonapiToNorm = data => {
 const normToJsonapiItem = data => {
   // Fastest way to deep copy
   const jsonapi = { ...data[jvtag] };
-  jsonapi["attributes"] = Object.assign({}, data);
-  delete jsonapi["attributes"][jvtag];
+  jsonapi['attributes'] = Object.assign({}, data);
+  delete jsonapi['attributes'][jvtag];
   return jsonapi;
 };
 
@@ -574,7 +574,7 @@ const _testing = {
   unpackArgs: unpackArgs,
   followRelationships: followRelationships,
   jvConfig: jvConfig,
-  RecordError: RecordError
+  RecordError: RecordError,
 };
 
 // Export this module

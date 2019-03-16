@@ -1,23 +1,23 @@
-import { expect } from "chai";
+import { expect } from 'chai';
 
-import createStubContext from "../stubs/context";
-import createJsonapiModule from "../utils/create-jsonapi-module";
+import createStubContext from '../stubs/context';
+import createJsonapiModule from '../utils/create-jsonapi-module';
 import {
   jsonFormat as createJsonWidget1,
   normFormat as createNormWidget1,
-  storeFormat as createStoreWidget1
-} from "../fixtures/widget_1";
+  storeFormat as createStoreWidget1,
+} from '../fixtures/widget_1';
 import {
   jsonFormat as createJsonWidget2,
   storeFormat as createStoreWidget2,
-  normFormat as createNormWidget2
-} from "../fixtures/widget_2";
+  normFormat as createNormWidget2,
+} from '../fixtures/widget_2';
 import {
   jsonFormat as createJsonWidget3,
-  normFormat as createNormWidget3
-} from "../fixtures/widget_3";
+  normFormat as createNormWidget3,
+} from '../fixtures/widget_3';
 
-describe("getRelated", function() {
+describe('getRelated', function() {
   let json_widget_1,
     json_widget_2,
     json_widget_3,
@@ -42,20 +42,20 @@ describe("getRelated", function() {
     store_widget_1_3 = {
       widget: {
         1: createNormWidget1(),
-        3: createNormWidget3()
-      }
+        3: createNormWidget3(),
+      },
     };
 
     jsonapiModule = createJsonapiModule(this.api);
     stub_context = createStubContext(jsonapiModule);
   });
 
-  it("Should throw an error if passed an object with no id", function() {
-    delete norm_widget_1["_jv"]["id"];
+  it('Should throw an error if passed an object with no id', function() {
+    delete norm_widget_1['_jv']['id'];
     // Wrap method in an empty method to catch transpiled throw (https://www.chaijs.com/api/bdd/#method_throw)
     expect(() =>
       jsonapiModule.actions.getRelated(stub_context, norm_widget_1)
-    ).to.throw("No id specified");
+    ).to.throw('No id specified');
   });
 
   it("should get a record's single related item (using 'data')", async function() {
@@ -93,7 +93,7 @@ describe("getRelated", function() {
 
   it("should get a record's related items (using 'links' string)", async function() {
     // Remove data so it will fallback to using links
-    delete json_widget_1["relationships"]["widgets"]["data"];
+    delete json_widget_1['relationships']['widgets']['data'];
     this.mock_api
       .onGet()
       .replyOnce(200, { data: json_widget_1 })
@@ -110,10 +110,10 @@ describe("getRelated", function() {
 
   it("should get a record's related items (using 'links' object)", async function() {
     // Remove data so it will fallback to using links
-    delete json_widget_1["relationships"]["widgets"]["data"];
+    delete json_widget_1['relationships']['widgets']['data'];
     // Replace links string with links object
-    json_widget_1["relationships"]["widgets"]["links"]["related"] = {
-      href: "/widget/1/widgets"
+    json_widget_1['relationships']['widgets']['links']['related'] = {
+      href: '/widget/1/widgets',
     };
     this.mock_api
       .onGet()
@@ -138,12 +138,12 @@ describe("getRelated", function() {
       .onGet()
       .replyOnce(200, { data: json_widget_3 });
 
-    let res = await jsonapiModule.actions.getRelated(stub_context, "widget/2");
+    let res = await jsonapiModule.actions.getRelated(stub_context, 'widget/2');
 
     expect(res).to.deep.equal({ widgets: store_widget_1_3 });
   });
 
-  it("should return related data for a specific relname", async function() {
+  it('should return related data for a specific relname', async function() {
     this.mock_api
       .onGet()
       .replyOnce(200, { data: json_widget_3 })
@@ -152,26 +152,26 @@ describe("getRelated", function() {
 
     let res = await jsonapiModule.actions.getRelated(
       stub_context,
-      "widget/3/widgets"
+      'widget/3/widgets'
     );
 
     expect(res).to.deep.equal({ widgets: store_widget_1 });
   });
 
-  it("Should handle API errors", async function() {
+  it('Should handle API errors', async function() {
     // Fake an API error response
     this.mock_api.onGet().replyOnce(500);
 
     try {
-      await jsonapiModule.actions.getRelated(stub_context, "none/1");
+      await jsonapiModule.actions.getRelated(stub_context, 'none/1');
     } catch (error) {
       expect(error.response.status).to.equal(500);
     }
   });
 
-  it("Should handle API errors (in the links)", async function() {
+  it('Should handle API errors (in the links)', async function() {
     // Remove data so it will fallback to using links
-    delete json_widget_1["relationships"]["widgets"]["data"];
+    delete json_widget_1['relationships']['widgets']['data'];
     this.mock_api
       .onGet()
       .replyOnce(200, { data: json_widget_1 })
