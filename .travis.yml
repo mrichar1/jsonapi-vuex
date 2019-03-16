@@ -12,10 +12,11 @@ addons:
   firefox: latest
 
 before_script:
-- sh -e /etc/init.d/xvfb start
+  - sh -e /etc/init.d/xvfb start
 
 script:
   - npm run lint
+  - npm test
 
 deploy:
   provider: npm
