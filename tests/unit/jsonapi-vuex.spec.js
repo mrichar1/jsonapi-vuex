@@ -1,6 +1,5 @@
 import chai, { expect } from 'chai';
 import chaiAsPromised from 'chai-as-promised';
-import chaiExclude from 'chai-exclude';
 import sinonChai from 'sinon-chai';
 import axios from 'axios';
 import MockAdapter from 'axios-mock-adapter';
@@ -27,9 +26,8 @@ import {
   storeFormat as createStoreRecord,
 } from './fixtures/record';
 
-chai.use(sinonChai);
-chai.use(chaiAsPromised);
-chai.use(chaiExclude);
+chai.use(sinonChai)
+chai.use(chaiAsPromised)
 
 // 'global' variables (redefined in beforeEach)
 let jm,
@@ -404,39 +402,51 @@ describe('jsonapi-vuex tests', function() {
       it('should filter whole store using jsonpath, returning a single item', function() {
         const { get } = jm.getters;
         // Return all records of any type with id: 1
-        const result = get(store_record)('', '$.*.1');
-        expect(result).to.deep.equal({
-          [norm_widget_1['_jv']['id']]: norm_widget_1,
-        });
-      });
-      it('should return empty object if type not in state', function() {
-        const { get } = jm.getters;
-        const result = get({})('widget');
-        expect(result).to.deep.equal({});
-      });
-      it('should follow relationships data (single item)', function() {
-        jm = jsonapiModule(api, { follow_relationships_data: true });
-        const { get } = jm.getters;
-        const result = get(store_record, { get: get })('widget/1');
-        expect(norm_widget_1_rels).to.deep.equal(result);
-      });
-      it('should follow relationships data (array)', function() {
-        jm = jsonapiModule(api, { follow_relationships_data: true });
-        const { get } = jm.getters;
-        const result = get(store_record, { get: get })('widget/2');
-        expect(norm_widget_2_rels)
-          .excludingEvery('_jv')
-          .to.deep.equal(result);
-      });
-      it('should follow relationships data (array) for a collection', function() {
-        jm = jsonapiModule(api, { follow_relationships_data: true });
-        const { get } = jm.getters;
-        const result = get(store_record, { get: get })('widget');
-        expect(norm_record_rels)
-          .excludingEvery('_jv')
-          .to.deep.equal(result);
-      });
-    });
+        const result = get(store_record)('', '$.*.1')
+        expect(result).to.deep.equal({ [norm_widget_1['_jv']['id']] : norm_widget_1 })
+      })
+      it("should return empty object if type not in state", function() {
+        const { get } = jm.getters
+        const result = get({})('widget')
+        expect(result).to.deep.equal({})
+      })
+      it("should follow relationships data (single item)", function() {
+        jm = jsonapiModule(api, { 'follow_relationships_data': true })
+        const { get } = jm.getters
+        const result = get(store_record, { 'get': get })('widget/1')
+        expect(norm_widget_1_rels).to.deep.equal(result)
+      })
+      it("should follow relationships data (array)", function() {
+        jm = jsonapiModule(api, { 'follow_relationships_data': true })
+        const { get } = jm.getters
+        const result = get(store_record, { 'get': get })('widget/2')
+        expect(norm_widget_2_rels).to.deep.equal(result)
+      })
+      it("should follow relationships data (array) for a collection", function() {
+        jm = jsonapiModule(api, { 'follow_relationships_data': true })
+        const { get } = jm.getters
+        const result = get(store_record, { 'get': get })('widget')
+        expect(norm_record_rels).to.deep.equal(result)
+      })
+    })
+
+    describe("status", function() {
+      it("should return the status for a given id", function() {
+        const { status } = jm.getters
+        let state = { '_jv': { 1: { 'status': 'splat' }}}
+        const result = status(state)(1)
+        expect(result).to.equal('splat')
+      })
+      it("should return the status for a given action (promise)", function() {
+        const { status } = jm.getters
+        let state = { '_jv': { 1: { 'status': 'splat' }}}
+        const result = status(state)({ '_jv_id': 1 })
+        expect(result).to.equal('splat')
+      })
+    })
+  }); // getters
+
+  describe("Custom Exceptions", function() {
 
     describe('status', function() {
       it('should return the status for a given id', function() {

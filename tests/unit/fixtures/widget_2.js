@@ -50,9 +50,14 @@ export function normFormat() {
 }
 
 export function normFormatWithRels() {
-  const widget = normFormat();
-  widget._jv.rels = { 1: createNormWidget1(), 3: createNormWidget3() };
-  return widget;
+  const widget = normFormat()
+  widget._jv.rels = {
+    widgets: {
+      1: createNormWidget1(),
+      3: createNormWidget3()
+    }
+  }
+  return widget
 }
 
 export function storeFormat() {

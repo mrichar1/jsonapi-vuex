@@ -8,6 +8,7 @@ import {
   normFormat as createNormWidget1,
   normFormatPatch as createNormWidget1Patch,
   normFormatUpdate as createNormWidget1Update,
+  normFormatWithRels as createNormWidget1WithRels,
 } from '../fixtures/widget_1';
 import { createResponseMeta } from '../fixtures/server_response';
 
@@ -111,5 +112,14 @@ describe('patch', function() {
     } catch (error) {
       expect(error.response.status).to.equal(500);
     }
-  });
-});
+  })
+
+  it("should not include rels in requests", async function() {
+    this.mock_api.onAny().reply(204)
+    const widget = createNormWidget1WithRels()
+
+    await jsonapiModule.actions.patch(stub_context, widget)
+
+    expect(JSON.parse(this.mock_api.history.patch[0].data)).to.deep.equal({ data: json_widget_1 })
+  })
+})

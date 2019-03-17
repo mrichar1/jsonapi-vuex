@@ -161,10 +161,8 @@ describe('get', function() {
 
     let res = await jm.actions.get(stub_context, 'widget');
 
-    expect(res)
-      .excludingEvery('_jv')
-      .to.deep.equal(norm_record_rels);
-  });
+    expect(res).to.deep.equal(norm_record_rels)
+  })
 
   it("should handle an empty rels 'data' object", async function() {
     const jm = createJsonapiModule(this.api, {
