@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import get from 'lodash.get';
 import merge from 'lodash.merge';
-import clone from 'lodash.clone';
+import cloneDeep from 'lodash.clonedeep';
 // https://github.com/dchester/jsonpath/issues/89
 import jp from 'jsonpath/jsonpath.min'
 
@@ -379,7 +379,7 @@ const preserveJSON = (data, json) => {
 // Follow relationships and expand them into _jv/rels
 const followRelationships = (state, record) => {
   // Copy item before modifying
-  const data = clone(record)
+  const data = cloneDeep(record)
   data[jvtag]['rels'] = {}
   const rel_names = get(data, [ jvtag, 'relationships' ]) || {}
   for (let [ rel_name, rel_info ] of Object.entries(rel_names)) {
@@ -398,7 +398,7 @@ const followRelationships = (state, record) => {
         let result = get(state, [ type, id ])
         if (result) {
           // Copy rather than ref to avoid circular JSON issues
-          result = clone(result)
+          result = cloneDeep(result)
           if (is_item) {
             // Store attrs directly under rel_name
             data[jvtag]['rels'][rel_name] = result
