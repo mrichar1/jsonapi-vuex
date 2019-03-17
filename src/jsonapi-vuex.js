@@ -485,7 +485,10 @@ const normToJsonapiItem = (data) => {
   // Fastest way to deep copy
   const jsonapi = { ...data[jvtag] }
   jsonapi['attributes'] = Object.assign({}, data)
+
+  delete jsonapi.rels
   delete jsonapi['attributes'][jvtag]
+
   return jsonapi
 }
 
