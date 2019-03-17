@@ -1,4 +1,4 @@
-import { normFormat as createNormWidget1 } from './widget_1';
+import { normFormat as createNormWidget1 } from './widget_1'
 
 export function jsonFormat() {
   return {
@@ -15,7 +15,7 @@ export function jsonFormat() {
         },
       },
     },
-  };
+  }
 }
 
 export function normFormat() {
@@ -33,13 +33,13 @@ export function normFormat() {
         },
       },
     },
-  };
+  }
 }
 
 export function normFormatWithRels() {
-  const widget = normFormat();
-  widget._jv.rels = { widgets: createNormWidget1() };
-  return widget;
+  const widget = normFormat()
+  widget._jv.rels = { widgets: createNormWidget1() }
+  return widget
 }
 
 export function storeFormat() {
@@ -49,5 +49,5 @@ export function storeFormat() {
         ...normFormat(),
       },
     },
-  };
+  }
 }

@@ -1,5 +1,5 @@
-import { normFormat as createNormWidget1 } from './widget_1';
-import { normFormat as createNormWidget3 } from './widget_3';
+import { normFormat as createNormWidget1 } from './widget_1'
+import { normFormat as createNormWidget3 } from './widget_3'
 
 export function jsonFormat() {
   return {
@@ -22,7 +22,7 @@ export function jsonFormat() {
         ],
       },
     },
-  };
+  }
 }
 
 export function normFormat() {
@@ -46,7 +46,7 @@ export function normFormat() {
         },
       },
     },
-  };
+  }
 }
 
 export function normFormatWithRels() {
@@ -54,8 +54,8 @@ export function normFormatWithRels() {
   widget._jv.rels = {
     widgets: {
       1: createNormWidget1(),
-      3: createNormWidget3()
-    }
+      3: createNormWidget3(),
+    },
   }
   return widget
 }
@@ -67,5 +67,5 @@ export function storeFormat() {
         ...normFormat(),
       },
     },
-  };
+  }
 }

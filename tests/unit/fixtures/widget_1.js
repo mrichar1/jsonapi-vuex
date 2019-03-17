@@ -1,4 +1,4 @@
-import { normFormat as createNormWidget2 } from './widget_2';
+import { normFormat as createNormWidget2 } from './widget_2'
 
 export function jsonFormat() {
   return {
@@ -19,7 +19,7 @@ export function jsonFormat() {
         },
       },
     },
-  };
+  }
 }
 
 export function jsonFormatPatch() {
@@ -41,7 +41,7 @@ export function jsonFormatPatch() {
         },
       },
     },
-  };
+  }
 }
 
 export function normFormat() {
@@ -63,13 +63,13 @@ export function normFormat() {
         },
       },
     },
-  };
+  }
 }
 
 export function normFormatWithRels() {
-  const widget = normFormat();
-  widget._jv.rels = { widgets: createNormWidget2() };
-  return widget;
+  const widget = normFormat()
+  widget._jv.rels = { widgets: createNormWidget2() }
+  return widget
 }
 
 export function normFormatPatch() {
@@ -79,7 +79,7 @@ export function normFormatPatch() {
       type: 'widget',
       id: '1',
     },
-  };
+  }
 }
 
 export function normFormatUpdate() {
@@ -101,7 +101,7 @@ export function normFormatUpdate() {
         },
       },
     },
-  };
+  }
 }
 
 export function storeFormat() {
@@ -111,5 +111,5 @@ export function storeFormat() {
         ...normFormat(),
       },
     },
-  };
+  }
 }

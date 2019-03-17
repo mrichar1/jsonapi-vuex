@@ -1,9 +1,9 @@
 // server.js
-var FakeServer = require('fake-json-api-server/src/nodeServer');
+var FakeServer = require('fake-json-api-server/src/nodeServer')
 
-var resources = require('./testapp.json');
+var resources = require('./testapp.json')
 
 new FakeServer({
   port: 3000,
   resources: resources,
-});
+})

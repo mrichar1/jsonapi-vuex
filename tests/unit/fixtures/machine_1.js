@@ -5,7 +5,7 @@ export function jsonFormat() {
     attributes: {
       foo: 1,
     },
-  };
+  }
 }
 
 export function normFormat() {
@@ -15,5 +15,5 @@ export function normFormat() {
       type: 'machine',
       id: '1',
     },
-  };
+  }
 }
