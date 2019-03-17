@@ -58,7 +58,7 @@ const mutations = (api) => {  // eslint-disable-line no-unused-vars
         throw new RecordError("update_record: Missing type or id", new_record)
       }
       const store_record = normToStore(new_record)
-      const old_record = get(state, `${type}.${id}`)
+      const old_record = get(state, [ type, id ])
       Vue.set(state[type], id, merge(old_record, store_record[type][id]))
     },
     set_status: (state, { id, status }) => {
@@ -129,7 +129,7 @@ const actions = (api) => {
       //Get initial record
       let action = context.dispatch('get', args)
         .then((record) => {
-          let rels = get(record, `${jvtag}.relationships`) || {}
+          let rels = get(record, [ jvtag, 'relationships' ]) || {}
           if (rel_name && rels) {
             // Only process requested relname
             rels = { [rel_name]: rels[rel_name] }
@@ -381,7 +381,7 @@ const followRelationships = (state, record) => {
   // Copy item before modifying
   const data = clone(record)
   data[jvtag]['rels'] = {}
-  const rel_names = get(data, `${jvtag}.relationships`) || {}
+  const rel_names = get(data, [ jvtag, 'relationships' ]) || {}
   for (let [ rel_name, rel_info ] of Object.entries(rel_names)) {
     let is_item = false
     // We can only work with data, not links since we need type & id
@@ -395,7 +395,7 @@ const followRelationships = (state, record) => {
       }
       for (let rel_item of rel_data) {
         let [ type, id ] = getTypeId({ [jvtag]: rel_item })
-        let result = get(state, `${type}.${id}`)
+        let result = get(state, [ type, id ])
         if (result) {
           // Copy rather than ref to avoid circular JSON issues
           result = clone(result)
