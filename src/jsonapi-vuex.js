@@ -371,7 +371,7 @@ const addJvHelpers = (obj) => {
     get rels() {
       const rel = {}
       for (let [key, val] of Object.entries(obj)) {
-        if (obj[jvtag]['relationships'].hasOwnProperty(key)) {
+        if (this.isRel(key)) {
           rel[key] = val
         }
       }
@@ -380,7 +380,7 @@ const addJvHelpers = (obj) => {
     get attrs() {
       const att = {}
       for (let [key, val] of Object.entries(obj)) {
-        if (key != jvtag && !obj[jvtag]['relationships'].hasOwnProperty(key)) {
+        if (key !== jvtag && !this.isRel(key)) {
           att[key] = val
         }
       }
