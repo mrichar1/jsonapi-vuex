@@ -1,4 +1,4 @@
-import createJsonapiModule from '../utils/create-jsonapi-module'
+import createJsonapiModule from '../utils/createJsonapiModule'
 
 describe('update', function() {
   let jsonapiModule

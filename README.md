@@ -6,14 +6,14 @@ A module to access JSONAPI data from an API, using a Vuex store, restructured to
 
 ## Features
 
-* Creates a [Vuex](https://vuex.vuejs.org/) module to store API data.
-* High-level methods to wrap common RESTful operations (GET, POST, PUT, DELETE).
-* Restructures/normalizes data, making record handling easier.
-* Makes fetching related objects easy.
-* Relationships can be followed and expanded into records automatically (recursively).
-* Uses [Axios](https://github.com/axios/axios) (or your own axios-like module) as the HTTP client.
-* Uses [jsonpath](https://github.com/dchester/jsonpath) for filtering when getting objects from the store.
-* Records the status of actions (LOADING, SUCCESS, ERROR).
+- Creates a [Vuex](https://vuex.vuejs.org/) module to store API data.
+- High-level methods to wrap common RESTful operations (GET, POST, PUT, DELETE).
+- Restructures/normalizes data, making record handling easier.
+- Makes fetching related objects easy.
+- Relationships can be followed and expanded into records automatically (recursively).
+- Uses [Axios](https://github.com/axios/axios) (or your own axios-like module) as the HTTP client.
+- Uses [jsonpath](https://github.com/dchester/jsonpath) for filtering when getting objects from the store.
+- Records the status of actions (LOADING, SUCCESS, ERROR).
 
 ## Setup
 
@@ -56,13 +56,13 @@ There are 4 actions (with aliases): `get` (`fetch`), `post` (`create`), `patch` 
 
 These actions take 2 arguments: the path/object to be acted on, and an (optional) [`axios` config object](https://github.com/axios/axios#request-config). The first argument is an object containing [restructured data](#restructured-data).
 
-*Note* - Since the `dispatch` method can only accept a single argument, if both arguments are used, the argument must be an array.
+_Note_ - Since the `dispatch` method can only accept a single argument, if both arguments are used, the argument must be an array.
 
 The first argument is an object containing [restructured data](#restructured-data). Actions which take no `data` argument apart from the record (`get` and `delete`) can also accept a URL to fetch (relative to `axios` `baseURL` (if set) leading slash is optional). This means you don't need to create an 'empty' restructured data object to get or delete a record. Some examples:
 
 ```
 // Restructured representation of a record
-const new_widget = {
+const newWidget = {
   'name': 'sprocket',
   'color': 'black',
   '_jv': {
@@ -89,7 +89,7 @@ this.$store.dispatch('jv/get', ['widget/1', {params: params}])
   })
 
 // Create a new widget in the API, using a restructured object, and passing parameters to axios:
-this.$store.dispatch('jv/post', [new_widget, {params: params}])
+this.$store.dispatch('jv/post', [newWidget, {params: params}])
   .then(data => {
     console.log(data)
   })
@@ -98,11 +98,11 @@ this.$store.dispatch('jv/post', [new_widget, {params: params}])
 
 #### getRelated
 
-*Note* - in many cases you may prefer to use the jsonapi server-side `include` option to get data on relationships included in your original query. (See `Related Items`).
+_Note_ - in many cases you may prefer to use the jsonapi server-side `include` option to get data on relationships included in your original query. (See `Related Items`).
 
 Like the RESTful actions, this takes 2 arguments - the URL/object to be acted on, and an axios config object. It returns a deeply nested restructured tree - `relationship -> type -> id -> data`.
 
-*Note* - `getRelated` only works on specific items, not collections.
+_Note_ - `getRelated` only works on specific items, not collections.
 
 ```
 // Assuming the API holds the following data
@@ -139,7 +139,6 @@ this.$store.dispatch('jv/getRelated', 'widget/1/widgets')
   })
 
 ```
-
 
 ### Getters
 
@@ -201,9 +200,9 @@ Every action is given a unique id, and this is both returned as a property of th
 
 The `status` getter accepts either an id, or a promise returned by an action, and returns the stored state of the action. This can be one of:
 
-* LOADING
-* SUCCESS
-* ERROR
+- LOADING
+- SUCCESS
+- ERROR
 
 For example, to determine the state of an action:
 
@@ -234,14 +233,13 @@ For example, you might want to disable an attribute while an action is happening
 <input type="text" :disabled="status == 'LOADING'">
 ```
 
-
 ### Related items
 
 By default the `get` action and getter are both configured to follow and expand out relationships recursively, if they are provided as `data` entries (i.e. `{type: 'widget', id: '1'}`).
 
-*Note* - If using the `action` you may wish to also set the `include` parameter on the server query to include the relationships you are interested in. Any records returned in the `included` section of the jsonapi data will be automatically added to the store.
+_Note_ - If using the `action` you may wish to also set the `include` parameter on the server query to include the relationships you are interested in. Any records returned in the `included` section of the jsonapi data will be automatically added to the store.
 
-For any relationships where the related item is already in the store, this is added to the returned object(s) in `obj['_jv']['rels'][rel_name]`. For items with a single relationship, the object is placed directly under the `rel_name` - for mutiple items, they are indexed by id:
+For any relationships where the related item is already in the store, this is added to the returned object(s) in `obj['_jv']['rels'][relName]`. For items with a single relationship, the object is placed directly under the `relName` - for mutiple items, they are indexed by id:
 
 ```
 // Assuming the store is as follows:
@@ -292,10 +290,10 @@ let item1 = this.$store.getters['jv/get']('widget/1')
 }
 
 // This can then be accessed as:
-let related_item_name = item1._jv.rels.parts.name
+item1._jv.rels.parts.name
 
 //  Or if there were multiple related items as:
-let related_item2_name = item1._jv.rels.parts.2.name
+item1._jv.rels.parts.2.name
 
 ```
 
@@ -310,10 +308,10 @@ jm = jsonapiModule(api, config)
 
 ### Config Options
 
-* `jvtag` - The tag in restructured objects to hold object metadata (defaults to `_jv`)
-* `follow_relationships_data` - Whether to follow and expand relationships from the store in the `get` getter (defaults to `true`)
-* `preserve_json` - Whether actions should return the API response json (minus `data`) in `_jv/json` (for access to meta etc) (defaults to `false`)
-* `action_status_clean_age` - What age must action status records be before they are removed (defaults to 600 seconds). Set to `0` to disable.
+- `jvtag` - The tag in restructured objects to hold object metadata (defaults to `_jv`)
+- `followRelationshipsData` - Whether to follow and expand relationships from the store in the `get` getter (defaults to `true`)
+- `preserveJson` - Whether actions should return the API response json (minus `data`) in `_jv/json` (for access to meta etc) (defaults to `false`)
+- `actionStatusCleanAge` - What age must action status records be before they are removed (defaults to 600 seconds). Set to `0` to disable.
 
 ## Restructured Data
 
@@ -412,20 +410,20 @@ There are several scripts set up in `package.json`:
 
 `yarn test` - Runs both unit and e2e tests. (Used by `travis`).
 
-*Note* - All code is pre-processed with `babel` and `eslint` when testing for backwards compatability and linting.
+_Note_ - All code is pre-processed with `babel` and `eslint` when testing for backwards compatability and linting.
 
 ### Coding Standards
 
 Please follow these guidelines when writing and submitting code:
 
-* **eslint** - This is run over both the main code and the test suite during tests. See `.eslint.rc.js` for changes to the default rules.
+- **eslint** - This is run over both the main code and the test suite during tests. See `.eslint.rc.js` for changes to the default rules.
 
-* **>= ES6** - Please try to use ES6 and newer methods (matching the policy that `Vue` has).
+- **>= ES6** - Please try to use ES6 and newer methods (matching the policy that `Vue` has).
 
-* **Tests** - This project aspires to test-driven development. Please submit unit tests (and ideally e2e tests) with all PRs (unless there's a good reason not to).
+- **Tests** - This project aspires to test-driven development. Please submit unit tests (and ideally e2e tests) with all PRs (unless there's a good reason not to).
 
-* **Versioning** - Semantic versioning should be used, see https://semver.org for details.
+- **Versioning** - Semantic versioning should be used, see https://semver.org for details.
 
-* **Continuous Integration** - The project uses [travis(https://travis-ci.com) to run tests against all submissions - PRs that are not passing will not be accepted (without good reason).
+- **Continuous Integration** - The project uses [travis(https://travis-ci.com) to run tests against all submissions - PRs that are not passing will not be accepted (without good reason).
 
-* **Specific Commits** - Please make all commits/PRs as atomic and specific as possible.
+- **Specific Commits** - Please make all commits/PRs as atomic and specific as possible.

@@ -7,9 +7,9 @@ export default function(api, options = {}) {
 
   // Turn off following by default to simplify test data in most cases
   return jsonapiModule(api, {
-    follow_relationships_data: false,
-    preserve_json: false,
-    action_status_clean_interval: 0,
+    followRelationshipsData: false,
+    preserveJson: false,
+    actionStatusCleanInterval: 0,
     ...options,
   })
 }

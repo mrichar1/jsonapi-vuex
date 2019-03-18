@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 
-import createJsonapiModule from '../utils/create-jsonapi-module'
+import createJsonapiModule from '../utils/createJsonapiModule'
 
 describe('fetch', function() {
   let jsonapiModule

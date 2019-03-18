@@ -1,209 +1,209 @@
 import { expect } from 'chai'
 
 import createStubContext from '../stubs/context'
-import createJsonapiModule from '../utils/create-jsonapi-module'
+import createJsonapiModule from '../utils/createJsonapiModule'
 import {
   jsonFormat as createJsonWidget1,
   normFormat as createNormWidget1,
-} from '../fixtures/widget_1'
+} from '../fixtures/widget1'
 import {
   jsonFormat as createJsonWidget2,
   normFormat as createNormWidget2,
-} from '../fixtures/widget_2'
+} from '../fixtures/widget2'
 import {
   jsonFormat as createJsonMachine1,
   normFormat as createNormMachine1,
-} from '../fixtures/machine_1'
+} from '../fixtures/machine1'
 import {
   jsonFormat as createJsonRecord,
   normFormatWithRels as createNormRecordRels,
   storeFormat as createStoreRecord,
 } from '../fixtures/record'
-import { createResponseMeta } from '../fixtures/server_response'
+import { createResponseMeta } from '../fixtures/serverResponse'
 
 describe('get', function() {
-  let json_machine_1,
-    norm_machine_1,
-    json_widget_1,
-    json_widget_2,
-    norm_widget_1,
-    norm_widget_1_rels,
-    norm_widget_2,
-    norm_record_rels,
-    store_record,
-    json_record,
+  let jsonMachine1,
+    normMachine1,
+    jsonWidget1,
+    jsonWidget2,
+    normWidget1,
+    normWidget1_rels,
+    normWidget2,
+    normRecordRels,
+    storeRecord,
+    jsonRecord,
     meta,
     jsonapiModule,
-    stub_context
+    stubContext
 
   beforeEach(function() {
-    json_machine_1 = createJsonMachine1()
-    norm_machine_1 = createNormMachine1()
-    json_widget_1 = createJsonWidget1()
-    json_widget_2 = createJsonWidget2()
-    norm_widget_1 = createNormWidget1()
-    norm_widget_2 = createNormWidget2()
-    norm_record_rels = createNormRecordRels()
-    norm_widget_1_rels = norm_record_rels[norm_widget_1['_jv']['id']]
-    store_record = createStoreRecord()
-    json_record = createJsonRecord()
+    jsonMachine1 = createJsonMachine1()
+    normMachine1 = createNormMachine1()
+    jsonWidget1 = createJsonWidget1()
+    jsonWidget2 = createJsonWidget2()
+    normWidget1 = createNormWidget1()
+    normWidget2 = createNormWidget2()
+    normRecordRels = createNormRecordRels()
+    normWidget1_rels = normRecordRels[normWidget1['_jv']['id']]
+    storeRecord = createStoreRecord()
+    jsonRecord = createJsonRecord()
     meta = createResponseMeta()
     jsonapiModule = createJsonapiModule(this.api)
-    stub_context = createStubContext(jsonapiModule)
+    stubContext = createStubContext(jsonapiModule)
   })
 
   it('should make an api call to GET item(s)', async function() {
-    this.mock_api.onAny().reply(200, { data: json_widget_1 })
+    this.mockApi.onAny().reply(200, { data: jsonWidget1 })
 
-    await jsonapiModule.actions.get(stub_context, norm_widget_1)
+    await jsonapiModule.actions.get(stubContext, normWidget1)
 
-    expect(this.mock_api.history.get[0].url).to.equal(
-      `/${norm_widget_1['_jv']['type']}/${norm_widget_1['_jv']['id']}`
+    expect(this.mockApi.history.get[0].url).to.equal(
+      `/${normWidget1['_jv']['type']}/${normWidget1['_jv']['id']}`
     )
   })
 
   it('should make an api call to GET a collection', async function() {
-    this.mock_api.onAny().reply(200, { data: json_widget_1 })
-    delete norm_widget_1['_jv']['id']
+    this.mockApi.onAny().reply(200, { data: jsonWidget1 })
+    delete normWidget1['_jv']['id']
 
-    await jsonapiModule.actions.get(stub_context, norm_widget_1)
+    await jsonapiModule.actions.get(stubContext, normWidget1)
 
-    expect(this.mock_api.history.get[0].url).to.equal(
-      `/${norm_widget_1['_jv']['type']}`
+    expect(this.mockApi.history.get[0].url).to.equal(
+      `/${normWidget1['_jv']['type']}`
     )
   })
 
   it('should accept axios config as the 2nd arg in a list', async function() {
-    this.mock_api.onAny().reply(200, { data: json_widget_1 })
+    this.mockApi.onAny().reply(200, { data: jsonWidget1 })
     const params = { filter: 'color' }
 
-    await jsonapiModule.actions.get(stub_context, [
-      norm_widget_1,
+    await jsonapiModule.actions.get(stubContext, [
+      normWidget1,
       { params: params },
     ])
 
-    expect(this.mock_api.history.get[0].params).to.equal(params)
+    expect(this.mockApi.history.get[0].params).to.equal(params)
   })
 
   it('should add record(s) in the store', async function() {
-    this.mock_api.onAny().reply(200, { data: json_widget_1 })
+    this.mockApi.onAny().reply(200, { data: jsonWidget1 })
 
-    await jsonapiModule.actions.get(stub_context, norm_widget_1)
+    await jsonapiModule.actions.get(stubContext, normWidget1)
 
-    expect(stub_context.commit).to.have.been.calledWith(
-      'add_records',
-      norm_widget_1
+    expect(stubContext.commit).to.have.been.calledWith(
+      'addRecords',
+      normWidget1
     )
   })
 
   it('should add record(s) (string) in the store', async function() {
-    this.mock_api.onAny().reply(200, { data: json_widget_1 })
+    this.mockApi.onAny().reply(200, { data: jsonWidget1 })
 
     // Leading slash is incorrect syntax, but we should handle it so test with it in
-    await jsonapiModule.actions.get(stub_context, 'widget/1')
+    await jsonapiModule.actions.get(stubContext, 'widget/1')
 
-    expect(stub_context.commit).to.have.been.calledWith(
-      'add_records',
-      norm_widget_1
+    expect(stubContext.commit).to.have.been.calledWith(
+      'addRecords',
+      normWidget1
     )
   })
 
   it('should return normalized data', async function() {
-    this.mock_api.onAny().reply(200, { data: json_widget_1 })
+    this.mockApi.onAny().reply(200, { data: jsonWidget1 })
 
-    let res = await jsonapiModule.actions.get(stub_context, norm_widget_1)
+    let res = await jsonapiModule.actions.get(stubContext, normWidget1)
 
-    expect(res).to.deep.equal(norm_widget_1)
+    expect(res).to.deep.equal(normWidget1)
   })
 
   it('should add included record(s) to the store', async function() {
     // included array can include objects from different collections
     const data = {
-      data: json_widget_1,
-      included: [json_widget_2, json_machine_1],
+      data: jsonWidget1,
+      included: [jsonWidget2, jsonMachine1],
     }
-    this.mock_api.onAny().reply(200, data)
+    this.mockApi.onAny().reply(200, data)
 
     // for a real API call, would need axios include params here
-    await jsonapiModule.actions.get(stub_context, norm_widget_1)
+    await jsonapiModule.actions.get(stubContext, normWidget1)
 
-    expect(stub_context.commit).to.have.been.calledWith(
-      'add_records',
-      norm_widget_2
+    expect(stubContext.commit).to.have.been.calledWith(
+      'addRecords',
+      normWidget2
     )
-    expect(stub_context.commit).to.have.been.calledWith(
-      'add_records',
-      norm_machine_1
+    expect(stubContext.commit).to.have.been.calledWith(
+      'addRecords',
+      normMachine1
     )
   })
 
   it('should return normalized data with expanded rels (single item)', async function() {
     const jm = createJsonapiModule(this.api, {
-      follow_relationships_data: true,
+      followRelationshipsData: true,
     })
     // Make state contain all records for rels to work
-    stub_context['state'] = store_record
-    this.mock_api.onAny().reply(200, { data: json_widget_1 })
+    stubContext['state'] = storeRecord
+    this.mockApi.onAny().reply(200, { data: jsonWidget1 })
 
-    let res = await jm.actions.get(stub_context, norm_widget_1)
+    let res = await jm.actions.get(stubContext, normWidget1)
 
-    expect(res).to.deep.equal(norm_widget_1_rels)
+    expect(res).to.deep.equal(normWidget1_rels)
   })
 
   it('should return normalized data with expanded rels (array)', async function() {
     const jm = createJsonapiModule(this.api, {
-      follow_relationships_data: true,
+      followRelationshipsData: true,
     })
     // Make state contain all records for rels to work
-    stub_context['state'] = store_record
-    this.mock_api.onAny().reply(200, json_record)
+    stubContext['state'] = storeRecord
+    this.mockApi.onAny().reply(200, jsonRecord)
 
-    let res = await jm.actions.get(stub_context, 'widget')
+    let res = await jm.actions.get(stubContext, 'widget')
 
-    expect(res).to.deep.equal(norm_record_rels)
+    expect(res).to.deep.equal(normRecordRels)
   })
 
   it("should handle an empty rels 'data' object", async function() {
     const jm = createJsonapiModule(this.api, {
-      follow_relationships_data: true,
+      followRelationshipsData: true,
     })
     // Delete contents of data and remove links
-    json_widget_1['relationships']['widgets']['data'] = {}
-    delete json_widget_1['relationships']['widgets']['links']
-    this.mock_api.onAny().reply(200, { data: json_widget_1 })
+    jsonWidget1['relationships']['widgets']['data'] = {}
+    delete jsonWidget1['relationships']['widgets']['links']
+    this.mockApi.onAny().reply(200, { data: jsonWidget1 })
 
-    let res = await jm.actions.get(stub_context, norm_widget_1)
+    let res = await jm.actions.get(stubContext, normWidget1)
 
     expect(res['_jv']['rels']['widgets']).to.deep.equal({})
   })
 
   it('should preserve json in _jv in returned data', async function() {
-    const jm = createJsonapiModule(this.api, { preserve_json: true })
+    const jm = createJsonapiModule(this.api, { preserveJson: true })
     // Mock server to only return a meta section
-    this.mock_api.onAny().reply(200, meta)
+    this.mockApi.onAny().reply(200, meta)
 
-    let res = await jm.actions.get(stub_context, 'widget')
+    let res = await jm.actions.get(stubContext, 'widget')
 
     // json should now be nested in _jv/json
     expect(res['_jv']['json']).to.deep.equal(meta)
   })
 
   it('should not preserve json in _jv in returned data', async function() {
-    const jm = createJsonapiModule(this.api, { preserve_json: false })
+    const jm = createJsonapiModule(this.api, { preserveJson: false })
     // Mock server to only return a meta section
-    this.mock_api.onAny().reply(200, meta)
+    this.mockApi.onAny().reply(200, meta)
 
-    let res = await jm.actions.get(stub_context, 'widget')
+    let res = await jm.actions.get(stubContext, 'widget')
 
     // collections should have no top-level _jv
     expect(res).to.not.have.key('_jv')
   })
 
   it('should handle API errors', async function() {
-    this.mock_api.onAny().reply(500)
+    this.mockApi.onAny().reply(500)
 
     try {
-      await jsonapiModule.actions.get(stub_context, norm_widget_1)
+      await jsonapiModule.actions.get(stubContext, normWidget1)
     } catch (error) {
       expect(error.response.status).to.equal(500)
     }
