@@ -1,7 +1,7 @@
 import { expect } from 'chai'
 
 import createStubContext from '../stubs/context'
-import createJsonapiModule from '../utils/create-jsonapi-module'
+import createJsonapiModule from '../utils/createJsonapiModule'
 import {
   jsonFormat as createJsonWidget1,
   jsonFormatPatch as createJsonWidget1Patch,
@@ -9,119 +9,115 @@ import {
   normFormatPatch as createNormWidget1Patch,
   normFormatUpdate as createNormWidget1Update,
   normFormatWithRels as createNormWidget1WithRels,
-} from '../fixtures/widget_1'
-import { createResponseMeta } from '../fixtures/server_response'
+} from '../fixtures/widget1'
+import { createResponseMeta } from '../fixtures/serverResponse'
 
 describe('patch', function() {
-  let json_widget_1,
-    json_widget_1_patch,
-    norm_widget_1,
-    norm_widget_1_patch,
-    norm_widget_1_update,
+  let jsonWidget1,
+    jsonWidget1Patch,
+    normWidget1,
+    normWidget1Patch,
+    normWidget1Update,
     jsonapiModule,
-    stub_context
+    stubContext
 
   beforeEach(function() {
-    json_widget_1 = createJsonWidget1()
-    json_widget_1_patch = createJsonWidget1Patch()
-    norm_widget_1 = createNormWidget1()
-    norm_widget_1_patch = createNormWidget1Patch()
-    norm_widget_1_update = createNormWidget1Update()
+    jsonWidget1 = createJsonWidget1()
+    jsonWidget1Patch = createJsonWidget1Patch()
+    normWidget1 = createNormWidget1()
+    normWidget1Patch = createNormWidget1Patch()
+    normWidget1Update = createNormWidget1Update()
 
     jsonapiModule = createJsonapiModule(this.api)
-    stub_context = createStubContext(jsonapiModule)
+    stubContext = createStubContext(jsonapiModule)
   })
 
   it('should make an api call to PATCH item(s)', async function() {
-    this.mock_api.onAny().reply(200, { data: json_widget_1 })
+    this.mockApi.onAny().reply(200, { data: jsonWidget1 })
 
-    await jsonapiModule.actions.patch(stub_context, norm_widget_1_patch)
+    await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
 
-    expect(this.mock_api.history.patch[0].url).to.equal(
-      `/${norm_widget_1_patch['_jv']['type']}/${
-        norm_widget_1_patch['_jv']['id']
-      }`
+    expect(this.mockApi.history.patch[0].url).to.equal(
+      `/${normWidget1Patch['_jv']['type']}/${normWidget1Patch['_jv']['id']}`
     )
   })
 
   it('should accept axios config as the 2nd arg in a list', async function() {
-    this.mock_api.onAny().reply(200, { data: json_widget_1 })
+    this.mockApi.onAny().reply(200, { data: jsonWidget1 })
     const params = { filter: 'color' }
 
-    await jsonapiModule.actions.patch(stub_context, [
-      norm_widget_1_patch,
+    await jsonapiModule.actions.patch(stubContext, [
+      normWidget1Patch,
       { params: params },
     ])
 
-    expect(this.mock_api.history.patch[0].params).to.equal(params)
+    expect(this.mockApi.history.patch[0].params).to.equal(params)
   })
 
   it('should delete then add record(s) in the store (from server response)', async function() {
-    this.mock_api.onAny().reply(200, { data: json_widget_1_patch })
+    this.mockApi.onAny().reply(200, { data: jsonWidget1Patch })
 
-    await jsonapiModule.actions.patch(stub_context, norm_widget_1_patch)
+    await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
 
-    expect(stub_context.commit).to.have.been.calledWith(
-      'delete_record',
-      norm_widget_1_patch
+    expect(stubContext.commit).to.have.been.calledWith(
+      'deleteRecord',
+      normWidget1Patch
     )
-    expect(stub_context.commit).to.have.been.calledWith(
-      'add_records',
-      norm_widget_1_update
+    expect(stubContext.commit).to.have.been.calledWith(
+      'addRecords',
+      normWidget1Update
     )
   })
 
   it('should update record(s) in the store (no server response)', async function() {
-    this.mock_api.onAny().reply(204)
+    this.mockApi.onAny().reply(204)
 
-    await jsonapiModule.actions.patch(stub_context, norm_widget_1_patch)
+    await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
 
-    expect(stub_context.commit).to.have.been.calledWith(
-      'update_record',
-      norm_widget_1_patch
+    expect(stubContext.commit).to.have.been.calledWith(
+      'updateRecord',
+      normWidget1Patch
     )
   })
 
   it("should return data via the 'get' getter", async function() {
-    this.mock_api.onAny().reply(204)
+    this.mockApi.onAny().reply(204)
 
-    await jsonapiModule.actions.patch(stub_context, norm_widget_1_patch)
+    await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
 
-    expect(stub_context.getters.get).to.have.been.calledWith(
-      norm_widget_1_patch
-    )
+    expect(stubContext.getters.get).to.have.been.calledWith(normWidget1Patch)
   })
 
   it('should preserve json in _jv in returned data', async function() {
     let meta = createResponseMeta()
-    let jm = createJsonapiModule(this.api, { preserve_json: true })
+    let jm = createJsonapiModule(this.api, { preserveJson: true })
     // Mock server data to include a meta section
-    this.mock_api.onAny().reply(200, { data: json_widget_1, ...meta })
+    this.mockApi.onAny().reply(200, { data: jsonWidget1, ...meta })
 
-    let res = await jm.actions.patch(stub_context, norm_widget_1_patch)
+    let res = await jm.actions.patch(stubContext, normWidget1Patch)
 
     // json should now be nested in _jv/json
     expect(res['_jv']['json']).to.deep.equal(meta)
   })
 
   it('should handle API errors', async function() {
-    this.mock_api.onAny().reply(500)
+    this.mockApi.onAny().reply(500)
 
     try {
-      await jsonapiModule.actions.patch(stub_context, norm_widget_1)
+      await jsonapiModule.actions.patch(stubContext, normWidget1)
     } catch (error) {
       expect(error.response.status).to.equal(500)
     }
   })
 
   it('should not include rels in requests', async function() {
-    this.mock_api.onAny().reply(204)
+    this.mockApi.onAny().reply(204)
     const widget = createNormWidget1WithRels()
 
-    await jsonapiModule.actions.patch(stub_context, widget)
+    await jsonapiModule.actions.patch(stubContext, widget)
 
-    expect(JSON.parse(this.mock_api.history.patch[0].data)).to.deep.equal({
-      data: json_widget_1,
+    expect(JSON.parse(this.mockApi.history.patch[0].data)).to.deep.equal({
+      data: jsonWidget1,
     })
   })
 })

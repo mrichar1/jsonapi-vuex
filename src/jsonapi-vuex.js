@@ -20,30 +20,30 @@ let jvConfig = {
   // key to store jsonapi-vuex-related data under when destructuring
   jvtag: '_jv',
   // Follow relationships 'data' entries (from store)
-  follow_relationships_data: true,
+  followRelationshipsData: true,
   // Preserve API response json in return data
-  preserve_json: false,
+  preserveJson: false,
   // Age of action status records to clean (in seconds). (0 disables).
-  action_status_clean_age: 600,
+  actionStatusCleanAge: 600,
 }
 
 const jvtag = jvConfig['jvtag']
 
 // Global sequence counter for unique action ids
-let action_sequence = 0
+let actionSequenceCounter = 0
 
 const mutations = (/* api */) => {
   return {
-    delete_record: (state, record) => {
+    deleteRecord: (state, record) => {
       const [type, id] = getTypeId(record)
       if (!type || !id) {
-        throw new RecordError('delete_record: Missing type or id', record)
+        throw new RecordError('deleteRecord: Missing type or id', record)
       }
       Vue.delete(state[type], id)
     },
-    add_records: (state, records) => {
-      const store_records = normToStore(records)
-      for (let [type, item] of Object.entries(store_records)) {
+    addRecords: (state, records) => {
+      const storeRecords = normToStore(records)
+      for (let [type, item] of Object.entries(storeRecords)) {
         for (let [id, data] of Object.entries(item)) {
           if (!(type in state)) {
             Vue.set(state, type, {})
@@ -52,19 +52,19 @@ const mutations = (/* api */) => {
         }
       }
     },
-    update_record: (state, new_record) => {
-      const [type, id] = getTypeId(new_record)
+    updateRecord: (state, newRecord) => {
+      const [type, id] = getTypeId(newRecord)
       if (!type || !id) {
-        throw new RecordError('update_record: Missing type or id', new_record)
+        throw new RecordError('updateRecord: Missing type or id', newRecord)
       }
-      const store_record = normToStore(new_record)
-      const old_record = get(state, [type, id])
-      Vue.set(state[type], id, merge(old_record, store_record[type][id]))
+      const storeRecord = normToStore(newRecord)
+      const oldRecord = get(state, [type, id])
+      Vue.set(state[type], id, merge(oldRecord, storeRecord[type][id]))
     },
-    set_status: (state, { id, status }) => {
+    setStatus: (state, { id, status }) => {
       Vue.set(state[jvtag], id, { status: status, time: Date.now() })
     },
-    delete_status: (state, id) => {
+    deleteStatus: (state, id) => {
       if (id in state[jvtag]) {
         Vue.delete(state[jvtag], id)
       }
@@ -79,128 +79,128 @@ const actions = (api) => {
       const path = getURL(data)
       // https://github.com/axios/axios/issues/362
       config['data'] = config['data'] || {}
-      const action_id = actionSequence(context)
-      context.commit('set_status', { id: action_id, status: STATUS_LOAD })
+      const actionId = actionSequence(context)
+      context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
       let action = api
         .get(path, config)
         .then((results) => {
           // Process included records
           if ('included' in results.data) {
             for (let item of results.data.included) {
-              const included_item = jsonapiToNormItem(item)
-              context.commit('add_records', included_item)
+              const includedItem = jsonapiToNormItem(item)
+              context.commit('addRecords', includedItem)
             }
           }
-          let res_data = jsonapiToNorm(results.data.data)
-          context.commit('add_records', res_data)
-          res_data = checkAndFollowRelationships(context.state, res_data)
-          res_data = preserveJSON(res_data, results.data)
-          context.commit('set_status', {
-            id: action_id,
+          let resData = jsonapiToNorm(results.data.data)
+          context.commit('addRecords', resData)
+          resData = checkAndFollowRelationships(context.state, resData)
+          resData = preserveJSON(resData, results.data)
+          context.commit('setStatus', {
+            id: actionId,
             status: STATUS_SUCCESS,
           })
-          return res_data
+          return resData
         })
         .catch((error) => {
-          context.commit('set_status', { id: action_id, status: STATUS_ERROR })
+          context.commit('setStatus', { id: actionId, status: STATUS_ERROR })
           throw error
         })
-      action[jvtag + '_id'] = action_id
+      action[jvtag + 'Id'] = actionId
       return action
     },
     getRelated: (context, args) => {
       const data = unpackArgs(args)[0]
-      let [, id, rel_name] = getTypeId(data)
+      let [, id, relName] = getTypeId(data)
       if (!id) {
         throw 'No id specified'
       }
-      const action_id = actionSequence(context)
-      context.commit('set_status', { id: action_id, status: STATUS_LOAD })
+      const actionId = actionSequence(context)
+      context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
       // We can't pass multiple/non-promise vars in a promise chain,
       // so must define such vars in a higher scope
 
-      let rel_names = []
+      let relNames = []
       //Get initial record
       let action = context
         .dispatch('get', args)
         .then((record) => {
           let rels = get(record, [jvtag, 'relationships']) || {}
-          if (rel_name && rels) {
+          if (relName && rels) {
             // Only process requested relname
-            rels = { [rel_name]: rels[rel_name] }
+            rels = { [relName]: rels[relName] }
           }
           return rels
         })
         .catch((error) => {
           // Log and re-throw if 'get' action fails
-          context.commit('set_status', { id: action_id, status: STATUS_ERROR })
+          context.commit('setStatus', { id: actionId, status: STATUS_ERROR })
           throw error
         })
         .then((rels) => {
-          // Store an array of rel_names & promises
-          // let rel_names = []
-          let rel_promises = []
+          // Store an array of relNames & promises
+          // let relNames = []
+          let relPromises = []
           // Iterate over all records in rels
-          for (let [rel_name, rel_items] of Object.entries(rels)) {
-            let rel_data
+          for (let [relName, relItems] of Object.entries(rels)) {
+            let relData
             // Extract relationships from 'data' (type/id)
-            if ('data' in rel_items) {
-              rel_data = rel_items['data']
-              if (!Array.isArray(rel_data)) {
+            if ('data' in relItems) {
+              relData = relItems['data']
+              if (!Array.isArray(relData)) {
                 // Treat as if always an array
-                rel_data = [rel_data]
+                relData = [relData]
               }
-            } else if ('links' in rel_items) {
-              rel_data = rel_items['links']['related']
-              if (!(typeof rel_data === 'string')) {
-                rel_data = rel_data['href']
+            } else if ('links' in relItems) {
+              relData = relItems['links']['related']
+              if (!(typeof relData === 'string')) {
+                relData = relData['href']
               }
-              rel_data = [rel_data]
+              relData = [relData]
             }
-            for (let entry of rel_data) {
+            for (let entry of relData) {
               // Rewrite 'data' objects to normalised form
               if (!(typeof entry === 'string')) {
                 entry = { [jvtag]: entry }
               }
-              rel_names.push(rel_name)
-              rel_promises.push(context.dispatch('get', entry))
+              relNames.push(relName)
+              relPromises.push(context.dispatch('get', entry))
             }
           }
           // 'Merge' all promise resolution/rejection
-          return Promise.all(rel_promises)
+          return Promise.all(relPromises)
         })
         .then((results) => {
           let related = {}
           results.forEach((result, i) => {
-            // Get the rel_name from the same array position as the result item
-            let rel_name = rel_names[i]
-            let norm_item = {
-              [rel_name]: {
+            // Get the relName from the same array position as the result item
+            let relName = relNames[i]
+            let normItem = {
+              [relName]: {
                 [result[jvtag]['type']]: {
                   [result[jvtag]['id']]: result,
                 },
               },
             }
-            merge(related, norm_item)
+            merge(related, normItem)
           })
-          context.commit('set_status', {
-            id: action_id,
+          context.commit('setStatus', {
+            id: actionId,
             status: STATUS_SUCCESS,
           })
           return related
         })
         .catch((error) => {
-          context.commit('set_status', { id: action_id, status: STATUS_ERROR })
+          context.commit('setStatus', { id: actionId, status: STATUS_ERROR })
           throw error
         })
-      action[jvtag + '_id'] = action_id
+      action[jvtag + 'Id'] = actionId
       return action
     },
     post: (context, args) => {
       let [data, config] = unpackArgs(args)
       const path = getURL(data, true)
-      const action_id = actionSequence(context)
-      context.commit('set_status', { id: action_id, status: STATUS_LOAD })
+      const actionId = actionSequence(context)
+      context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
       let action = api
         .post(path, normToJsonapi(data), config)
         .then((results) => {
@@ -209,61 +209,61 @@ const actions = (api) => {
           if (results.status === 200 || results.status === 201) {
             data = jsonapiToNorm(results.data.data)
           }
-          context.commit('add_records', data)
-          context.commit('set_status', {
-            id: action_id,
+          context.commit('addRecords', data)
+          context.commit('setStatus', {
+            id: actionId,
             status: STATUS_SUCCESS,
           })
           return preserveJSON(context.getters.get(data), results.data)
         })
         .catch((error) => {
-          context.commit('set_status', { id: action_id, status: STATUS_ERROR })
+          context.commit('setStatus', { id: actionId, status: STATUS_ERROR })
           throw error
         })
-      action[jvtag + '_id'] = action_id
+      action[jvtag + 'Id'] = actionId
       return action
     },
     patch: (context, args) => {
       let [data, config] = unpackArgs(args)
       const path = getURL(data)
-      const action_id = actionSequence(context)
-      context.commit('set_status', { id: action_id, status: STATUS_LOAD })
+      const actionId = actionSequence(context)
+      context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
       let action = api
         .patch(path, normToJsonapi(data), config)
         .then((results) => {
           // If the server handed back data, store it
           if (results.status === 200) {
-            context.commit('delete_record', data)
+            context.commit('deleteRecord', data)
             data = jsonapiToNorm(results.data.data)
-            context.commit('add_records', data)
+            context.commit('addRecords', data)
           } else if (results.status === 204) {
             // Otherwise, try to update the store record from the patch
-            context.commit('update_record', data)
+            context.commit('updateRecord', data)
           }
-          context.commit('set_status', {
-            id: action_id,
+          context.commit('setStatus', {
+            id: actionId,
             status: STATUS_SUCCESS,
           })
           return preserveJSON(context.getters.get(data), results.data)
         })
         .catch((error) => {
-          context.commit('set_status', { id: action_id, status: STATUS_ERROR })
+          context.commit('setStatus', { id: actionId, status: STATUS_ERROR })
           throw error
         })
-      action[jvtag + '_id'] = action_id
+      action[jvtag + 'Id'] = actionId
       return action
     },
     delete: (context, args) => {
       const [data, config] = unpackArgs(args)
       const path = getURL(data)
-      const action_id = actionSequence(context)
-      context.commit('set_status', { id: action_id, status: STATUS_LOAD })
+      const actionId = actionSequence(context)
+      context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
       let action = api
         .delete(path, config)
         .then((result) => {
-          context.commit('delete_record', data)
-          context.commit('set_status', {
-            id: action_id,
+          context.commit('deleteRecord', data)
+          context.commit('setStatus', {
+            id: actionId,
             status: STATUS_SUCCESS,
           })
           if (result.data) {
@@ -273,10 +273,10 @@ const actions = (api) => {
           }
         })
         .catch((error) => {
-          context.commit('set_status', { id: action_id, status: STATUS_ERROR })
+          context.commit('setStatus', { id: actionId, status: STATUS_ERROR })
           throw error
         })
-      action[jvtag + '_id'] = action_id
+      action[jvtag + 'Id'] = actionId
       return action
     },
     get fetch() {
@@ -331,7 +331,7 @@ const getters = (/* api */) => {
     status: (state) => (id) => {
       // If id is an object (promise), extract id
       if (typeof id === 'object') {
-        id = id[jvtag + '_id']
+        id = id[jvtag + 'Id']
       }
       if (id in state[jvtag]) {
         return state[jvtag][id]['status']
@@ -361,12 +361,12 @@ const jsonapiModule = (api, conf = {}) => {
 
 const actionSequence = (context) => {
   // Increment the global action id, set up a cleanup timeout and return it
-  let id = ++action_sequence
-  if (jvConfig.action_status_clean_age > 0) {
+  let id = ++actionSequenceCounter
+  if (jvConfig.actionStatusCleanAge > 0) {
     setTimeout(
       context.commit,
-      jvConfig.action_status_clean_age * 1000,
-      'delete_status',
+      jvConfig.actionStatusCleanAge * 1000,
+      'deleteStatus',
       id
     )
   }
@@ -375,7 +375,7 @@ const actionSequence = (context) => {
 
 // If enabled, store the response json in the returned data
 const preserveJSON = (data, json) => {
-  if (jvConfig.preserve_json && data) {
+  if (jvConfig.preserveJson && data) {
     if (!(jvtag in data)) {
       data[jvtag] = {}
     }
@@ -386,71 +386,71 @@ const preserveJSON = (data, json) => {
   return data
 }
 
-const checkAndFollowRelationships = (state, records, follow_state) => {
-  if (jvConfig.follow_relationships_data) {
-    follow_state = follow_state || {}
-    let res_data = {}
+const checkAndFollowRelationships = (state, records, followState) => {
+  if (jvConfig.followRelationshipsData) {
+    followState = followState || {}
+    let resData = {}
     if (jvtag in records) {
       // single item
-      res_data = followRelationships(state, records, follow_state)
+      resData = followRelationships(state, records, followState)
     } else {
       // multiple items
       for (let [key, item] of Object.entries(records)) {
-        res_data[key] = followRelationships(state, item, follow_state)
+        resData[key] = followRelationships(state, item, followState)
       }
     }
-    if (res_data) {
-      return res_data
+    if (resData) {
+      return resData
     }
   }
   return records
 }
 
 // Follow relationships and expand them into _jv/rels
-const followRelationships = (state, record, follow_state) => {
-  follow_state = follow_state || {}
+const followRelationships = (state, record, followState) => {
+  followState = followState || {}
 
-  let [record_type, record_id] = getTypeId(record)
+  let [recordType, recordId] = getTypeId(record)
   // First check if we've already visited this object during recursion
-  let local = get(follow_state, [record_type, record_id])
+  let local = get(followState, [recordType, recordId])
   if (local) {
     return local
   }
-  if (!(record_type in follow_state)) {
-    follow_state[record_type] = {}
+  if (!(recordType in followState)) {
+    followState[recordType] = {}
   }
 
   // Copy item before modifying
   const data = cloneDeep(record)
   data[jvtag]['rels'] = {}
 
-  // Store cloned object in follow_state for future reuse during recursion
-  follow_state[record_type][record_id] = data
+  // Store cloned object in followState for future reuse during recursion
+  followState[recordType][recordId] = data
 
-  const rel_names = get(data, [jvtag, 'relationships']) || {}
-  for (let [rel_name, rel_info] of Object.entries(rel_names)) {
-    let is_item = false
+  const relNames = get(data, [jvtag, 'relationships']) || {}
+  for (let [relName, relInfo] of Object.entries(relNames)) {
+    let isItem = false
     // We can only work with data, not links since we need type & id
-    if ('data' in rel_info && rel_info.data) {
-      let rel_data = rel_info['data']
-      data[jvtag]['rels'][rel_name] = {}
-      if (!Array.isArray(rel_data)) {
+    if ('data' in relInfo && relInfo.data) {
+      let relData = relInfo['data']
+      data[jvtag]['rels'][relName] = {}
+      if (!Array.isArray(relData)) {
         // Convert to an array to keep things DRY
-        is_item = true
-        rel_data = [rel_data]
+        isItem = true
+        relData = [relData]
       }
-      for (let rel_item of rel_data) {
-        let [type, id] = getTypeId({ [jvtag]: rel_item })
+      for (let relItem of relData) {
+        let [type, id] = getTypeId({ [jvtag]: relItem })
         let result = get(state, [type, id])
         if (result) {
           // Recursive call to follow children relationships
-          result = followRelationships(state, result, follow_state)
-          if (is_item) {
-            // Store attrs directly under rel_name
-            data[jvtag]['rels'][rel_name] = result
+          result = followRelationships(state, result, followState)
+          if (isItem) {
+            // Store attrs directly under relName
+            data[jvtag]['rels'][relName] = result
           } else {
             // Store attrs indexed by id
-            data[jvtag]['rels'][rel_name][id] = result
+            data[jvtag]['rels'][relName][id] = result
           }
         }
       }
@@ -504,8 +504,8 @@ const jsonapiToNormItem = (data) => {
   // Move attributes to top-level, nest original jsonapi under _jv
   const norm = Object.assign({ [jvtag]: data }, data['attributes'])
   // Create a new object omitting attributes
-  const { attributes, ...norm_no_attrs } = norm[jvtag] // eslint-disable-line no-unused-vars
-  norm[jvtag] = norm_no_attrs
+  const { attributes, ...normNoAttrs } = norm[jvtag] // eslint-disable-line no-unused-vars
+  norm[jvtag] = normNoAttrs
   return norm
 }
 

@@ -22,9 +22,9 @@
       <div v-if="'_jv' in widget1 && 'rels' in widget1['_jv']">
         <div :id='"rels_" + name' v-for="(rel, name, index) in widget1['_jv']['rels']" :key="index">
           <span>Related: </span>
-          <span :id='"relspan_relname"'>{{ name }}</span>&nbsp;
-          <span :id='"relspan_name"'>{{ rel.name }}</span>&nbsp;
-          <span :id='"relspan_color"'>{{ rel.color }}</span>&nbsp;
+          <span :id='"rel_span_relname"'>{{ name }}</span>&nbsp;
+          <span :id='"rel_span_name"'>{{ rel.name }}</span>&nbsp;
+          <span :id='"rel_span_color"'>{{ rel.color }}</span>&nbsp;
         </div>
       </div>
     </div>
@@ -41,19 +41,19 @@
     <div id="post">
       <h2>Post widget</h2>
       <label for="post_name">Name</label>
-      <input id="post_name" v-model="post_widget['name']"/>
+      <input id="post_name" v-model="postWidget['name']"/>
       <label for="post_color">Color</label>
-      <input id="post_color" v-model="post_widget['color']"/>
+      <input id="post_color" v-model="postWidget['color']"/>
       <div>
-        <button name="post_button" @click="postRecord(post_widget)">Post</button>
+        <button name="post_button" @click="postRecord(postWidget)">Post</button>
       </div>
     </div>
     <div id="delete">
       <h2>Delete widget</h2>
       <label for="delete_id">Widget ID</label>
-      <input id="delete_id" v-model="del_widget_id"/>
+      <input id="delete_id" v-model="delWidgetId"/>
       <div>
-        <button name="delete_button" @click="deleteRecord(del_widget_id)">Delete</button>
+        <button name="delete_button" @click="deleteRecord(delWidgetId)">Delete</button>
       </div>
     </div>
   </div>
@@ -64,8 +64,8 @@ export default {
   name: 'JsonapiVuex',
   data: () => {
     return {
-      del_widget_id: undefined,
-      post_widget: {
+      delWidgetId: undefined,
+      postWidget: {
         '_jv': {
           'type': 'widget'
         }

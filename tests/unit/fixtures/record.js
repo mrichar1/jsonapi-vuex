@@ -3,19 +3,19 @@ import {
   normFormat as createNormWidget1,
   normFormatWithRels as createNormWidget1WithRels,
   storeFormat as createStoreWidget1,
-} from './widget_1'
+} from './widget1'
 import {
   jsonFormat as createJsonWidget2,
   normFormat as createNormWidget2,
   normFormatWithRels as createNormWidget2WithRels,
   storeFormat as createStoreWidget2,
-} from './widget_2'
+} from './widget2'
 import {
   jsonFormat as createJsonWidget3,
   normFormat as createNormWidget3,
   normFormatWithRels as createNormWidget3WithRels,
   storeFormat as createStoreWidget3,
-} from './widget_3'
+} from './widget3'
 
 export function jsonFormat() {
   return {
@@ -24,33 +24,33 @@ export function jsonFormat() {
 }
 
 export function normFormat() {
-  const norm_widget_1 = createNormWidget1()
-  const norm_widget_2 = createNormWidget2()
-  const norm_widget_3 = createNormWidget3()
+  const normWidget1 = createNormWidget1()
+  const normWidget2 = createNormWidget2()
+  const normWidget3 = createNormWidget3()
 
   return {
-    [norm_widget_1['_jv']['id']]: norm_widget_1,
-    [norm_widget_2['_jv']['id']]: norm_widget_2,
-    [norm_widget_3['_jv']['id']]: norm_widget_3,
+    [normWidget1['_jv']['id']]: normWidget1,
+    [normWidget2['_jv']['id']]: normWidget2,
+    [normWidget3['_jv']['id']]: normWidget3,
   }
 }
 
 export function normFormatWithRels() {
-  const norm_widget_1_rels = createNormWidget1WithRels()
-  const norm_widget_2_rels = createNormWidget2WithRels()
-  const norm_widget_3_rels = createNormWidget3WithRels()
+  const normWidget1Rels = createNormWidget1WithRels()
+  const normWidget2Rels = createNormWidget2WithRels()
+  const normWidget3Rels = createNormWidget3WithRels()
 
-  norm_widget_1_rels._jv.rels.widgets = norm_widget_2_rels
-  norm_widget_2_rels._jv.rels.widgets = {
-    [norm_widget_1_rels['_jv']['id']]: norm_widget_1_rels,
-    [norm_widget_3_rels['_jv']['id']]: norm_widget_3_rels,
+  normWidget1Rels._jv.rels.widgets = normWidget2Rels
+  normWidget2Rels._jv.rels.widgets = {
+    [normWidget1Rels['_jv']['id']]: normWidget1Rels,
+    [normWidget3Rels['_jv']['id']]: normWidget3Rels,
   }
-  norm_widget_3_rels._jv.rels.widgets = norm_widget_1_rels
+  normWidget3Rels._jv.rels.widgets = normWidget1Rels
 
   return {
-    [norm_widget_1_rels['_jv']['id']]: norm_widget_1_rels,
-    [norm_widget_2_rels['_jv']['id']]: norm_widget_2_rels,
-    [norm_widget_3_rels['_jv']['id']]: norm_widget_3_rels,
+    [normWidget1Rels['_jv']['id']]: normWidget1Rels,
+    [normWidget2Rels['_jv']['id']]: normWidget2Rels,
+    [normWidget3Rels['_jv']['id']]: normWidget3Rels,
   }
 }
 

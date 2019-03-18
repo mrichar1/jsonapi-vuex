@@ -23,9 +23,9 @@ module.exports = {
     be.element('#span_color_1').text.to.equal('black')
 
     // Expanded related objects
-    be.element('#relspan_relname').text.to.equal('widgets')
-    be.element('#relspan_name').text.to.equal('spring')
-    be.element('#relspan_color').text.to.equal('silver')
+    be.element('#rel_span_relname').text.to.equal('widgets')
+    be.element('#rel_span_name').text.to.equal('spring')
+    be.element('#rel_span_color').text.to.equal('silver')
 
     // Inputs exist and have correct values
     be.element('#patch').to.be.present

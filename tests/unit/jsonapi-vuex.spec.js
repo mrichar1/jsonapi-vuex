@@ -6,16 +6,16 @@ import MockAdapter from 'axios-mock-adapter'
 
 import { _testing, jsonapiModule } from '../../src/jsonapi-vuex'
 import createStubContext from './stubs/context'
-import createJsonapiModule from './utils/create-jsonapi-module'
+import createJsonapiModule from './utils/createJsonapiModule'
 import {
   jsonFormat as createJsonWidget1,
   normFormat as createNormWidget1,
   normFormatPatch as createNormWidget1Patch,
   normFormatUpdate as createNormWidget1Update,
   storeFormat as createStoreWidget1,
-} from './fixtures/widget_1'
-import { normFormat as createNormWidget2 } from './fixtures/widget_2'
-import { normFormat as createNormWidget3 } from './fixtures/widget_3'
+} from './fixtures/widget1'
+import { normFormat as createNormWidget2 } from './fixtures/widget2'
+import { normFormat as createNormWidget3 } from './fixtures/widget3'
 import {
   jsonFormat as createJsonRecord,
   normFormatWithRels as createNormRecordRels,
@@ -28,30 +28,30 @@ chai.use(chaiAsPromised)
 // 'global' variables (redefined in beforeEach)
 let jm,
   clock,
-  stub_context,
-  json_widget_1,
-  json_record,
-  norm_widget_1,
-  norm_widget_2,
-  norm_widget_3,
-  norm_widget_1_rels,
-  norm_widget_2_rels,
-  norm_widget_1_patch,
-  norm_widget_1_update,
-  norm_record,
-  norm_record_rels,
-  store_widget_1,
-  store_widget_1_update,
-  store_record
+  stubContext,
+  jsonWidget1,
+  jsonRecord,
+  normWidget1,
+  normWidget2,
+  normWidget3,
+  normWidget1Rels,
+  normWidget2Rels,
+  normWidget1Patch,
+  normWidget1Update,
+  normRecord,
+  normRecordRels,
+  storeWidget1,
+  storeWidget1Update,
+  storeRecord
 
 // Mock up a fake axios-like api instance
 const api = axios.create({ baseURL: '' })
-const mock_api = new MockAdapter(api)
+const mockApi = new MockAdapter(api)
 
 before(function() {
   // Common variables shared by `require`d submodules.
   this.api = api
-  this.mock_api = mock_api
+  this.mockApi = mockApi
 })
 
 beforeEach(function() {
@@ -59,50 +59,50 @@ beforeEach(function() {
   clock = sinon.useFakeTimers()
 
   // Remove mock handlers
-  mock_api.reset()
+  mockApi.reset()
 
   // Set up commonly used data objects
 
   jm = createJsonapiModule(api)
 
   // Stub the context's commit function to evaluate calls to it.
-  stub_context = createStubContext(jm)
+  stubContext = createStubContext(jm)
 
   // Data in JSONAPI JSON form
 
-  json_widget_1 = createJsonWidget1()
-  json_record = createJsonRecord()
+  jsonWidget1 = createJsonWidget1()
+  jsonRecord = createJsonRecord()
 
   // Data in Normalised/Restructured form
 
-  norm_widget_1 = createNormWidget1()
-  norm_widget_1_patch = createNormWidget1Patch()
-  norm_widget_1_update = createNormWidget1Update()
+  normWidget1 = createNormWidget1()
+  normWidget1Patch = createNormWidget1Patch()
+  normWidget1Update = createNormWidget1Update()
 
-  norm_widget_2 = createNormWidget2()
-  norm_widget_3 = createNormWidget3()
+  normWidget2 = createNormWidget2()
+  normWidget3 = createNormWidget3()
 
-  norm_record = {
-    [norm_widget_1['_jv']['id']]: norm_widget_1,
-    [norm_widget_2['_jv']['id']]: norm_widget_2,
-    [norm_widget_3['_jv']['id']]: norm_widget_3,
+  normRecord = {
+    [normWidget1['_jv']['id']]: normWidget1,
+    [normWidget2['_jv']['id']]: normWidget2,
+    [normWidget3['_jv']['id']]: normWidget3,
   }
 
-  norm_record_rels = createNormRecordRels()
-  norm_widget_1_rels = norm_record_rels[norm_widget_1['_jv']['id']]
-  norm_widget_2_rels = norm_record_rels[norm_widget_2['_jv']['id']]
+  normRecordRels = createNormRecordRels()
+  normWidget1Rels = normRecordRels[normWidget1['_jv']['id']]
+  normWidget2Rels = normRecordRels[normWidget2['_jv']['id']]
 
   // Data in Store form
 
-  store_widget_1 = createStoreWidget1()
-  store_widget_1_update = {
+  storeWidget1 = createStoreWidget1()
+  storeWidget1Update = {
     widget: {
       '1': {
-        ...norm_widget_1_update,
+        ...normWidget1Update,
       },
     },
   }
-  store_record = createStoreRecord()
+  storeRecord = createStoreRecord()
 })
 
 afterEach(function() {
@@ -127,7 +127,7 @@ describe('jsonapi-vuex tests', function() {
   describe('jsonapiModule actions', function() {
     require('./actions/get.spec')
     require('./actions/fetch.spec')
-    require('./actions/get-related.spec')
+    require('./actions/getRelated.spec')
     require('./actions/post.spec')
     require('./actions/create.spec')
     require('./actions/patch.spec')
@@ -136,65 +136,65 @@ describe('jsonapi-vuex tests', function() {
   })
 
   describe('jsonapiModule mutations', function() {
-    describe('delete_record', function() {
+    describe('deleteRecord', function() {
       it('should delete a record (data) from the Vue store', function() {
-        const { delete_record } = jm.mutations
-        delete_record(store_widget_1, norm_widget_1)
-        expect(store_widget_1[norm_widget_1['_jv']['type']]).to.not.have.key(
-          norm_widget_1['_jv']['id']
+        const { deleteRecord } = jm.mutations
+        deleteRecord(storeWidget1, normWidget1)
+        expect(storeWidget1[normWidget1['_jv']['type']]).to.not.have.key(
+          normWidget1['_jv']['id']
         )
       })
       it('should delete a record (string) from the store', function() {
-        const { delete_record } = jm.mutations
+        const { deleteRecord } = jm.mutations
         // Leading slash is incorrect syntax, but we should handle it so test with it in
-        delete_record(store_widget_1, 'widget/1')
-        expect(store_widget_1[norm_widget_1['_jv']['type']]).to.not.have.key(
-          norm_widget_1['_jv']['id']
+        deleteRecord(storeWidget1, 'widget/1')
+        expect(storeWidget1[normWidget1['_jv']['type']]).to.not.have.key(
+          normWidget1['_jv']['id']
         )
       })
       it('should throw an error if no type or id present.', function() {
-        const { delete_record } = jm.mutations
+        const { deleteRecord } = jm.mutations
         // expect needs a function to call, not the return from a function
-        expect(() => delete_record(store_widget_1, { _jv: {} })).to.throw(
+        expect(() => deleteRecord(storeWidget1, { _jv: {} })).to.throw(
           _testing.RecordError
         )
       })
     })
 
-    describe('add_records', function() {
+    describe('addRecords', function() {
       it('should add several records to the store', function() {
-        const { add_records } = jm.mutations
+        const { addRecords } = jm.mutations
         const state = {}
-        add_records(state, norm_record)
-        expect(state).to.deep.equal(store_record)
+        addRecords(state, normRecord)
+        expect(state).to.deep.equal(storeRecord)
       })
     })
 
-    describe('update_record', function() {
+    describe('updateRecord', function() {
       it('should update a specific attribute of a record already in the store', function() {
-        const { update_record } = jm.mutations
-        update_record(store_widget_1, norm_widget_1_patch)
-        expect(store_widget_1).to.deep.equal(store_widget_1_update)
+        const { updateRecord } = jm.mutations
+        updateRecord(storeWidget1, normWidget1Patch)
+        expect(storeWidget1).to.deep.equal(storeWidget1Update)
       })
       it('should throw an error if no type or id present.', function() {
-        const { update_record } = jm.mutations
+        const { updateRecord } = jm.mutations
         // expect needs a function to call, not the return from a function
-        expect(() => update_record(store_widget_1, { _jv: {} })).to.throw(
+        expect(() => updateRecord(storeWidget1, { _jv: {} })).to.throw(
           _testing.RecordError
         )
       })
     })
 
-    describe('set_status', function() {
+    describe('setStatus', function() {
       it('should set the status for a specific id', function() {
         const state = { _jv: {} }
-        const { set_status } = jm.mutations
-        set_status(state, { id: 2, status: 'splat' })
+        const { setStatus } = jm.mutations
+        setStatus(state, { id: 2, status: 'splat' })
         expect(state['_jv'][2]).to.have.keys(['status', 'time'])
       })
     })
 
-    describe('delete_status', function() {
+    describe('deleteStatus', function() {
       it('should delete the status for a specific id', function() {
         const state = {
           _jv: {
@@ -204,14 +204,14 @@ describe('jsonapi-vuex tests', function() {
             },
           },
         }
-        const { delete_status } = jm.mutations
-        delete_status(state, 1)
+        const { deleteStatus } = jm.mutations
+        deleteStatus(state, 1)
         expect(state['_jv']).to.deep.equal({})
       }),
         it('should not error if deleting a non-existent id', function() {
           const state = { _jv: {} }
-          const { delete_status } = jm.mutations
-          expect(() => delete_status(state, 2)).to.not.throw()
+          const { deleteStatus } = jm.mutations
+          expect(() => deleteStatus(state, 2)).to.not.throw()
         })
     })
   }) // mutations
@@ -236,35 +236,35 @@ describe('jsonapi-vuex tests', function() {
       })
       it('should get type & id from norm data', function() {
         const { getTypeId } = _testing
-        expect(getTypeId(norm_widget_1)).to.deep.equal(['widget', '1'])
+        expect(getTypeId(normWidget1)).to.deep.equal(['widget', '1'])
       })
       it('should get type only from norm data', function() {
         const { getTypeId } = _testing
-        delete norm_widget_1['_jv']['id']
-        expect(getTypeId(norm_widget_1)).to.deep.equal(['widget'])
+        delete normWidget1['_jv']['id']
+        expect(getTypeId(normWidget1)).to.deep.equal(['widget'])
       })
     })
 
     describe('jsonapiToNormItem', function() {
       it('should convert jsonapi to normalized for a single item', function() {
         const { jsonapiToNormItem } = _testing
-        expect(jsonapiToNormItem(json_widget_1)).to.deep.equal(norm_widget_1)
+        expect(jsonapiToNormItem(jsonWidget1)).to.deep.equal(normWidget1)
       })
       it("should preserve deeply nested '_jv' keys", function() {
         const { jsonapiToNormItem } = _testing
-        expect(jsonapiToNormItem(json_widget_1)).to.deep.equal(norm_widget_1)
+        expect(jsonapiToNormItem(jsonWidget1)).to.deep.equal(normWidget1)
       })
     })
 
     describe('jsonapiToNorm', function() {
       it('should convert jsonapi to normalized for a single item', function() {
         const { jsonapiToNorm } = _testing
-        expect(jsonapiToNorm(json_widget_1)).to.deep.equal(norm_widget_1)
+        expect(jsonapiToNorm(jsonWidget1)).to.deep.equal(normWidget1)
       })
 
       it('should convert jsonapi to normalized for an array of records', function() {
         const { jsonapiToNorm } = _testing
-        expect(jsonapiToNorm(json_record['data'])).to.deep.equal(norm_record)
+        expect(jsonapiToNorm(jsonRecord['data'])).to.deep.equal(normRecord)
       })
 
       it('should return an empty object if input is undefined', function() {
@@ -276,13 +276,13 @@ describe('jsonapi-vuex tests', function() {
     describe('normToJsonapi', function() {
       it('should convert normalized to jsonapi for multiple items', function() {
         const { normToJsonapi } = _testing
-        expect(normToJsonapi(norm_record)).to.deep.equal(json_record)
+        expect(normToJsonapi(normRecord)).to.deep.equal(jsonRecord)
       })
 
       it('should convert normalized to jsonapi for a single item', function() {
         const { normToJsonapi } = _testing
-        expect(normToJsonapi(norm_widget_1)).to.deep.equal({
-          data: json_widget_1,
+        expect(normToJsonapi(normWidget1)).to.deep.equal({
+          data: jsonWidget1,
         })
       })
     })
@@ -290,24 +290,24 @@ describe('jsonapi-vuex tests', function() {
     describe('normToJsonapiItem', function() {
       it('should convert normalized to jsonapi for a single item', function() {
         const { normToJsonapiItem } = _testing
-        expect(normToJsonapiItem(norm_widget_1)).to.deep.equal(json_widget_1)
+        expect(normToJsonapiItem(normWidget1)).to.deep.equal(jsonWidget1)
       })
       it('should convert normalized to jsonapi for a single item with no id (POST)', function() {
         const { normToJsonapiItem } = _testing
-        delete norm_widget_1['_jv']['id']
-        delete json_widget_1['id']
-        expect(normToJsonapiItem(norm_widget_1)).to.deep.equal(json_widget_1)
+        delete normWidget1['_jv']['id']
+        delete jsonWidget1['id']
+        expect(normToJsonapiItem(normWidget1)).to.deep.equal(jsonWidget1)
       })
     })
 
     describe('normToStore', function() {
       it('should convert normalized to store', function() {
         const { normToStore } = _testing
-        expect(normToStore(norm_record)).to.deep.equal(store_record)
+        expect(normToStore(normRecord)).to.deep.equal(storeRecord)
       })
       it('should convert normalized to store for a single item', function() {
         const { normToStore } = _testing
-        expect(normToStore(norm_widget_1)).to.deep.equal(store_widget_1)
+        expect(normToStore(normWidget1)).to.deep.equal(storeWidget1)
       })
     })
     describe('unpackArgs', function() {
@@ -324,10 +324,8 @@ describe('jsonapi-vuex tests', function() {
     describe('followRelationships', function() {
       it('Should expand relationships into rels for a single item', function() {
         const { followRelationships } = _testing
-        let rels = followRelationships(store_record, norm_widget_1)['_jv'][
-          'rels'
-        ]['widgets']
-        expect(rels).to.deep.equal(norm_widget_2_rels)
+        let rels = followRelationships(storeRecord, normWidget1)['_jv']['rels']['widgets'] // prettier-ignore
+        expect(rels).to.deep.equal(normWidget2Rels)
       })
     })
 
@@ -338,12 +336,12 @@ describe('jsonapi-vuex tests', function() {
         let { actionSequence } = _testing
         expect(actionSequence(context)).to.be.below(actionSequence(context))
       })
-      it('Should call delete_status after timeout', function() {
+      it('Should call deleteStatus after timeout', function() {
         let { actionSequence, jvConfig } = _testing
-        jvConfig['action_status_clean_age'] = 10
-        actionSequence(stub_context)
+        jvConfig['actionStatusCleanAge'] = 10
+        actionSequence(stubContext)
         clock.tick(11000)
-        expect(stub_context.commit).to.have.been.calledWith('delete_status')
+        expect(stubContext.commit).to.have.been.calledWith('deleteStatus')
       })
     })
   }) // Helper methods
@@ -352,54 +350,54 @@ describe('jsonapi-vuex tests', function() {
     describe('get', function() {
       it('should return all state', function() {
         const { get } = jm.getters
-        const result = get(store_record)()
-        expect(result).to.deep.equal(store_record)
+        const result = get(storeRecord)()
+        expect(result).to.deep.equal(storeRecord)
       })
       it('should return all state for a single endpoint', function() {
         const { get } = jm.getters
-        const result = get(store_record)({ _jv: { type: 'widget' } })
-        expect(result).to.deep.equal(norm_record)
+        const result = get(storeRecord)({ _jv: { type: 'widget' } })
+        expect(result).to.deep.equal(normRecord)
       })
       it('should return all state for a single endpoint with a single record', function() {
         const { get } = jm.getters
-        const result = get(store_widget_1)({ _jv: { type: 'widget' } })
-        expect(result).to.deep.equal(store_widget_1['widget'])
+        const result = get(storeWidget1)({ _jv: { type: 'widget' } })
+        expect(result).to.deep.equal(storeWidget1['widget'])
       })
       it('should return a single id from state', function() {
         const { get } = jm.getters
-        const result = get(store_widget_1)({
+        const result = get(storeWidget1)({
           _jv: { type: 'widget', id: '1' },
         })
-        expect(result).to.deep.equal(norm_widget_1)
+        expect(result).to.deep.equal(normWidget1)
       })
       it('should accept a string path to object', function() {
         const { get } = jm.getters
-        const result = get(store_widget_1)('widget/1')
-        expect(result).to.deep.equal(norm_widget_1)
+        const result = get(storeWidget1)('widget/1')
+        expect(result).to.deep.equal(normWidget1)
       })
       it('should filter results using jsonpath, returning a single item', function() {
         const { get } = jm.getters
-        const result = get(store_record)('widget', '$[?(@.bar=="baz")]')
+        const result = get(storeRecord)('widget', '$[?(@.bar=="baz")]')
         expect(result).to.deep.equal({
-          [norm_widget_1['_jv']['id']]: norm_widget_1,
+          [normWidget1['_jv']['id']]: normWidget1,
         })
       })
       it('should filter results using jsonpath, returning multiple items', function() {
         const { get } = jm.getters
-        const result = get(store_record)('widget', '$[?(@.foo)]')
-        expect(result).to.deep.equal(norm_record)
+        const result = get(storeRecord)('widget', '$[?(@.foo)]')
+        expect(result).to.deep.equal(normRecord)
       })
       it('should filter results using jsonpath, returning no items', function() {
         const { get } = jm.getters
-        const result = get(store_record)('widget', '$[?(@.nosuchkey)]')
+        const result = get(storeRecord)('widget', '$[?(@.nosuchkey)]')
         expect(result).to.deep.equal({})
       })
       it('should filter whole store using jsonpath, returning a single item', function() {
         const { get } = jm.getters
         // Return all records of any type with id: 1
-        const result = get(store_record)('', '$.*.1')
+        const result = get(storeRecord)('', '$.*.1')
         expect(result).to.deep.equal({
-          [norm_widget_1['_jv']['id']]: norm_widget_1,
+          [normWidget1['_jv']['id']]: normWidget1,
         })
       })
       it('should return empty object if type not in state', function() {
@@ -408,22 +406,22 @@ describe('jsonapi-vuex tests', function() {
         expect(result).to.deep.equal({})
       })
       it('should follow relationships data (single item)', function() {
-        jm = jsonapiModule(api, { follow_relationships_data: true })
+        jm = jsonapiModule(api, { followRelationshipsData: true })
         const { get } = jm.getters
-        const result = get(store_record, { get: get })('widget/1')
-        expect(norm_widget_1_rels).to.deep.equal(result)
+        const result = get(storeRecord, { get: get })('widget/1')
+        expect(normWidget1Rels).to.deep.equal(result)
       })
       it('should follow relationships data (array)', function() {
-        jm = jsonapiModule(api, { follow_relationships_data: true })
+        jm = jsonapiModule(api, { followRelationshipsData: true })
         const { get } = jm.getters
-        const result = get(store_record, { get: get })('widget/2')
-        expect(norm_widget_2_rels).to.deep.equal(result)
+        const result = get(storeRecord, { get: get })('widget/2')
+        expect(normWidget2Rels).to.deep.equal(result)
       })
       it('should follow relationships data (array) for a collection', function() {
-        jm = jsonapiModule(api, { follow_relationships_data: true })
+        jm = jsonapiModule(api, { followRelationshipsData: true })
         const { get } = jm.getters
-        const result = get(store_record, { get: get })('widget')
-        expect(norm_record_rels).to.deep.equal(result)
+        const result = get(storeRecord, { get: get })('widget')
+        expect(normRecordRels).to.deep.equal(result)
       })
     })
 
@@ -437,7 +435,7 @@ describe('jsonapi-vuex tests', function() {
       it('should return the status for a given action (promise)', function() {
         const { status } = jm.getters
         let state = { _jv: { 1: { status: 'splat' } } }
-        const result = status(state)({ _jv_id: 1 })
+        const result = status(state)({ _jvId: 1 })
         expect(result).to.equal('splat')
       })
     })
@@ -454,7 +452,7 @@ describe('jsonapi-vuex tests', function() {
       it('should return the status for a given action (promise)', function() {
         const { status } = jm.getters
         let state = { _jv: { 1: { status: 'splat' } } }
-        const result = status(state)({ _jv_id: 1 })
+        const result = status(state)({ _jvId: 1 })
         expect(result).to.equal('splat')
       })
     })
