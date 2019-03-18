@@ -27,7 +27,7 @@ describe('get', function() {
     jsonWidget1,
     jsonWidget2,
     normWidget1,
-    normWidget1_rels,
+    normWidget1Rels,
     normWidget2,
     normRecordRels,
     storeRecord,
@@ -44,7 +44,7 @@ describe('get', function() {
     normWidget1 = createNormWidget1()
     normWidget2 = createNormWidget2()
     normRecordRels = createNormRecordRels()
-    normWidget1_rels = normRecordRels[normWidget1['_jv']['id']]
+    normWidget1Rels = normRecordRels[normWidget1['_jv']['id']]
     storeRecord = createStoreRecord()
     jsonRecord = createJsonRecord()
     meta = createResponseMeta()
@@ -147,7 +147,7 @@ describe('get', function() {
 
     let res = await jm.actions.get(stubContext, normWidget1)
 
-    expect(res).to.deep.equal(normWidget1_rels)
+    expect(res).to.deep.equal(normWidget1Rels)
   })
 
   it('should return normalized data with expanded rels (array)', async function() {

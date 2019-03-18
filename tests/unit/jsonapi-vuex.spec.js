@@ -34,14 +34,14 @@ let jm,
   normWidget1,
   normWidget2,
   normWidget3,
-  normWidget1_rels,
-  normWidget2_rels,
-  normWidget1_patch,
-  normWidget1_update,
+  normWidget1Rels,
+  normWidget2Rels,
+  normWidget1Patch,
+  normWidget1Update,
   normRecord,
   normRecordRels,
   storeWidget1,
-  storeWidget1_update,
+  storeWidget1Update,
   storeRecord
 
 // Mock up a fake axios-like api instance
@@ -76,8 +76,8 @@ beforeEach(function() {
   // Data in Normalised/Restructured form
 
   normWidget1 = createNormWidget1()
-  normWidget1_patch = createNormWidget1Patch()
-  normWidget1_update = createNormWidget1Update()
+  normWidget1Patch = createNormWidget1Patch()
+  normWidget1Update = createNormWidget1Update()
 
   normWidget2 = createNormWidget2()
   normWidget3 = createNormWidget3()
@@ -89,16 +89,16 @@ beforeEach(function() {
   }
 
   normRecordRels = createNormRecordRels()
-  normWidget1_rels = normRecordRels[normWidget1['_jv']['id']]
-  normWidget2_rels = normRecordRels[normWidget2['_jv']['id']]
+  normWidget1Rels = normRecordRels[normWidget1['_jv']['id']]
+  normWidget2Rels = normRecordRels[normWidget2['_jv']['id']]
 
   // Data in Store form
 
   storeWidget1 = createStoreWidget1()
-  storeWidget1_update = {
+  storeWidget1Update = {
     widget: {
       '1': {
-        ...normWidget1_update,
+        ...normWidget1Update,
       },
     },
   }
@@ -173,8 +173,8 @@ describe('jsonapi-vuex tests', function() {
     describe('updateRecord', function() {
       it('should update a specific attribute of a record already in the store', function() {
         const { updateRecord } = jm.mutations
-        updateRecord(storeWidget1, normWidget1_patch)
-        expect(storeWidget1).to.deep.equal(storeWidget1_update)
+        updateRecord(storeWidget1, normWidget1Patch)
+        expect(storeWidget1).to.deep.equal(storeWidget1Update)
       })
       it('should throw an error if no type or id present.', function() {
         const { updateRecord } = jm.mutations
@@ -325,7 +325,7 @@ describe('jsonapi-vuex tests', function() {
       it('Should expand relationships into rels for a single item', function() {
         const { followRelationships } = _testing
         let rels = followRelationships(storeRecord, normWidget1)['_jv']['rels']['widgets'] // prettier-ignore
-        expect(rels).to.deep.equal(normWidget2_rels)
+        expect(rels).to.deep.equal(normWidget2Rels)
       })
     })
 
@@ -409,13 +409,13 @@ describe('jsonapi-vuex tests', function() {
         jm = jsonapiModule(api, { followRelationshipsData: true })
         const { get } = jm.getters
         const result = get(storeRecord, { get: get })('widget/1')
-        expect(normWidget1_rels).to.deep.equal(result)
+        expect(normWidget1Rels).to.deep.equal(result)
       })
       it('should follow relationships data (array)', function() {
         jm = jsonapiModule(api, { followRelationshipsData: true })
         const { get } = jm.getters
         const result = get(storeRecord, { get: get })('widget/2')
-        expect(normWidget2_rels).to.deep.equal(result)
+        expect(normWidget2Rels).to.deep.equal(result)
       })
       it('should follow relationships data (array) for a collection', function() {
         jm = jsonapiModule(api, { followRelationshipsData: true })

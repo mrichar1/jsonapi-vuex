@@ -14,19 +14,19 @@ import { createResponseMeta } from '../fixtures/serverResponse'
 
 describe('patch', function() {
   let jsonWidget1,
-    jsonWidget1_patch,
+    jsonWidget1Patch,
     normWidget1,
-    normWidget1_patch,
-    normWidget1_update,
+    normWidget1Patch,
+    normWidget1Update,
     jsonapiModule,
     stubContext
 
   beforeEach(function() {
     jsonWidget1 = createJsonWidget1()
-    jsonWidget1_patch = createJsonWidget1Patch()
+    jsonWidget1Patch = createJsonWidget1Patch()
     normWidget1 = createNormWidget1()
-    normWidget1_patch = createNormWidget1Patch()
-    normWidget1_update = createNormWidget1Update()
+    normWidget1Patch = createNormWidget1Patch()
+    normWidget1Update = createNormWidget1Update()
 
     jsonapiModule = createJsonapiModule(this.api)
     stubContext = createStubContext(jsonapiModule)
@@ -35,10 +35,10 @@ describe('patch', function() {
   it('should make an api call to PATCH item(s)', async function() {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
 
-    await jsonapiModule.actions.patch(stubContext, normWidget1_patch)
+    await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
 
     expect(this.mockApi.history.patch[0].url).to.equal(
-      `/${normWidget1_patch['_jv']['type']}/${normWidget1_patch['_jv']['id']}`
+      `/${normWidget1Patch['_jv']['type']}/${normWidget1Patch['_jv']['id']}`
     )
   })
 
@@ -47,7 +47,7 @@ describe('patch', function() {
     const params = { filter: 'color' }
 
     await jsonapiModule.actions.patch(stubContext, [
-      normWidget1_patch,
+      normWidget1Patch,
       { params: params },
     ])
 
@@ -55,37 +55,37 @@ describe('patch', function() {
   })
 
   it('should delete then add record(s) in the store (from server response)', async function() {
-    this.mockApi.onAny().reply(200, { data: jsonWidget1_patch })
+    this.mockApi.onAny().reply(200, { data: jsonWidget1Patch })
 
-    await jsonapiModule.actions.patch(stubContext, normWidget1_patch)
+    await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
 
     expect(stubContext.commit).to.have.been.calledWith(
       'deleteRecord',
-      normWidget1_patch
+      normWidget1Patch
     )
     expect(stubContext.commit).to.have.been.calledWith(
       'addRecords',
-      normWidget1_update
+      normWidget1Update
     )
   })
 
   it('should update record(s) in the store (no server response)', async function() {
     this.mockApi.onAny().reply(204)
 
-    await jsonapiModule.actions.patch(stubContext, normWidget1_patch)
+    await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
 
     expect(stubContext.commit).to.have.been.calledWith(
       'updateRecord',
-      normWidget1_patch
+      normWidget1Patch
     )
   })
 
   it("should return data via the 'get' getter", async function() {
     this.mockApi.onAny().reply(204)
 
-    await jsonapiModule.actions.patch(stubContext, normWidget1_patch)
+    await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
 
-    expect(stubContext.getters.get).to.have.been.calledWith(normWidget1_patch)
+    expect(stubContext.getters.get).to.have.been.calledWith(normWidget1Patch)
   })
 
   it('should preserve json in _jv in returned data', async function() {
@@ -94,7 +94,7 @@ describe('patch', function() {
     // Mock server data to include a meta section
     this.mockApi.onAny().reply(200, { data: jsonWidget1, ...meta })
 
-    let res = await jm.actions.patch(stubContext, normWidget1_patch)
+    let res = await jm.actions.patch(stubContext, normWidget1Patch)
 
     // json should now be nested in _jv/json
     expect(res['_jv']['json']).to.deep.equal(meta)
