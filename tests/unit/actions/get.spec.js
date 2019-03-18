@@ -5,7 +5,7 @@ import createJsonapiModule from '../utils/create-jsonapi-module'
 import {
   jsonFormat as createJsonWidget1,
   normFormat as createNormWidget1,
-} from '../fixtures/widget_1';
+} from '../fixtures/widget_1'
 import {
   jsonFormat as createJsonWidget2,
   normFormat as createNormWidget2,
@@ -37,22 +37,22 @@ describe('get', function() {
     stub_context
 
   beforeEach(function() {
-    json_machine_1 = createJsonMachine1();
-    norm_machine_1 = createNormMachine1();
-    json_widget_1 = createJsonWidget1();
-    json_widget_2 = createJsonWidget2();
-    norm_widget_1 = createNormWidget1();
-    norm_widget_2 = createNormWidget2();
-    norm_record_rels = createNormRecordRels();
-    norm_widget_1_rels = norm_record_rels[norm_widget_1['_jv']['id']];
-    store_record = createStoreRecord();
-    json_record = createJsonRecord();
-    meta = createResponseMeta();
-    jsonapiModule = createJsonapiModule(this.api);
-    stub_context = createStubContext(jsonapiModule);
-  });
+    json_machine_1 = createJsonMachine1()
+    norm_machine_1 = createNormMachine1()
+    json_widget_1 = createJsonWidget1()
+    json_widget_2 = createJsonWidget2()
+    norm_widget_1 = createNormWidget1()
+    norm_widget_2 = createNormWidget2()
+    norm_record_rels = createNormRecordRels()
+    norm_widget_1_rels = norm_record_rels[norm_widget_1['_jv']['id']]
+    store_record = createStoreRecord()
+    json_record = createJsonRecord()
+    meta = createResponseMeta()
+    jsonapiModule = createJsonapiModule(this.api)
+    stub_context = createStubContext(jsonapiModule)
+  })
 
-  it("should make an api call to GET item(s)", async function() {
+  it('should make an api call to GET item(s)', async function() {
     this.mock_api.onAny().reply(200, { data: json_widget_1 })
 
     await jsonapiModule.actions.get(stub_context, norm_widget_1)

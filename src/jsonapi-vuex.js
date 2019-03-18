@@ -395,7 +395,7 @@ const checkAndFollowRelationships = (state, records, follow_state) => {
       res_data = followRelationships(state, records, follow_state)
     } else {
       // multiple items
-      for (let [ key, item ] of Object.entries(records)) {
+      for (let [key, item] of Object.entries(records)) {
         res_data[key] = followRelationships(state, item, follow_state)
       }
     }
@@ -410,9 +410,9 @@ const checkAndFollowRelationships = (state, records, follow_state) => {
 const followRelationships = (state, record, follow_state) => {
   follow_state = follow_state || {}
 
-  let [ record_type, record_id ] = getTypeId(record)
+  let [record_type, record_id] = getTypeId(record)
   // First check if we've already visited this object during recursion
-  let local = get(follow_state, [ record_type, record_id ])
+  let local = get(follow_state, [record_type, record_id])
   if (local) {
     return local
   }
@@ -427,8 +427,8 @@ const followRelationships = (state, record, follow_state) => {
   // Store cloned object in follow_state for future reuse during recursion
   follow_state[record_type][record_id] = data
 
-  const rel_names = get(data, [ jvtag, 'relationships' ]) || {}
-  for (let [ rel_name, rel_info ] of Object.entries(rel_names)) {
+  const rel_names = get(data, [jvtag, 'relationships']) || {}
+  for (let [rel_name, rel_info] of Object.entries(rel_names)) {
     let is_item = false
     // We can only work with data, not links since we need type & id
     if ('data' in rel_info && rel_info.data) {
