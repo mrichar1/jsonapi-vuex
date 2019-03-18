@@ -359,6 +359,37 @@ const jsonapiModule = (api, conf = {}) => {
 
 // Helper methods
 
+const addJvHelpers = (obj) => {
+  // Add Utility functions to _jv child object
+  Object.assign(obj[jvtag], {
+    is_rel(name) {
+      return name in obj[jvtag]['relationships']
+    },
+    is_attr(name) {
+      return name != '_jv' && !this.is_rel(name)
+    },
+    get rels() {
+      const rel = {}
+      for (let [key, val] of Object.entries(obj)) {
+        if (key in obj[jvtag]['relationships']) {
+          rel[key] = val
+        }
+      }
+      return rel
+    },
+    get attrs() {
+      const att = {}
+      for (let [key, val] of Object.entries(obj)) {
+        if (key != jvtag && !(key in obj[jvtag]['relationships'])) {
+          att[key] = val
+        }
+      }
+      return att
+    },
+  })
+  return obj
+}
+
 const actionSequence = (context) => {
   // Increment the global action id, set up a cleanup timeout and return it
   let id = ++actionSequenceCounter
@@ -421,8 +452,7 @@ const followRelationships = (state, record, followState) => {
   }
 
   // Copy item before modifying
-  const data = cloneDeep(record)
-  data[jvtag]['rels'] = {}
+  const data = addJvHelpers(cloneDeep(record))
 
   // Store cloned object in followState for future reuse during recursion
   followState[recordType][recordId] = data
@@ -433,7 +463,7 @@ const followRelationships = (state, record, followState) => {
     // We can only work with data, not links since we need type & id
     if ('data' in relInfo && relInfo.data) {
       let relData = relInfo['data']
-      data[jvtag]['rels'][relName] = {}
+      data[relName] = {}
       if (!Array.isArray(relData)) {
         // Convert to an array to keep things DRY
         isItem = true
@@ -447,10 +477,10 @@ const followRelationships = (state, record, followState) => {
           result = followRelationships(state, result, followState)
           if (isItem) {
             // Store attrs directly under relName
-            data[jvtag]['rels'][relName] = result
+            data[relName] = result
           } else {
             // Store attrs indexed by id
-            data[jvtag]['rels'][relName][id] = result
+            data[relName][id] = result
           }
         }
       }
