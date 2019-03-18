@@ -93,17 +93,7 @@ const actions = (api) => {
           }
           let res_data = jsonapiToNorm(results.data.data)
           context.commit('add_records', res_data)
-          if (jvConfig.follow_relationships_data) {
-            if (jvtag in res_data) {
-              // single item
-              res_data = followRelationships(context.state, res_data)
-            } else {
-              // multiple items
-              for (let [key, item] of Object.entries(res_data)) {
-                res_data[key] = followRelationships(context.state, item)
-              }
-            }
-          }
+          res_data = checkAndFollowRelationships(context.state, res_data)
           res_data = preserveJSON(res_data, results.data)
           context.commit('set_status', {
             id: action_id,
@@ -315,20 +305,11 @@ const getters = (/* api */) => {
           if (id && id in state[type]) {
             // single item
             result = state[type][id]
-            if (jvConfig.follow_relationships_data) {
-              result = followRelationships(state, result)
-            }
           } else {
             // whole collection, indexed by id
             result = state[type]
-            if (jvConfig.follow_relationships_data) {
-              let result_rels = {}
-              for (let [key, item] of Object.entries(result)) {
-                result_rels[key] = followRelationships(state, item)
-              }
-              result = result_rels
-            }
           }
+          result = checkAndFollowRelationships(state, result)
         } else {
           // no records for that type in state
           return {}
@@ -405,13 +386,49 @@ const preserveJSON = (data, json) => {
   return data
 }
 
+const checkAndFollowRelationships = (state, records, follow_state) => {
+  if (jvConfig.follow_relationships_data) {
+    follow_state = follow_state || {}
+    let res_data = {}
+    if (jvtag in records) {
+      // single item
+      res_data = followRelationships(state, records, follow_state)
+    } else {
+      // multiple items
+      for (let [ key, item ] of Object.entries(records)) {
+        res_data[key] = followRelationships(state, item, follow_state)
+      }
+    }
+    if (res_data) {
+      return res_data
+    }
+  }
+  return records
+}
+
 // Follow relationships and expand them into _jv/rels
-const followRelationships = (state, record) => {
+const followRelationships = (state, record, follow_state) => {
+  follow_state = follow_state || {}
+
+  let [ record_type, record_id ] = getTypeId(record)
+  // First check if we've already visited this object during recursion
+  let local = get(follow_state, [ record_type, record_id ])
+  if (local) {
+    return local
+  }
+  if (!(record_type in follow_state)) {
+    follow_state[record_type] = {}
+  }
+
   // Copy item before modifying
   const data = cloneDeep(record)
   data[jvtag]['rels'] = {}
-  const rel_names = get(data, [jvtag, 'relationships']) || {}
-  for (let [rel_name, rel_info] of Object.entries(rel_names)) {
+
+  // Store cloned object in follow_state for future reuse during recursion
+  follow_state[record_type][record_id] = data
+
+  const rel_names = get(data, [ jvtag, 'relationships' ]) || {}
+  for (let [ rel_name, rel_info ] of Object.entries(rel_names)) {
     let is_item = false
     // We can only work with data, not links since we need type & id
     if ('data' in rel_info && rel_info.data) {
@@ -426,8 +443,8 @@ const followRelationships = (state, record) => {
         let [type, id] = getTypeId({ [jvtag]: rel_item })
         let result = get(state, [type, id])
         if (result) {
-          // Copy rather than ref to avoid circular JSON issues
-          result = cloneDeep(result)
+          // Recursive call to follow children relationships
+          result = followRelationships(state, result, follow_state)
           if (is_item) {
             // Store attrs directly under rel_name
             data[jvtag]['rels'][rel_name] = result
