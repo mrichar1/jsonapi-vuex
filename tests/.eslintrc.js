@@ -1,14 +1,12 @@
 module.exports = {
   extends: ['plugin:prettier/recommended'],
   env: {
-    browser: true,
+    browser: false,
     es6: true,
+    mocha: true,
   },
   parserOptions: {
     ecmaVersion: 2018,
     sourceType: 'module',
-  },
-  rules: {
-    'prettier/prettier': 'error',
   },
 };

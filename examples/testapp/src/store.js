@@ -1,8 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import axios from 'axios';
-import { jsonapiModule } from '../../../src/jsonapi-vuex';
-
+import axios from 'axios'
+import { jsonapiModule } from '../../../src/jsonapi-vuex'
 
 Vue.use(Vuex)
 
@@ -11,13 +10,13 @@ const api = axios.create({
   baseURL: 'http://localhost:3000',
   headers: {
     'Content-Type': 'application/vnd.api+json',
-    'Accept': 'application/vnd.api+json'
-  }
+    Accept: 'application/vnd.api+json',
+  },
 })
 
 export default new Vuex.Store({
   strict: true,
   modules: {
-    'jv': jsonapiModule(api, { 'action_status_clean_age': 10 })
-  }
+    jv: jsonapiModule(api, { action_status_clean_age: 10 }),
+  },
 })

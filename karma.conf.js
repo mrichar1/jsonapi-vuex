@@ -9,18 +9,13 @@ module.exports = function(config) {
     singleRun: ci,
     browsers: ['FirefoxHeadless'],
     customLaunchers: {
-      'FirefoxHeadless': {
+      FirefoxHeadless: {
         base: 'Firefox',
-        flags: [
-          '-headless',
-        ],
-      }
+        flags: ['-headless'],
+      },
     },
     frameworks: ['mocha', 'chai', 'sinon'],
-    files: [
-      'node_modules/babel-polyfill/dist/polyfill.js',
-      tests
-    ],
+    files: ['node_modules/babel-polyfill/dist/polyfill.js', tests],
     preprocessors: {
       [src]: ['webpack'],
       [tests]: ['webpack'],
@@ -33,7 +28,7 @@ module.exports = function(config) {
         { type: 'text' },
         { type: 'text-summary' },
         //{ type: 'html' }
-      ]
-    }
+      ],
+    },
   })
 }

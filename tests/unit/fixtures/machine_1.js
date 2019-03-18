@@ -3,17 +3,17 @@ export function jsonFormat() {
     id: '1',
     type: 'machine',
     attributes: {
-      'foo': 1
-    }
+      foo: 1,
+    },
   }
 }
 
 export function normFormat() {
   return {
-    'foo': 1,
-    '_jv': {
-      'type': 'machine',
-      'id': '1'
-    }
+    foo: 1,
+    _jv: {
+      type: 'machine',
+      id: '1',
+    },
   }
 }
