@@ -362,16 +362,16 @@ const jsonapiModule = (api, conf = {}) => {
 const addJvHelpers = (obj) => {
   // Add Utility functions to _jv child object
   Object.assign(obj[jvtag], {
-    is_rel(name) {
-      return name in obj[jvtag]['relationships']
+    isRel(name) {
+      return obj[jvtag]['relationships'].hasOwnProperty(name)
     },
-    is_attr(name) {
-      return name != '_jv' && !this.is_rel(name)
+    isAttr(name) {
+      return name !== '_jv' && !this.isRel(name)
     },
     get rels() {
       const rel = {}
       for (let [key, val] of Object.entries(obj)) {
-        if (key in obj[jvtag]['relationships']) {
+        if (obj[jvtag]['relationships'].hasOwnProperty(key)) {
           rel[key] = val
         }
       }
@@ -380,7 +380,7 @@ const addJvHelpers = (obj) => {
     get attrs() {
       const att = {}
       for (let [key, val] of Object.entries(obj)) {
-        if (key != jvtag && !(key in obj[jvtag]['relationships'])) {
+        if (key != jvtag && !(obj[jvtag]['relationships'].hasOwnProperty(key))) {
           att[key] = val
         }
       }
