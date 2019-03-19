@@ -452,7 +452,7 @@ const followRelationships = (state, record, followState) => {
   }
 
   // Copy item before modifying
-  const data = addJvHelpers(cloneDeep(record))
+  const data = cloneDeep(record)
 
   // Store cloned object in followState for future reuse during recursion
   followState[recordType][recordId] = data
@@ -486,7 +486,7 @@ const followRelationships = (state, record, followState) => {
       }
     }
   }
-  return data
+  return addJvHelpers(data)
 }
 
 // Make sure args is always an array of data and config
