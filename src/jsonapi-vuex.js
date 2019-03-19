@@ -558,12 +558,19 @@ const jsonapiToNorm = (data) => {
 
 // Denormalize an item to jsonapi
 const normToJsonapiItem = (data) => {
-  // Fastest way to deep copy
-  const jsonapi = { ...data[jvtag] }
-  jsonapi['attributes'] = Object.assign({}, data)
-
-  delete jsonapi.rels
-  delete jsonapi['attributes'][jvtag]
+  const jsonapi = {}
+  //Pick out expected resource members, if they exist
+  for (let member of ['id', 'type', 'relationships', 'meta', 'links']) {
+    if (data[jvtag].hasOwnProperty(member)) {
+      jsonapi[member] = data[jvtag][member]
+    }
+  }
+  if (jvConfig.followRelationshipsData) {
+    jsonapi['attributes'] = data[jvtag].attrs
+  } else {
+    jsonapi['attributes'] = Object.assign({}, data)
+    delete jsonapi['attributes'][jvtag]
+  }
 
   return jsonapi
 }
@@ -617,6 +624,7 @@ const _testing = {
   followRelationships: followRelationships,
   jvConfig: jvConfig,
   RecordError: RecordError,
+  addJvHelpers: addJvHelpers,
 }
 
 // Export this module

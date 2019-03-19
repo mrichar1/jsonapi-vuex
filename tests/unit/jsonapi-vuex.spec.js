@@ -292,6 +292,14 @@ describe('jsonapi-vuex tests', function() {
         const { normToJsonapiItem } = _testing
         expect(normToJsonapiItem(normWidget1)).to.deep.equal(jsonWidget1)
       })
+      it('should convert normalized to jsonapi with root rels', function() {
+        jm = jsonapiModule(api, { followRelationshipsData: true })
+        const { normToJsonapiItem } = _testing
+        const { addJvHelpers } = _testing
+        // Add JvHelper methods to object
+        normWidget1_rels = addJvHelpers(normWidget1_rels)
+        expect(normToJsonapiItem(normWidget1_rels)).to.deep.equal(jsonWidget1)
+      })
       it('should convert normalized to jsonapi for a single item with no id (POST)', function() {
         const { normToJsonapiItem } = _testing
         delete normWidget1['_jv']['id']
