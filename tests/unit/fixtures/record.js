@@ -40,12 +40,12 @@ export function normFormatWithRels() {
   const normWidget2_rels = createNormWidget2WithRels()
   const normWidget3_rels = createNormWidget3WithRels()
 
-  normWidget1_rels._jv.rels.widgets = normWidget2_rels
-  normWidget2_rels._jv.rels.widgets = {
+  normWidget1_rels.widgets = normWidget2_rels
+  normWidget2_rels.widgets = {
     [normWidget1_rels['_jv']['id']]: normWidget1_rels,
     [normWidget3_rels['_jv']['id']]: normWidget3_rels,
   }
-  normWidget3_rels._jv.rels.widgets = normWidget1_rels
+  normWidget3_rels.widgets = normWidget1_rels
 
   return {
     [normWidget1_rels['_jv']['id']]: normWidget1_rels,
