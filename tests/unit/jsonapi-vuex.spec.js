@@ -330,10 +330,11 @@ describe('jsonapi-vuex tests', function() {
     })
 
     describe('followRelationships', function() {
-      it('Should expand relationships into rels for a single item', function() {
+      it('Should expand relationships into root for a single item', function() {
         const { followRelationships } = _testing
-        let rels = followRelationships(storeRecord, normWidget1)['_jv']['rels']['widgets'] // prettier-ignore
-        expect(rels).to.deep.equal(normWidget2_rels)
+        let rels = followRelationships(storeRecord, normWidget1)
+        // Object is recursive so only compare top-level keys
+        expect(rels['widgets']).to.have.all.keys(normWidget2_rels)
       })
     })
 
@@ -417,19 +418,22 @@ describe('jsonapi-vuex tests', function() {
         jm = jsonapiModule(api, { followRelationshipsData: true })
         const { get } = jm.getters
         const result = get(storeRecord, { get: get })('widget/1')
-        expect(normWidget1_rels).to.deep.equal(result)
+        expect(result).to.have.all.keys(normWidget1_rels)
       })
       it('should follow relationships data (array)', function() {
         jm = jsonapiModule(api, { followRelationshipsData: true })
         const { get } = jm.getters
         const result = get(storeRecord, { get: get })('widget/2')
-        expect(normWidget2_rels).to.deep.equal(result)
+        expect(result).to.have.all.keys(normWidget2_rels)
       })
       it('should follow relationships data (array) for a collection', function() {
         jm = jsonapiModule(api, { followRelationshipsData: true })
         const { get } = jm.getters
         const result = get(storeRecord, { get: get })('widget')
-        expect(normRecordRels).to.deep.equal(result)
+        // Check 'sub-key' equality for each item in the collection
+        for (let [key, val] of Object.entries(result)) {
+          expect(val).to.have.all.keys(normRecordRels[key])
+        }
       })
     })
 
