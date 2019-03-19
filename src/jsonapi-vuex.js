@@ -363,12 +363,12 @@ const addJvHelpers = (obj) => {
   // Add Utility functions to _jv child object
   Object.assign(obj[jvtag], {
     isRel(name) {
-      return obj[jvtag]['relationships'].hasOwnProperty(name)
+      return get(obj, [jvtag, 'relationships'], {}).hasOwnProperty(name)
     },
     isAttr(name) {
       return name !== jvtag && !this.isRel(name)
     },
-    get rels() {
+    rels() {
       const rel = {}
       for (let [key, val] of Object.entries(obj)) {
         if (this.isRel(key)) {
@@ -377,7 +377,7 @@ const addJvHelpers = (obj) => {
       }
       return rel
     },
-    get attrs() {
+    attrs() {
       const att = {}
       for (let [key, val] of Object.entries(obj)) {
         if (key !== jvtag && !this.isRel(key)) {
@@ -565,8 +565,9 @@ const normToJsonapiItem = (data) => {
       jsonapi[member] = data[jvtag][member]
     }
   }
-  if (jvConfig.followRelationshipsData) {
-    jsonapi['attributes'] = data[jvtag].attrs
+  // User-generated data (e.g. post) has no helper methods
+  if (data[jvtag].hasOwnProperty('attrs') && jvConfig.followRelationshipsData) {
+    jsonapi['attributes'] = data[jvtag].attrs()
   } else {
     jsonapi['attributes'] = Object.assign({}, data)
     delete jsonapi['attributes'][jvtag]
