@@ -368,7 +368,9 @@ const addJvHelpers = (obj) => {
     isAttr(name) {
       return name !== jvtag && !this.isRel(name)
     },
-    rels() {
+  })
+  Object.defineProperty(obj[jvtag], 'rels', {
+    get() {
       const rel = {}
       for (let [key, val] of Object.entries(obj)) {
         if (this.isRel(key)) {
@@ -377,7 +379,9 @@ const addJvHelpers = (obj) => {
       }
       return rel
     },
-    attrs() {
+  })
+  Object.defineProperty(obj[jvtag], 'attrs', {
+    get() {
       const att = {}
       for (let [key, val] of Object.entries(obj)) {
         if (key !== jvtag && !this.isRel(key)) {
@@ -567,7 +571,7 @@ const normToJsonapiItem = (data) => {
   }
   // User-generated data (e.g. post) has no helper methods
   if (data[jvtag].hasOwnProperty('attrs') && jvConfig.followRelationshipsData) {
-    jsonapi['attributes'] = data[jvtag].attrs()
+    jsonapi['attributes'] = data[jvtag].attrs
   } else {
     jsonapi['attributes'] = Object.assign({}, data)
     delete jsonapi['attributes'][jvtag]
