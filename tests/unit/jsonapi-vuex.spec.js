@@ -392,6 +392,20 @@ describe('jsonapi-vuex tests', function() {
         })
         expect(result).to.deep.equal(normWidget1)
       })
+      it('should return nothing for a non-existent type', function() {
+        const { get } = jm.getters
+        const result = get(storeWidget1)({
+          _jv: { type: 'nosuchtype' },
+        })
+        expect(result).to.deep.equal({})
+      })
+      it('should return nothing for a non-existent id', function() {
+        const { get } = jm.getters
+        const result = get(storeWidget1)({
+          _jv: { type: 'widget', id: '999' },
+        })
+        expect(result).to.deep.equal({})
+      })
       it('should accept a string path to object', function() {
         const { get } = jm.getters
         const result = get(storeWidget1)('widget/1')

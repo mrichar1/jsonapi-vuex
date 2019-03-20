@@ -302,9 +302,14 @@ const getters = (/* api */) => {
         const [type, id] = getTypeId(data)
 
         if (type in state) {
-          if (id && id in state[type]) {
-            // single item
-            result = state[type][id]
+          if (id) {
+            if (state[type].hasOwnProperty(id)) {
+              // single item
+              result = state[type][id]
+            } else {
+              // No item of that type
+              return {}
+            }
           } else {
             // whole collection, indexed by id
             result = state[type]
