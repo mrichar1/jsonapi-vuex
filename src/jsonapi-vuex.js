@@ -601,17 +601,21 @@ const normToJsonapi = (record) => {
 // Convert a norm record to store format
 const normToStore = (record) => {
   let store = {}
-  if (!(jvtag in record)) {
-    for (let item of Object.values(record)) {
-      const { type, id } = item[jvtag]
-      if (!(type in store)) {
-        store[type] = {}
-      }
-      store[type][id] = item
+  if (jvtag in record) {
+    // Convert item to look like a collection
+    record = { [record[jvtag]['id']]: record }
+  }
+  for (let item of Object.values(record)) {
+    const { type, id } = item[jvtag]
+    if (!(type in store)) {
+      store[type] = {}
     }
-  } else {
-    const { type, id } = record[jvtag]
-    store = { [type]: { [id]: record } }
+    if (jvConfig.followRelationshipsData) {
+      for (let rel in item[jvtag].rels) {
+        delete item[rel]
+      }
+    }
+    store[type][id] = item
   }
   return store
 }

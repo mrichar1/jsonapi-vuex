@@ -316,6 +316,20 @@ describe('jsonapi-vuex tests', function() {
         const { normToStore } = _testing
         expect(normToStore(normWidget1)).to.deep.equal(storeWidget1)
       })
+      it('should convert normalized item to store, removing rels from root', function() {
+        const { normToStore, addJvHelpers } = _testing
+        jm = jsonapiModule(api, { followRelationshipsData: true })
+        normWidget1Rels = addJvHelpers(normWidget1Rels)
+        expect(normToStore(normWidget1Rels)).to.have.all.keys(storeWidget1)
+      })
+      it('should convert normalized records to store, removing rels from root', function() {
+        const { normToStore, addJvHelpers } = _testing
+        jm = jsonapiModule(api, { followRelationshipsData: true })
+        for (let item of Object.values(normRecordRels)) {
+          item = addJvHelpers(item)
+        }
+        expect(normToStore(normRecordRels)).to.have.all.keys(storeRecord)
+      })
     })
     describe('unpackArgs', function() {
       it('Should convert a single arg into an array with empty config', function() {
