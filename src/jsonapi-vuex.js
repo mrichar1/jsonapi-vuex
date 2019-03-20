@@ -124,7 +124,7 @@ const actions = (api) => {
       let action = context
         .dispatch('get', args)
         .then((record) => {
-          let rels = get(record, [jvtag, 'relationships']) || {}
+          let rels = get(record, [jvtag, 'relationships'], {})
           if (relName && rels) {
             // Only process requested relname
             rels = { [relName]: rels[relName] }
@@ -461,7 +461,7 @@ const followRelationships = (state, record, followState) => {
   // Store cloned object in followState for future reuse during recursion
   followState[recordType][recordId] = data
 
-  const relNames = get(data, [jvtag, 'relationships']) || {}
+  const relNames = get(data, [jvtag, 'relationships'], {})
   for (let [relName, relInfo] of Object.entries(relNames)) {
     let isItem = false
     // We can only work with data, not links since we need type & id
