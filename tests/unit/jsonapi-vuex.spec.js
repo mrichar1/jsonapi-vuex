@@ -294,8 +294,7 @@ describe('jsonapi-vuex tests', function() {
       })
       it('should convert normalized to jsonapi with root rels', function() {
         jm = jsonapiModule(api, { followRelationshipsData: true })
-        const { normToJsonapiItem } = _testing
-        const { addJvHelpers } = _testing
+        const { normToJsonapiItem, addJvHelpers } = _testing
         // Add JvHelper methods to object
         normWidget1Rels = addJvHelpers(normWidget1Rels)
         expect(normToJsonapiItem(normWidget1Rels)).to.deep.equal(jsonWidget1)
