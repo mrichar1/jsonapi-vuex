@@ -37,7 +37,9 @@
     "prettier": "^1.16.4",
     "sinon": "^6.3.5",
     "sinon-chai": "^3.2.0",
+    "vue": "^2.5.17",
     "vue-template-compiler": "^2.5.17",
+    "vuex": "^3.0.1",
     "webpack": "^4.20.2"
   },
   "name": "jsonapi-vuex",
@@ -78,7 +80,9 @@
     "jsonpath": "^1.0.0",
     "lodash.clonedeep": "^4.5.0",
     "lodash.get": "^4.4.2",
-    "lodash.merge": "^4.6.1",
+    "lodash.merge": "^4.6.1"
+  },
+  "peerDependencies": {
     "vue": "^2.5.17",
     "vuex": "^3.0.1"
   },
