@@ -371,7 +371,7 @@ const addJvHelpers = (obj) => {
       return get(obj, [jvtag, 'relationships'], {}).hasOwnProperty(name)
     },
     isAttr(name) {
-      return name !== jvtag && !this.isRel(name)
+      return name !== jvtag && obj.hasOwnProperty(name) && !this.isRel(name)
     },
   })
   // Use defineProperty as assign copies the values, not the getter function
