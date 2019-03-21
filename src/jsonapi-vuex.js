@@ -374,6 +374,8 @@ const addJvHelpers = (obj) => {
       return name !== jvtag && !this.isRel(name)
     },
   })
+  // Use defineProperty as assign copies the values, not the getter function
+  // https://github.com/mrichar1/jsonapi-vuex/pull/40#issuecomment-474560508
   Object.defineProperty(obj[jvtag], 'rels', {
     get() {
       const rel = {}
