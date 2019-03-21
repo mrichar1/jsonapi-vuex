@@ -366,6 +366,50 @@ describe('jsonapi-vuex tests', function() {
         expect(stubContext.commit).to.have.been.calledWith('deleteStatus')
       })
     })
+
+    describe('addJvHelpers', function() {
+      beforeEach(function() {
+        // Apply helper functions to normWidget1
+        const { addJvHelpers } = _testing
+        normWidget1 = addJvHelpers(normWidget1)
+        normWidget1Rels = addJvHelpers(normWidget1Rels)
+      })
+      it('Should add methods to an objects _jv object', function() {
+        expect(normWidget1['_jv']).to.include.keys(
+          // 'attrs',
+          // 'rels',
+          'isAttr',
+          'isRel'
+        )
+        // Keys doesn't count getter functions, so test separately
+        expect(normWidget1['_jv']).to.have.property('attrs')
+        expect(normWidget1['_jv']).to.have.property('rels')
+      })
+      it('Should list all object attributes', function() {
+        const attrs = normWidget1['_jv'].attrs
+        // throw away all but attrs
+        delete normWidget1['_jv']
+        expect(attrs).to.have.all.keys(normWidget1)
+      })
+      it('Should list all object rels', function() {
+        const rels = normWidget1Rels['_jv'].rels
+        expect(rels).to.have.all.keys(normWidget1Rels['_jv']['relationships'])
+      })
+      it('Should return true/false with isAttr', function() {
+        for (let attr of Object.keys(normWidget1)) {
+          if (attr !== '_jv') {
+            expect(normWidget1['_jv'].isAttr(attr)).to.be.true
+          }
+        }
+        expect(normWidget1['_jv'].isAttr('no_such_attr')).to.be.false
+      })
+      it('Should return true/false with isRel', function() {
+        for (let rel of Object.keys(normWidget1['_jv']['relationships'])) {
+          expect(normWidget1['_jv'].isRel(rel)).to.be.true
+        }
+        expect(normWidget1['_jv'].isRel('no_such_rel')).to.be.false
+      })
+    })
   }) // Helper methods
 
   describe('jsonapiModule getters', function() {
