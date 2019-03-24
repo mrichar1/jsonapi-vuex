@@ -19,27 +19,26 @@ A module to access JSONAPI data from an API, using a Vuex store, restructured to
 
 Having created a Vue project, simply add the module to your store.js, passing it an axios-like instance:
 
-```
-import Vue from 'vue';
-import Vuex from 'vuex';
-import axios from 'axios';
-import { jsonapiModule } from 'jsonapi-vuex';
+```js
+import Vue from 'vue'
+import Vuex from 'vuex'
+import axios from 'axios'
+import { jsonapiModule } from 'jsonapi-vuex'
 
 Vue.use(Vuex)
 
 const api = axios.create({
   baseURL: 'https://api.example.com/1/api/',
   headers: {
-    'Content-Type': 'application/vnd.api+json'
-  }
+    'Content-Type': 'application/vnd.api+json',
+  },
 })
 
 export default new Vuex.Store({
   modules: {
-    'jv': jsonapiModule(api)
-  }
-
-});
+    jv: jsonapiModule(api),
+  },
+})
 ```
 
 ## Usage
@@ -60,40 +59,40 @@ _Note_ - Since the `dispatch` method can only accept a single argument, if both 
 
 The first argument is an object containing [restructured data](#restructured-data). Actions which take no `data` argument apart from the record (`get` and `delete`) can also accept a URL to fetch (relative to `axios` `baseURL` (if set) leading slash is optional). This means you don't need to create an 'empty' restructured data object to get or delete a record. Some examples:
 
-```
+```js
 // Restructured representation of a record
 const newWidget = {
-  'name': 'sprocket',
-  'color': 'black',
-  '_jv': {
-    'type': 'widget',
-    'id': '1'
-  }
+  name: 'sprocket',
+  color: 'black',
+  _jv: {
+    type: 'widget',
+    id: '1',
+  },
 }
 
 // Request Query params (JSONAPI options, auth tokens etc)
 const params = {
-  'token': 'abcdef123456'
+  token: 'abcdef123456',
 }
 
 // To get all items in a collection, using a sring path:
-this.$store.dispatch('jv/get', "widget")
-  .then(data => {
-    console.log(data)
-  })
+this.$store.dispatch('jv/get', 'widget').then((data) => {
+  console.log(data)
+})
 
 // Get a specific record from the 'widget' endpoint, passing parameters to axios:
-this.$store.dispatch('jv/get', ['widget/1', {params: params}])
-  .then(data => {
+this.$store
+  .dispatch('jv/get', ['widget/1', { params: params }])
+  .then((data) => {
     console.log(data)
   })
 
 // Create a new widget in the API, using a restructured object, and passing parameters to axios:
-this.$store.dispatch('jv/post', [newWidget, {params: params}])
-  .then(data => {
+this.$store
+  .dispatch('jv/post', [newWidget, { params: params }])
+  .then((data) => {
     console.log(data)
   })
-
 ```
 
 #### getRelated
@@ -104,40 +103,38 @@ Like the RESTful actions, this takes 2 arguments - the URL/object to be acted on
 
 _Note_ - `getRelated` only works on specific items, not collections.
 
-```
+```js
 // Assuming the API holds the following data
 jsonapi = {
   data: {
     type: 'widget',
-    id: '1'
+    id: '1',
   },
   relationships: {
-    'widgets': {
+    widgets: {
       data: {
         type: 'widget',
-        id: '2'
-    }
-    'doohickeys': {
+        id: '2',
+      },
+    },
+    doohickeys: {
       data: {
         type: 'doohickey',
-        id: '10'
-      }
-    }
-  }
+        id: '10',
+      },
+    },
+  },
 }
 
 // Get all of widget 1's related items (widgets and doohickeys)
-this.$store.dispatch('jv/getRelated', 'widget/1')
-  .then(data => {
-    console.log(data)
-  })
+this.$store.dispatch('jv/getRelated', 'widget/1').then((data) => {
+  console.log(data)
+})
 
 // Get only the items in the 'widgets' relationship
-this.$store.dispatch('jv/getRelated', 'widget/1/widgets')
-  .then(data => {
-    console.log(data)
-  })
-
+this.$store.dispatch('jv/getRelated', 'widget/1/widgets').then((data) => {
+  console.log(data)
+})
 ```
 
 ### Getters
@@ -148,38 +145,36 @@ There are 2 getters available. `get` and `status`.
 
 Get returns information directly from the store for previously cached records. This is useful for performance reasons, or for use in computed properties.
 
-```
+```js
 computed: {
-
   ...mapGetters({
     // Map 'jv/get' as a computed property 'get'
-    'get': 'jv/get'
+    get: 'jv/get',
   }),
   // Create a computed property that calls the getter with normalized data
-  'getWidget': function() {
-    return this.$store.getters['jv/get']({'_jv': {'type': 'Widget'}})
-  }
-}
+  getWidget: function() {
+    return this.$store.getters['jv/get']({ _jv: { type: 'Widget' } })
+  },
+},
 ```
 
 Like actions, `get` takes an object or string indicating the desired resources. This can be an empty string, type, or type and id, to return the whole store, a collection, or an item.
 
 `get` takes an optional 2nd argument - a `jsonpath` string to filter the record(s) which are being retrieved. See the project page for [JSONPath Syntax](https://github.com/dchester/jsonpath#jsonpath-syntax)
 
-```
-
+```js
 // Assuming the store is as follows:
 store = {
-  'widget' : {
+  widget: {
     '1': {
-      'name': 'sprocket',
-      'color': 'black',
+      name: 'sprocket',
+      color: 'black',
     },
     '2': {
-      'name': 'cog',
-      'color': 'red'
-    }
-  }
+      name: 'cog',
+      color: 'red',
+    },
+  },
 }
 
 // Get all records (of any type) with id = 10 (useful if your API has globally unique UUIDs)
@@ -191,7 +186,6 @@ this.$store.getters['jv/get']('widget', '[?(@.color=="red")]')
 // Note that filters can create impossible conditions
 // The following will return empty, as widget 1 is not red
 this.$store.getters['jv/get']('widget/1', '[?(@.color=="red")]')
-
 ```
 
 #### status
@@ -206,19 +200,19 @@ The `status` getter accepts either an id, or a promise returned by an action, an
 
 For example, to determine the state of an action:
 
-```
+```js
 // Get a promise from calling an action
-let action = this.$store.dispatch('jv/get', "widget")
+let action = this.$store.dispatch('jv/get', 'widget')
 
 // Check the status of the action (and assuming it hasn't yet completed)
 let status = this.$store.getters['jv/status'](action)
 
-console.log(status)  // LOADING
+console.log(status) // LOADING
 
 // Continue to handle the action results in the usual way
-action.then(data => {
+action.then((data) => {
   // The action has returned
-  console.log(status)  // SUCCESS
+  console.log(status) // SUCCESS
 
   // Continue as usual
   console.log(data)
@@ -230,7 +224,7 @@ The `status` getter is primarily designed to use useful for handling UI changes 
 For example, you might want to disable an attribute while an action is happening by 'watching' `status`:
 
 ```
-<input type="text" :disabled="status == 'LOADING'">
+<input type="text" :disabled="status === 'LOADING'">
 ```
 
 ### Related items
@@ -241,33 +235,33 @@ _Note_ - If using the `action` you may wish to also set the `include` parameter 
 
 For any relationships where the related item is already in the store, this is added to the returned object(s) in `obj['_jv']['rels'][relName]`. For items with a single relationship, the object is placed directly under the `relName` - for mutiple items, they are indexed by id:
 
-```
+```js
 // Assuming the store is as follows:
 store = {
-  'widget' : {
+  widget: {
     '1': {
-      'name': 'sprocket',
-      '_jv': {
-        'relationships': {
-          'parts': {
-            'data': {
-              'type': 'widget',
-              'id': '2'
-            }
-          }
-        }
-      }
+      name: 'sprocket',
+      _jv: {
+        relationships: {
+          parts: {
+            data: {
+              type: 'widget',
+              id: '2',
+            },
+          },
+        },
+      },
     },
     '2': {
-      'name': 'cog',
-    }
-  }
+      name: 'cog',
+    },
+  },
 }
 
 // Get widget/1, with related items in _jv/rels... either:
 
 // (note the use of include to ensure `parts` is in the store)
-let item1 = await this.$store.dispatch('jv/get', 'widget/1', [{include: 'parts'}])
+let item1 = await this.$store.dispatch('jv/get', 'widget/1', [{ include: 'parts' }])
 
 // OR...
 
@@ -276,33 +270,33 @@ let item1 = this.$store.getters['jv/get']('widget/1')
 // This will return:
 {
   name: 'sprocket',
-  '_jv': {
-    'id': '1',
-    'type': 'widget',
-    'rels': {
-      'parts': {
-        'name': 'cog'
-        '_jv': { ... }
-        }
-      }
-    }
-  }
+  _jv: {
+    id: '1',
+    type: 'widget',
+    rels: {
+      parts: {
+        name: 'cog',
+        _jv: {
+          /* ... */
+        },
+      },
+    },
+  },
 }
 
 // This can then be accessed as:
 item1._jv.rels.parts.name
 
 //  Or if there were multiple related items as:
-item1._jv.rels.parts.2.name
-
+item1._jv.rels.parts.name
 ```
 
 ## Configuration
 
 A config object can be passed to jsonapiModule when instantiating. It will override the default options
 
-```
-const config = { 'jvtag': '_splat' }
+```js
+const config = { jvtag: '_splat' }
 jm = jsonapiModule(api, config)
 ```
 
@@ -321,15 +315,15 @@ In this module we 'reverse' the JSONAPI data into a form where data attributes b
 
 For example, the JSONAPI record:
 
-```
+```json
 {
-  id: '1',
-  type: 'widget'
-  attributes: {
-    name: 'sprocket',
-    color: 'black'
+  "id": "1",
+  "type": "widget",
+  "attributes": {
+    "name": "sprocket",
+    "color": "black"
   },
-  meta: {...}
+  "meta": {}
 }
 ```
 
@@ -337,14 +331,14 @@ has to be accessed as `record.attributes.color`
 
 This module would restructure this record to be:
 
-```
+```json
 {
-  name: 'sprocket',
-  color: 'black',
-  _jv: {
-    id: '1',
-    type: 'widget'
-    meta: {...}
+  "name": "sprocket",
+  "color": "black",
+  "_jv": {
+    "id": "1",
+    "type": "widget",
+    "meta": {}
   }
 }
 ```
@@ -353,15 +347,15 @@ Which is easier to work with, as lookups are now top-level, e.g. `record.name`
 
 In cases where there are multiple records being returned in an object, the id is used as the key (though this is ignored in the code, and the 'real' id is always read from `_jv`):
 
-```
+```json
 {
-  1: {
-    name: 'sprocket',
-    color: 'black'
+  "1": {
+    "name": "sprocket",
+    "color": "black"
   },
-  2: {
-    name: 'cog',
-    color: 'red'
+  "2": {
+    "name": "cog",
+    "color": "red"
   }
 }
 ```
@@ -370,14 +364,14 @@ These are accessed as `record.1.name` or `record.2.color`, or if a list is neede
 
 The above structure is actually how records are maintained in the store, nested below the `endpoint`:
 
-```
+```json
 {
-  widget: {
-    1: {...},
-    2: {...}
+  "widget": {
+    "1": {},
+    "2": {}
   },
-  doohickey: {
-    20: {...},
+  "doohickey": {
+    "20": {}
   }
 }
 ```
