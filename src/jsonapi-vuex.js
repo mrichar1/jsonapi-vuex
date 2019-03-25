@@ -32,7 +32,7 @@ const jvtag = jvConfig['jvtag']
 // Global sequence counter for unique action ids
 let actionSequenceCounter = 0
 
-const mutations = (/* api */) => {
+const mutations = () => {
   return {
     deleteRecord: (state, record) => {
       const [type, id] = getTypeId(record)
@@ -291,7 +291,7 @@ const actions = (api) => {
   }
 }
 
-const getters = (/* api */) => {
+const getters = () => {
   return {
     get: (state) => (data, jsonpath) => {
       let result
@@ -356,9 +356,9 @@ const jsonapiModule = (api, conf = {}) => {
 
     state: state,
 
-    mutations: mutations(api),
+    mutations: mutations(),
     actions: actions(api),
-    getters: getters(api),
+    getters: getters(),
   }
 }
 
