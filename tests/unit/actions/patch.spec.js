@@ -1,5 +1,6 @@
 import { expect } from 'chai'
 
+import { _testing } from '../../../src/jsonapi-vuex'
 import createStubContext from '../stubs/context'
 import createJsonapiModule from '../utils/createJsonapiModule'
 import {
@@ -111,9 +112,11 @@ describe('patch', function() {
   })
 
   it('should not include rels in requests', async function() {
+    const { addJvHelpers } = _testing
     this.mockApi.onAny().reply(204)
-    const widget = createNormWidget1WithRels()
-
+    // Helper functions needed for attrs() call in normtoJsonapi() in patch()
+    const widget = addJvHelpers(createNormWidget1WithRels())
+    jsonapiModule = createJsonapiModule(this.api, {followRelationshipsData: true}) //prettier-ignore
     await jsonapiModule.actions.patch(stubContext, widget)
 
     expect(JSON.parse(this.mockApi.history.patch[0].data)).to.deep.equal({

@@ -7,10 +7,10 @@ A module to access JSONAPI data from an API, using a Vuex store, restructured to
 ## Features
 
 - Creates a [Vuex](https://vuex.vuejs.org/) module to store API data.
-- High-level methods to wrap common RESTful operations (GET, POST, PUT, DELETE).
-- Restructures/normalizes data, making record handling easier.
-- Makes fetching related objects easy.
-- Relationships can be followed and expanded into records automatically (recursively).
+- High-level methods to wrap common RESTful operations (GET, POST, PUT, DELETE). (See [Actions](#actions))
+- Restructures/normalizes data, making record handling easier. (See [Restructured Data](#restructured-data))
+- Makes fetching related objects easy. (See [getRelated](#getrelated))
+- Relationships can be followed and expanded into records automatically (recursively). (See [Related Items](#related-items))
 - Uses [Axios](https://github.com/axios/axios) (or your own axios-like module) as the HTTP client.
 - Uses [jsonpath](https://github.com/dchester/jsonpath) for filtering when getting objects from the store.
 - Records the status of actions (LOADING, SUCCESS, ERROR).
@@ -49,7 +49,7 @@ The most common way to access the API and update the store is through high-level
 
 The usual way to use this module is to use `actions` wherever possible. All actions are asynchronous, and both query the API and update the store, then return data in a normalized form. Every action call's state is tracked as it progresses, and this status can be easily queried (see the `status` getter).
 
-There are 4 actions (with aliases): `get` (`fetch`), `post` (`create`), `patch` (`update`), and `delete` which correspond to RESTful methods. There is also a `getRelated` action which fetches a record's related items.
+There are 4 actions (with aliases): `get` (`fetch`), `post` (`create`), `patch` (`update`), and `delete` which correspond to RESTful methods. There is also a [getRelated](#getrelated) action which fetches a record's [related items](#related-items).
 
 #### RESTful actions
 
@@ -97,11 +97,11 @@ this.$store
 
 #### getRelated
 
-_Note_ - in many cases you may prefer to use the jsonapi server-side `include` option to get data on relationships included in your original query. (See `Related Items`).
+_Note_ - in many cases you may prefer to use the jsonapi server-side `include` option to get data on relationships included in your original query. (See [Related Items](#related-items)).
 
 Like the RESTful actions, this takes 2 arguments - the URL/object to be acted on, and an axios config object. It returns a deeply nested restructured tree - `relationship -> type -> id -> data`.
 
-_Note_ - `getRelated` only works on specific items, not collections.
+_Note_ - [getRelated](#getrelated) only works on specific items, not collections.
 
 ```js
 // Assuming the API holds the following data
@@ -227,13 +227,13 @@ For example, you might want to disable an attribute while an action is happening
 <input type="text" :disabled="status === 'LOADING'">
 ```
 
-### Related items
+### Related Items
 
-By default the `get` action and getter are both configured to follow and expand out relationships recursively, if they are provided as `data` entries (i.e. `{type: 'widget', id: '1'}`).
+By default the `get` action and getter are both configured to follow and expand out relationships recursively, if they are provided as `data` entries (i.e. `{type: 'widget', id: '1'}`). This behaviour is controlled with the `followRelationshipsData` config option.
 
 _Note_ - If using the `action` you may wish to also set the `include` parameter on the server query to include the relationships you are interested in. Any records returned in the `included` section of the jsonapi data will be automatically added to the store.
 
-For any relationships where the related item is already in the store, this is added to the returned object(s) in `obj['_jv']['rels'][relName]`. For items with a single relationship, the object is placed directly under the `relName` - for mutiple items, they are indexed by id:
+For any relationships where the related item is already in the store, this is added to the returned object(s) in the 'root', alongside the `attributes`. For items with a single relationship, the object is placed directly under the `relName` - for mutiple items, they are indexed by id:
 
 ```js
 // Assuming the store is as follows:
@@ -258,10 +258,13 @@ store = {
   },
 }
 
-// Get widget/1, with related items in _jv/rels... either:
+// Get widget/1, with related items
 
-// (note the use of include to ensure `parts` is in the store)
+// Either:
+
+// (Note the use of include to ensure `parts` is in the store)
 let item1 = await this.$store.dispatch('jv/get', 'widget/1', [{ include: 'parts' }])
+
 
 // OR...
 
@@ -270,25 +273,38 @@ let item1 = this.$store.getters['jv/get']('widget/1')
 // This will return:
 {
   name: 'sprocket',
+  parts: {
+    name: 'cog'
+    _jv: { /* ... */ }
+  },
   _jv: {
     id: '1',
     type: 'widget',
-    rels: {
-      parts: {
-        name: 'cog',
-        _jv: {
-          /* ... */
-        },
-      },
-    },
   },
 }
 
-// This can then be accessed as:
-item1._jv.rels.parts.name
+```
 
-//  Or if there were multiple related items as:
-item1._jv.rels.parts.name
+## Helper Functions
+
+Distinguishing between the `attributes` and `relationships` in the 'root' is simplified by a number of 'helper' functions which are provided in the `_jv` (`jvtag`) object:
+
+- `attrs` - a getter property which returns an object containing all attributes.
+
+- `rels` - a getter property which returns an object containing all relationships.
+
+- `isAttr` - a function which returns True/False for a given name.
+
+- `isRel` - a function which returns True/False for a given name.
+
+These are particularly useful in `Vue` templates. For example to iterate over an item, picking out just the attributes:
+
+```
+<li v-for="(val, key) in widget._jv.attrs">{{ key }} {{ val }}</li>
+
+<!-- Or -->
+
+<li v-for="(val, key) in widget" v-if="widget._jv.isAttr(key)">{{ key }} {{ val }}</li>
 ```
 
 ## Configuration
@@ -303,7 +319,7 @@ jm = jsonapiModule(api, config)
 ### Config Options
 
 - `jvtag` - The tag in restructured objects to hold object metadata (defaults to `_jv`)
-- `followRelationshipsData` - Whether to follow and expand relationships from the store in the `get` getter (defaults to `true`)
+- `followRelationshipsData` - Whether to follow and expand relationships and store them alongside attribrutes in the item 'root' (defaults to `true`)
 - `preserveJson` - Whether actions should return the API response json (minus `data`) in `_jv/json` (for access to meta etc) (defaults to `false`)
 - `actionStatusCleanAge` - What age must action status records be before they are removed (defaults to 600 seconds). Set to `0` to disable.
 

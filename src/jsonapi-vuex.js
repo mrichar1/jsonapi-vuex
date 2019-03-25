@@ -124,7 +124,7 @@ const actions = (api) => {
       let action = context
         .dispatch('get', args)
         .then((record) => {
-          let rels = get(record, [jvtag, 'relationships']) || {}
+          let rels = get(record, [jvtag, 'relationships'], {})
           if (relName && rels) {
             // Only process requested relname
             rels = { [relName]: rels[relName] }
@@ -302,9 +302,14 @@ const getters = (/* api */) => {
         const [type, id] = getTypeId(data)
 
         if (type in state) {
-          if (id && id in state[type]) {
-            // single item
-            result = state[type][id]
+          if (id) {
+            if (state[type].hasOwnProperty(id)) {
+              // single item
+              result = state[type][id]
+            } else {
+              // No item of that type
+              return {}
+            }
           } else {
             // whole collection, indexed by id
             result = state[type]
@@ -358,6 +363,43 @@ const jsonapiModule = (api, conf = {}) => {
 }
 
 // Helper methods
+
+const addJvHelpers = (obj) => {
+  // Add Utility functions to _jv child object
+  Object.assign(obj[jvtag], {
+    isRel(name) {
+      return get(obj, [jvtag, 'relationships'], {}).hasOwnProperty(name)
+    },
+    isAttr(name) {
+      return name !== jvtag && obj.hasOwnProperty(name) && !this.isRel(name)
+    },
+  })
+  // Use defineProperty as assign copies the values, not the getter function
+  // https://github.com/mrichar1/jsonapi-vuex/pull/40#issuecomment-474560508
+  Object.defineProperty(obj[jvtag], 'rels', {
+    get() {
+      const rel = {}
+      for (let [key, val] of Object.entries(obj)) {
+        if (this.isRel(key)) {
+          rel[key] = val
+        }
+      }
+      return rel
+    },
+  })
+  Object.defineProperty(obj[jvtag], 'attrs', {
+    get() {
+      const att = {}
+      for (let [key, val] of Object.entries(obj)) {
+        if (key !== jvtag && !this.isRel(key)) {
+          att[key] = val
+        }
+      }
+      return att
+    },
+  })
+  return obj
+}
 
 const actionSequence = (context) => {
   // Increment the global action id, set up a cleanup timeout and return it
@@ -422,18 +464,17 @@ const followRelationships = (state, record, followState) => {
 
   // Copy item before modifying
   const data = cloneDeep(record)
-  data[jvtag]['rels'] = {}
 
   // Store cloned object in followState for future reuse during recursion
   followState[recordType][recordId] = data
 
-  const relNames = get(data, [jvtag, 'relationships']) || {}
+  const relNames = get(data, [jvtag, 'relationships'], {})
   for (let [relName, relInfo] of Object.entries(relNames)) {
     let isItem = false
     // We can only work with data, not links since we need type & id
     if ('data' in relInfo && relInfo.data) {
       let relData = relInfo['data']
-      data[jvtag]['rels'][relName] = {}
+      data[relName] = {}
       if (!Array.isArray(relData)) {
         // Convert to an array to keep things DRY
         isItem = true
@@ -447,16 +488,16 @@ const followRelationships = (state, record, followState) => {
           result = followRelationships(state, result, followState)
           if (isItem) {
             // Store attrs directly under relName
-            data[jvtag]['rels'][relName] = result
+            data[relName] = result
           } else {
             // Store attrs indexed by id
-            data[jvtag]['rels'][relName][id] = result
+            data[relName][id] = result
           }
         }
       }
     }
   }
-  return data
+  return addJvHelpers(data)
 }
 
 // Make sure args is always an array of data and config
@@ -528,12 +569,20 @@ const jsonapiToNorm = (data) => {
 
 // Denormalize an item to jsonapi
 const normToJsonapiItem = (data) => {
-  // Fastest way to deep copy
-  const jsonapi = { ...data[jvtag] }
-  jsonapi['attributes'] = Object.assign({}, data)
-
-  delete jsonapi.rels
-  delete jsonapi['attributes'][jvtag]
+  const jsonapi = {}
+  //Pick out expected resource members, if they exist
+  for (let member of ['id', 'type', 'relationships', 'meta', 'links']) {
+    if (data[jvtag].hasOwnProperty(member)) {
+      jsonapi[member] = data[jvtag][member]
+    }
+  }
+  // User-generated data (e.g. post) has no helper methods
+  if (data[jvtag].hasOwnProperty('attrs') && jvConfig.followRelationshipsData) {
+    jsonapi['attributes'] = data[jvtag].attrs
+  } else {
+    jsonapi['attributes'] = Object.assign({}, data)
+    delete jsonapi['attributes'][jvtag]
+  }
 
   return jsonapi
 }
@@ -559,17 +608,21 @@ const normToJsonapi = (record) => {
 // Convert a norm record to store format
 const normToStore = (record) => {
   let store = {}
-  if (!(jvtag in record)) {
-    for (let item of Object.values(record)) {
-      const { type, id } = item[jvtag]
-      if (!(type in store)) {
-        store[type] = {}
-      }
-      store[type][id] = item
+  if (jvtag in record) {
+    // Convert item to look like a collection
+    record = { [record[jvtag]['id']]: record }
+  }
+  for (let item of Object.values(record)) {
+    const { type, id } = item[jvtag]
+    if (!(type in store)) {
+      store[type] = {}
     }
-  } else {
-    const { type, id } = record[jvtag]
-    store = { [type]: { [id]: record } }
+    if (jvConfig.followRelationshipsData) {
+      for (let rel in item[jvtag].rels) {
+        delete item[rel]
+      }
+    }
+    store[type][id] = item
   }
   return store
 }
@@ -587,6 +640,7 @@ const _testing = {
   followRelationships: followRelationships,
   jvConfig: jvConfig,
   RecordError: RecordError,
+  addJvHelpers: addJvHelpers,
 }
 
 // Export this module
