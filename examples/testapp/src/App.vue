@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <JsonapiVuex/>
+    <JsonapiVuex />
   </div>
 </template>
 
@@ -10,10 +10,9 @@ import JsonapiVuex from './components/JsonapiVuex.vue'
 export default {
   name: 'app',
   components: {
-    JsonapiVuex
-  }
+    JsonapiVuex,
+  },
 }
 </script>
 
-<style>
-</style>
+<style></style>

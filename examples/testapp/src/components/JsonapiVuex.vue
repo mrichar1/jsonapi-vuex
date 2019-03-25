@@ -13,26 +13,43 @@
       <h3>Records</h3>
       <div v-for="(widget, id, index) in widgets" :key="index">
         <div>{{ id }}</div>
-        <div :id='"render_" + id + "_" + index' v-for="(value, name, index) in widget" :key="index" v-if="name != '_jv'">
+        <div
+          :id="'render_' + id + '_' + index"
+          v-for="(value, name, index) in widget"
+          :key="index"
+          v-if="name != '_jv'"
+        >
           <span>{{ name }}: </span>
-          <span :id='"span_" + name + "_" + id'>{{ value }}</span>
+          <span :id="'span_' + name + '_' + id">{{ value }}</span>
         </div>
       </div>
       <h3>Related</h3>
       <div v-if="'_jv' in widget1 && 'rels' in widget1['_jv']">
-        <div :id='"rels_" + name' v-for="(rel, name, index) in widget1" v-if="widget1['_jv'].isRel(name)" :key="index">
+        <div
+          :id="'rels_' + name"
+          v-for="(rel, name, index) in widget1"
+          v-if="widget1['_jv'].isRel(name)"
+          :key="index"
+        >
           <span>Related: </span>
-          <span :id='"rel_span_relname"'>{{ name }}</span>&nbsp;
-          <span :id='"rel_span_name"'>{{ rel.name }}</span>&nbsp;
-          <span :id='"rel_span_color"'>{{ rel.color }}</span>&nbsp;
+          <span :id="'rel_span_relname'">{{ name }}</span>
+          <br />
+          <span :id="'rel_span_name'">{{ rel.name }}</span>
+          <br />
+          <span :id="'rel_span_color'">{{ rel.color }}</span>
+          <br />
         </div>
       </div>
     </div>
     <div id="patch">
       <h2>Patch widget 1</h2>
-      <div v-for="(value, name, index) in widget1" :key="index" v-if="widget1._jv.isAttr(name)">
-        <label :for='"patch_" + name'>{{ name }}</label>
-        <input :id='"patch_" + name' v-model="widget1[name]"/>
+      <div
+        v-for="(value, name, index) in widget1"
+        :key="index"
+        v-if="widget1._jv.isAttr(name)"
+      >
+        <label :for="'patch_' + name">{{ name }}</label>
+        <input :id="'patch_' + name" v-model="widget1[name]" />
       </div>
       <div>
         <button name="patch_button" @click="patchRecord(widget1)">Patch</button>
@@ -41,9 +58,9 @@
     <div id="post">
       <h2>Post widget</h2>
       <label for="post_name">Name</label>
-      <input id="post_name" v-model="postWidget['name']"/>
+      <input id="post_name" v-model="postWidget['name']" />
       <label for="post_color">Color</label>
-      <input id="post_color" v-model="postWidget['color']"/>
+      <input id="post_color" v-model="postWidget['color']" />
       <div>
         <button name="post_button" @click="postRecord(postWidget)">Post</button>
       </div>
@@ -51,9 +68,11 @@
     <div id="delete">
       <h2>Delete widget</h2>
       <label for="delete_id">Widget ID</label>
-      <input id="delete_id" v-model="delWidgetId"/>
+      <input id="delete_id" v-model="delWidgetId" />
       <div>
-        <button name="delete_button" @click="deleteRecord(delWidgetId)">Delete</button>
+        <button name="delete_button" @click="deleteRecord(delWidgetId)">
+          Delete
+        </button>
       </div>
     </div>
   </div>
@@ -66,39 +85,38 @@ export default {
     return {
       delWidgetId: undefined,
       postWidget: {
-        '_jv': {
-          'type': 'widget'
-        }
-      }
+        _jv: {
+          type: 'widget',
+        },
+      },
     }
   },
   computed: {
-    sessions () {
+    sessions() {
       return this.$store.state.jv._jv
-   },
-    widgets () {
-      return this.$store.getters["jv/get"]('widget')
     },
-    widget1 () {
-      return this.$store.getters["jv/get"]('widget/1')
-    }
+    widgets() {
+      return this.$store.getters['jv/get']('widget')
+    },
+    widget1() {
+      return this.$store.getters['jv/get']('widget/1')
+    },
   },
-  created () {
-    this.$store.dispatch("jv/get", "widget")
+  created() {
+    this.$store.dispatch('jv/get', 'widget')
   },
   methods: {
-    patchRecord (record) {
-      this.$store.dispatch("jv/patch", record)
+    patchRecord(record) {
+      this.$store.dispatch('jv/patch', record)
     },
-    postRecord (record) {
-      this.$store.dispatch("jv/post", record)
+    postRecord(record) {
+      this.$store.dispatch('jv/post', record)
     },
-    deleteRecord (id) {
-      this.$store.dispatch("jv/delete", "widget" + "/" + id)
-    }
-  }
+    deleteRecord(id) {
+      this.$store.dispatch('jv/delete', 'widget' + '/' + id)
+    },
+  },
 }
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>
