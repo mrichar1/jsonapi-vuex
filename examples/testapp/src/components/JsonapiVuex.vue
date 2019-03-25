@@ -20,7 +20,7 @@
       </div>
       <h3>Related</h3>
       <div v-if="'_jv' in widget1 && 'rels' in widget1['_jv']">
-        <div :id='"rels_" + name' v-for="(rel, name, index) in widget1['_jv']['rels']" :key="index">
+        <div :id='"rels_" + name' v-for="(rel, name, index) in widget1" v-if="widget1['_jv'].isRel(name)" :key="index">
           <span>Related: </span>
           <span :id='"rel_span_relname"'>{{ name }}</span>&nbsp;
           <span :id='"rel_span_name"'>{{ rel.name }}</span>&nbsp;
@@ -30,7 +30,7 @@
     </div>
     <div id="patch">
       <h2>Patch widget 1</h2>
-      <div v-for="(value, name, index) in widget1" :key="index" v-if="name != '_jv'">
+      <div v-for="(value, name, index) in widget1" :key="index" v-if="widget1._jv.isAttr(name)">
         <label :for='"patch_" + name'>{{ name }}</label>
         <input :id='"patch_" + name' v-model="widget1[name]"/>
       </div>

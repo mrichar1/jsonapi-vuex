@@ -38,7 +38,7 @@ export function normFormat() {
 
 export function normFormatWithRels() {
   const widget = normFormat()
-  widget._jv.rels = { widgets: createNormWidget1() }
+  Object.assign(widget, { widgets: createNormWidget1() })
   return widget
 }
 

@@ -147,7 +147,7 @@ describe('get', function() {
 
     let res = await jm.actions.get(stubContext, normWidget1)
 
-    expect(res).to.deep.equal(normWidget1Rels)
+    expect(res).to.have.all.keys(normWidget1Rels)
   })
 
   it('should return normalized data with expanded rels (array)', async function() {
@@ -160,7 +160,10 @@ describe('get', function() {
 
     let res = await jm.actions.get(stubContext, 'widget')
 
-    expect(res).to.deep.equal(normRecordRels)
+    // Check 'sub-key' equality for each item in the collection
+    for (let [key, val] of Object.entries(res)) {
+      expect(val).to.have.all.keys(normRecordRels[key])
+    }
   })
 
   it("should handle an empty rels 'data' object", async function() {

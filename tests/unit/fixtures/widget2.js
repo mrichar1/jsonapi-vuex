@@ -51,12 +51,12 @@ export function normFormat() {
 
 export function normFormatWithRels() {
   const widget = normFormat()
-  widget._jv.rels = {
+  Object.assign(widget, {
     widgets: {
       1: createNormWidget1(),
       3: createNormWidget3(),
     },
-  }
+  })
   return widget
 }
 
