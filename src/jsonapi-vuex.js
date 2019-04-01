@@ -84,13 +84,8 @@ const actions = (api) => {
       let action = api
         .get(path, config)
         .then((results) => {
-          // Process included records
-          if ('included' in results.data) {
-            for (let item of results.data.included) {
-              const includedItem = jsonapiToNormItem(item)
-              context.commit('addRecords', includedItem)
-            }
-          }
+          processIncludedRecords(context, results)
+
           let resData = jsonapiToNorm(results.data.data)
           context.commit('addRecords', resData)
           resData = checkAndFollowRelationships(context.state, resData)
@@ -204,6 +199,8 @@ const actions = (api) => {
       let action = api
         .post(path, normToJsonapi(data), config)
         .then((results) => {
+          processIncludedRecords(context, results)
+
           // If the server handed back data, store it (to get id)
           // spec says 201, but some servers (wrongly) return 200
           if (results.status === 200 || results.status === 201) {
@@ -231,6 +228,8 @@ const actions = (api) => {
       let action = api
         .patch(path, normToJsonapi(data), config)
         .then((results) => {
+          processIncludedRecords(context, results)
+
           // If the server handed back data, store it
           if (results.status === 200) {
             context.commit('deleteRecord', data)
@@ -260,14 +259,16 @@ const actions = (api) => {
       context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
       let action = api
         .delete(path, config)
-        .then((result) => {
+        .then((results) => {
+          processIncludedRecords(context, results)
+
           context.commit('deleteRecord', data)
           context.commit('setStatus', {
             id: actionId,
             status: STATUS_SUCCESS,
           })
-          if (result.data) {
-            return preserveJSON(jsonapiToNorm(result.data.data), result.data)
+          if (results.data) {
+            return preserveJSON(jsonapiToNorm(results.data.data), results.data)
           } else {
             return data
           }
@@ -627,6 +628,15 @@ const normToStore = (record) => {
   return store
 }
 
+const processIncludedRecords = (context, results) => {
+  if (get(results, ['data', 'included'])) {
+    for (let item of results.data.included) {
+      const includedItem = jsonapiToNormItem(item)
+      context.commit('addRecords', includedItem)
+    }
+  }
+}
+
 // Export a single object with references to 'private' functions for the test suite
 const _testing = {
   actionSequence: actionSequence,
@@ -636,6 +646,7 @@ const _testing = {
   normToJsonapi: normToJsonapi,
   normToJsonapiItem: normToJsonapiItem,
   normToStore: normToStore,
+  processIncludedRecords: processIncludedRecords,
   unpackArgs: unpackArgs,
   followRelationships: followRelationships,
   jvConfig: jvConfig,
