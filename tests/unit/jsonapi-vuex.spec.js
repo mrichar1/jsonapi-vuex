@@ -14,6 +14,7 @@ import {
   normFormatUpdate as createNormWidget1Update,
   storeFormat as createStoreWidget1,
 } from './fixtures/widget1'
+import { jsonFormat as createJsonWidget2 } from './fixtures/widget2'
 import { normFormat as createNormWidget2 } from './fixtures/widget2'
 import { normFormat as createNormWidget3 } from './fixtures/widget3'
 import {
@@ -30,6 +31,7 @@ let jm,
   clock,
   stubContext,
   jsonWidget1,
+  jsonWidget2,
   jsonRecord,
   normWidget1,
   normWidget2,
@@ -71,6 +73,7 @@ beforeEach(function() {
   // Data in JSONAPI JSON form
 
   jsonWidget1 = createJsonWidget1()
+  jsonWidget2 = createJsonWidget2()
   jsonRecord = createJsonRecord()
 
   // Data in Normalised/Restructured form
@@ -217,6 +220,15 @@ describe('jsonapi-vuex tests', function() {
   }) // mutations
 
   describe('jsonapiModule helpers', function() {
+    describe('processIncludedRecords', function() {
+      it('should process included records', function() {
+        const { processIncludedRecords } = _testing
+        jsonWidget1['included'] = [jsonWidget2]
+        processIncludedRecords(stubContext, { data: jsonWidget1 })
+        expect(stubContext.commit).to.have.been.calledWith('addRecords')
+      })
+    })
+
     describe('getTypeId', function() {
       it('should get type & id from string', function() {
         const { getTypeId } = _testing
