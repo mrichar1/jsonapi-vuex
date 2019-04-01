@@ -259,7 +259,7 @@ const actions = (api) => {
       context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
       let action = api
         .delete(path, config)
-        .then((result) => {
+        .then((results) => {
           processIncludedRecords(context, results)
 
           context.commit('deleteRecord', data)
@@ -267,8 +267,8 @@ const actions = (api) => {
             id: actionId,
             status: STATUS_SUCCESS,
           })
-          if (result.data) {
-            return preserveJSON(jsonapiToNorm(result.data.data), result.data)
+          if (results.data) {
+            return preserveJSON(jsonapiToNorm(results.data.data), results.data)
           } else {
             return data
           }
@@ -629,7 +629,7 @@ const normToStore = (record) => {
 }
 
 const processIncludedRecords = (context, results) => {
-  if ('included' in results.data) {
+  if (get(results, ['data', 'included'])) {
     for (let item of results.data.included) {
       const includedItem = jsonapiToNormItem(item)
       context.commit('addRecords', includedItem)
