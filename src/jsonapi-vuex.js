@@ -25,6 +25,8 @@ let jvConfig = {
   preserveJson: false,
   // Age of action status records to clean (in seconds). (0 disables).
   actionStatusCleanAge: 600,
+  // Merge store records (or overwrite them)
+  mergeRecords: false,
 }
 
 const jvtag = jvConfig['jvtag']
@@ -41,25 +43,14 @@ const mutations = () => {
       }
       Vue.delete(state[type], id)
     },
-    addRecords: (state, records) => {
-      const storeRecords = normToStore(records)
-      for (let [type, item] of Object.entries(storeRecords)) {
-        for (let [id, data] of Object.entries(item)) {
-          if (!(type in state)) {
-            Vue.set(state, type, {})
-          }
-          Vue.set(state[type], id, data)
-        }
-      }
+    modifyRecords: (state, records) => {
+      updateRecords(state, records)
     },
-    updateRecord: (state, newRecord) => {
-      const [type, id] = getTypeId(newRecord)
-      if (!type || !id) {
-        throw new RecordError('updateRecord: Missing type or id', newRecord)
-      }
-      const storeRecord = normToStore(newRecord)
-      const oldRecord = get(state, [type, id])
-      Vue.set(state[type], id, merge(oldRecord, storeRecord[type][id]))
+    replaceRecords: (state, records) => {
+      updateRecords(state, records, false)
+    },
+    mergeRecords: (state, records) => {
+      updateRecords(state, records, true)
     },
     setStatus: (state, { id, status }) => {
       Vue.set(state[jvtag], id, { status: status, time: Date.now() })
@@ -87,7 +78,7 @@ const actions = (api) => {
           processIncludedRecords(context, results)
 
           let resData = jsonapiToNorm(results.data.data)
-          context.commit('addRecords', resData)
+          context.commit('modifyRecords', resData)
           resData = checkAndFollowRelationships(context.state, resData)
           resData = preserveJSON(resData, results.data)
           context.commit('setStatus', {
@@ -206,7 +197,7 @@ const actions = (api) => {
           if (results.status === 200 || results.status === 201) {
             data = jsonapiToNorm(results.data.data)
           }
-          context.commit('addRecords', data)
+          context.commit('modifyRecords', data)
           context.commit('setStatus', {
             id: actionId,
             status: STATUS_SUCCESS,
@@ -234,10 +225,10 @@ const actions = (api) => {
           if (results.status === 200) {
             context.commit('deleteRecord', data)
             data = jsonapiToNorm(results.data.data)
-            context.commit('addRecords', data)
+            context.commit('modifyRecords', data)
           } else if (results.status === 204) {
-            // Otherwise, try to update the store record from the patch
-            context.commit('updateRecord', data)
+            // Otherwise, update the store record from the patch (merge=true)
+            context.commit('mergeRecords', data)
           }
           context.commit('setStatus', {
             id: actionId,
@@ -364,6 +355,26 @@ const jsonapiModule = (api, conf = {}) => {
 }
 
 // Helper methods
+
+const updateRecords = (state, records, merging = jvConfig.mergeRecords) => {
+  const storeRecords = normToStore(records)
+  for (let [type, item] of Object.entries(storeRecords)) {
+    if (!(type in state)) {
+      Vue.set(state, type, {})
+      // If there's no type, then there are no existing records to merge
+      merging = false
+    }
+    for (let [id, data] of Object.entries(item)) {
+      if (merging) {
+        const oldRecord = get(state, [type, id])
+        if (oldRecord) {
+          data = merge(oldRecord, data)
+        }
+      }
+      Vue.set(state[type], id, data)
+    }
+  }
+}
 
 const addJvHelpers = (obj) => {
   // Add Utility functions to _jv child object
@@ -632,7 +643,7 @@ const processIncludedRecords = (context, results) => {
   if (get(results, ['data', 'included'])) {
     for (let item of results.data.included) {
       const includedItem = jsonapiToNormItem(item)
-      context.commit('addRecords', includedItem)
+      context.commit('modifyRecords', includedItem)
     }
   }
 }
@@ -652,6 +663,7 @@ const _testing = {
   jvConfig: jvConfig,
   RecordError: RecordError,
   addJvHelpers: addJvHelpers,
+  updateRecords: updateRecords,
 }
 
 // Export this module

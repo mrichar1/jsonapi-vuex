@@ -9,7 +9,7 @@ export default function(api, options = {}) {
   return jsonapiModule(api, {
     followRelationshipsData: false,
     preserveJson: false,
-    actionStatusCleanInterval: 0,
+    mergeRecords: false,
     ...options,
   })
 }

@@ -14,6 +14,7 @@ A module to access JSONAPI data from an API, using a Vuex store, restructured to
 - Uses [Axios](https://github.com/axios/axios) (or your own axios-like module) as the HTTP client.
 - Uses [jsonpath](https://github.com/dchester/jsonpath) for filtering when getting objects from the store.
 - Records the status of actions (LOADING, SUCCESS, ERROR).
+- New data can overwrite, or be merged onto, existing records. (See [mergeRecords](#Configuration))
 
 ## Setup
 
@@ -227,6 +228,42 @@ For example, you might want to disable an attribute while an action is happening
 <input type="text" :disabled="status === 'LOADING'">
 ```
 
+## Mutations
+
+There are several mutations which can be used to directly modify the store.
+
+**Note** - in most cases mutations are called from actions as a result of querying the API, and it is not necessary to call mutations directly.
+
+Mutations take normalised data as an argument.
+
+#### deleteRecord
+
+Deletes a single record from the store.
+
+```
+store.commit('deleteRecord', { _jv: { type: 'widget', id: '1' } })
+```
+
+#### modifyRecords
+
+Updates records in the store. Replaces or merges with existing records, depending on the value of [mergeRecords](#Configuration)
+
+#### replaceRecords
+
+As `modifyRecords`, but explicitly replaces existing records.
+
+#### mergeRecords
+
+As `modifyRecords`, but explicitly merges onto existing records.
+
+#### setStatus
+
+Sets the session status information in the store.
+
+#### deleteStatus
+
+Deletes a session status record from the store.
+
 ### Related Items
 
 By default the `get` action and getter are both configured to follow and expand out relationships recursively, if they are provided as `data` entries (i.e. `{type: 'widget', id: '1'}`). This behaviour is controlled with the `followRelationshipsData` config option.
@@ -322,6 +359,9 @@ jm = jsonapiModule(api, config)
 - `followRelationshipsData` - Whether to follow and expand relationships and store them alongside attribrutes in the item 'root' (defaults to `true`)
 - `preserveJson` - Whether actions should return the API response json (minus `data`) in `_jv/json` (for access to meta etc) (defaults to `false`)
 - `actionStatusCleanAge` - What age must action status records be before they are removed (defaults to 600 seconds). Set to `0` to disable.
+- `mergeRecords`- Whether new records should be merged onto existing records in the store, or just replace them (defaults to `false`).
+
+**Note** - if `mergeRecords`is `true` then deleted attributes/relationships may not be correctly mirrored in the store. To avoid this it is necessary to explicitly call the `deleteRecord` mutation before fetching from the store.
 
 ## Restructured Data
 

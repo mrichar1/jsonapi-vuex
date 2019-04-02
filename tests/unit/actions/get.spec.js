@@ -91,7 +91,7 @@ describe('get', function() {
     await jsonapiModule.actions.get(stubContext, normWidget1)
 
     expect(stubContext.commit).to.have.been.calledWith(
-      'addRecords',
+      'modifyRecords',
       normWidget1
     )
   })
@@ -103,7 +103,7 @@ describe('get', function() {
     await jsonapiModule.actions.get(stubContext, 'widget/1')
 
     expect(stubContext.commit).to.have.been.calledWith(
-      'addRecords',
+      'modifyRecords',
       normWidget1
     )
   })
@@ -128,11 +128,11 @@ describe('get', function() {
     await jsonapiModule.actions.get(stubContext, normWidget1)
 
     expect(stubContext.commit).to.have.been.calledWith(
-      'addRecords',
+      'modifyRecords',
       normWidget2
     )
     expect(stubContext.commit).to.have.been.calledWith(
-      'addRecords',
+      'modifyRecords',
       normMachine1
     )
   })
