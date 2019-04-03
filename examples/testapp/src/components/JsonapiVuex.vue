@@ -15,9 +15,8 @@
         <div>{{ id }}</div>
         <div
           :id="'render_' + id + '_' + index"
-          v-for="(value, name, index) in widget"
+          v-for="(value, name, index) in widget['_jv'].attrs"
           :key="index"
-          v-if="name != '_jv'"
         >
           <span>{{ name }}: </span>
           <span :id="'span_' + name + '_' + id">{{ value }}</span>
@@ -27,8 +26,7 @@
       <div v-if="'_jv' in widget1 && 'rels' in widget1['_jv']">
         <div
           :id="'rels_' + name"
-          v-for="(rel, name, index) in widget1"
-          v-if="widget1['_jv'].isRel(name)"
+          v-for="(rel, name, index) in widget1['_jv'].rels"
           :key="index"
         >
           <span>Related: </span>
@@ -43,13 +41,11 @@
     </div>
     <div id="patch">
       <h2>Patch widget 1</h2>
-      <div
-        v-for="(value, name, index) in widget1"
-        :key="index"
-        v-if="widget1._jv.isAttr(name)"
-      >
-        <label :for="'patch_' + name">{{ name }}</label>
-        <input :id="'patch_' + name" v-model="widget1[name]" />
+      <div v-if="'_jv' in widget1 && 'rels' in widget1['_jv']">
+        <div v-for="(value, name, index) in widget1['_jv'].attrs" :key="index">
+          <label :for="'patch_' + name">{{ name }}</label>
+          <input :id="'patch_' + name" v-model="widget1[name]" />
+        </div>
       </div>
       <div>
         <button name="patch_button" @click="patchRecord(widget1)">Patch</button>
