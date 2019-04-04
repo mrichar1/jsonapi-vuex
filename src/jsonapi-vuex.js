@@ -228,8 +228,6 @@ const actions = (api) => {
       let action = api
         .patch(path, normToJsonapi(data), config)
         .then((results) => {
-          processIncludedRecords(context, results)
-
           // If the server handed back data, store it
           if (results.status === 200) {
             context.commit('deleteRecord', data)
@@ -239,6 +237,11 @@ const actions = (api) => {
             // Otherwise, try to update the store record from the patch
             context.commit('updateRecord', data)
           }
+
+          // NOTE: We deliberately process included records after any `deleteRecord` mutations
+          // to avoid deleting any included records that we just added.
+          processIncludedRecords(context, results)
+
           context.commit('setStatus', {
             id: actionId,
             status: STATUS_SUCCESS,
