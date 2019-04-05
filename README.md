@@ -93,6 +93,21 @@ this.$store
   .then((data) => {
     console.log(data)
   })
+
+// Override the API resource type (useful for using pluralized types)
+this.$store
+  .dispatch('jv/post', [
+    newWidget,
+    {
+      params: params,
+      jvConfig: {
+        resourceType: 'widgets',
+      },
+    },
+  ])
+  .then((data) => {
+    console.log(data)
+  })
 ```
 
 #### getRelated

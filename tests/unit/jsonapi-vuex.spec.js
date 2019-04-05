@@ -346,11 +346,11 @@ describe('jsonapi-vuex tests', function() {
     describe('unpackArgs', function() {
       it('Should convert a single arg into an array with empty config', function() {
         const { unpackArgs } = _testing
-        expect(unpackArgs('splat')).to.deep.equal(['splat', {}])
+        expect(unpackArgs('splat')).to.deep.equal(['splat', {}, {}])
       })
       it('Should leave an args array as-is', function() {
         const { unpackArgs } = _testing
-        expect(unpackArgs(['splat', {}])).to.deep.equal(['splat', {}])
+        expect(unpackArgs(['splat', {}])).to.deep.equal(['splat', {}, {}])
       })
     })
 

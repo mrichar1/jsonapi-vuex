@@ -75,8 +75,8 @@ const mutations = () => {
 const actions = (api) => {
   return {
     get: (context, args) => {
-      const [data, config] = unpackArgs(args)
-      const path = getURL(data)
+      const [data, config, jvConfig] = unpackArgs(args)
+      const path = getURL(data, jvConfig)
       // https://github.com/axios/axios/issues/362
       config['data'] = config['data'] || {}
       const actionId = actionSequence(context)
@@ -192,8 +192,8 @@ const actions = (api) => {
       return action
     },
     post: (context, args) => {
-      let [data, config] = unpackArgs(args)
-      const path = getURL(data, true)
+      let [data, config, jvConfig] = unpackArgs(args)
+      const path = getURL(data, jvConfig, true)
       const actionId = actionSequence(context)
       context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
       let action = api
@@ -221,8 +221,8 @@ const actions = (api) => {
       return action
     },
     patch: (context, args) => {
-      let [data, config] = unpackArgs(args)
-      const path = getURL(data)
+      let [data, config, jvConfig] = unpackArgs(args)
+      const path = getURL(data, jvConfig)
       const actionId = actionSequence(context)
       context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
       let action = api
@@ -253,8 +253,8 @@ const actions = (api) => {
       return action
     },
     delete: (context, args) => {
-      const [data, config] = unpackArgs(args)
-      const path = getURL(data)
+      const [data, config, jvConfig] = unpackArgs(args)
+      const path = getURL(data, jvConfig)
       const actionId = actionSequence(context)
       context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
       let action = api
@@ -501,12 +501,14 @@ const followRelationships = (state, record, followState) => {
   return addJvHelpers(data)
 }
 
-// Make sure args is always an array of data and config
 const unpackArgs = (args) => {
-  if (Array.isArray(args)) {
-    return args
-  }
-  return [args, {}]
+  // Make sure args is always an array of data and config
+  const arrayArgs = Array.isArray(args) ? args : [args, {}]
+
+  const jvConfig = arrayArgs[1].jvConfig || {}
+  delete arrayArgs[1].jvConfig
+
+  return [arrayArgs[0], arrayArgs[1], jvConfig]
 }
 
 // Get type, id, rels from a restructured object
@@ -522,11 +524,11 @@ const getTypeId = (data) => {
 }
 
 // Return path, or construct one if restructured data
-const getURL = (data, post = false) => {
+const getURL = (data, jvConfig = {}, post = false) => {
   let path = data
   if (typeof data === 'object') {
     let { type, id } = data[jvtag]
-    path = type
+    path = jvConfig.resourceType || type
     // POST endpoints are always to collections, not items
     if (id && !post) {
       path += '/' + id
