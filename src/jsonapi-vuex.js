@@ -578,13 +578,12 @@ const normToJsonapiItem = (data) => {
     }
   }
   // User-generated data (e.g. post) has no helper methods
-  if (data[jvtag].hasOwnProperty('attrs') && jvConfig.followRelationshipsData) {
+  if (data[jvtag].hasOwnProperty('attrs')) {
     jsonapi['attributes'] = data[jvtag].attrs
   } else {
     jsonapi['attributes'] = Object.assign({}, data)
     delete jsonapi['attributes'][jvtag]
   }
-
   return jsonapi
 }
 
