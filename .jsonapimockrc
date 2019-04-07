@@ -1,4 +1,0 @@
-{
-  "watch": "examples/testapp/tmp.json",
-  "accept": "application/vnd.api+json"
-}
