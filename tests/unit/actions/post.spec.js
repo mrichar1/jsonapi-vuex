@@ -47,7 +47,7 @@ describe('post', function() {
     await jsonapiModule.actions.post(stubContext, normWidget1)
 
     expect(stubContext.commit).to.have.been.calledWith(
-      'modifyRecords',
+      'addRecords',
       normWidget1
     )
   })
@@ -58,7 +58,7 @@ describe('post', function() {
     await jsonapiModule.actions.post(stubContext, normWidget1)
 
     expect(stubContext.commit).to.have.been.calledWith(
-      'modifyRecords',
+      'addRecords',
       normWidget1
     )
   })

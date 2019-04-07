@@ -43,7 +43,7 @@ const mutations = () => {
       }
       Vue.delete(state[type], id)
     },
-    modifyRecords: (state, records) => {
+    addRecords: (state, records) => {
       updateRecords(state, records)
     },
     replaceRecords: (state, records) => {
@@ -78,7 +78,7 @@ const actions = (api) => {
           processIncludedRecords(context, results)
 
           let resData = jsonapiToNorm(results.data.data)
-          context.commit('modifyRecords', resData)
+          context.commit('addRecords', resData)
           resData = checkAndFollowRelationships(context.state, resData)
           resData = preserveJSON(resData, results.data)
           context.commit('setStatus', {
@@ -197,7 +197,7 @@ const actions = (api) => {
           if (results.status === 200 || results.status === 201) {
             data = jsonapiToNorm(results.data.data)
           }
-          context.commit('modifyRecords', data)
+          context.commit('addRecords', data)
           context.commit('setStatus', {
             id: actionId,
             status: STATUS_SUCCESS,
@@ -225,7 +225,7 @@ const actions = (api) => {
           if (results.status === 200) {
             context.commit('deleteRecord', data)
             data = jsonapiToNorm(results.data.data)
-            context.commit('modifyRecords', data)
+            context.commit('addRecords', data)
           } else if (results.status === 204) {
             // Otherwise, update the store record from the patch (merge=true)
             context.commit('mergeRecords', data)
@@ -643,7 +643,7 @@ const processIncludedRecords = (context, results) => {
   if (get(results, ['data', 'included'])) {
     for (let item of results.data.included) {
       const includedItem = jsonapiToNormItem(item)
-      context.commit('modifyRecords', includedItem)
+      context.commit('addRecords', includedItem)
     }
   }
 }

@@ -182,17 +182,17 @@ describe('jsonapi-vuex tests', function() {
       })
     })
 
-    describe('modifyRecords', function() {
+    describe('addRecords', function() {
       it('should add several records to the store (replace)', function() {
-        const { modifyRecords } = jm.mutations
+        const { addRecords } = jm.mutations
         // Put an object into state that should get replaced
-        modifyRecords(storeWidget1Update, normRecord)
+        addRecords(storeWidget1Update, normRecord)
         expect(storeWidget1Update).to.deep.equal(storeRecord)
       })
       it('should update a record in the store (merge)', function() {
         jm = createJsonapiModule(api, { mergeRecords: true })
-        const { modifyRecords } = jm.mutations
-        modifyRecords(storeWidget1, normWidget1Patch)
+        const { addRecords } = jm.mutations
+        addRecords(storeWidget1, normWidget1Patch)
         expect(storeWidget1).to.deep.equal(storeWidget1Update)
       })
     })
@@ -256,7 +256,7 @@ describe('jsonapi-vuex tests', function() {
         const { processIncludedRecords } = _testing
         jsonWidget1['included'] = [jsonWidget2]
         processIncludedRecords(stubContext, { data: jsonWidget1 })
-        expect(stubContext.commit).to.have.been.calledWith('modifyRecords')
+        expect(stubContext.commit).to.have.been.calledWith('addRecords')
       })
     })
 

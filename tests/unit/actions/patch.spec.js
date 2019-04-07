@@ -65,7 +65,7 @@ describe('patch', function() {
       normWidget1Patch
     )
     expect(stubContext.commit).to.have.been.calledWith(
-      'modifyRecords',
+      'addRecords',
       normWidget1Update
     )
   })

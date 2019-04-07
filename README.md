@@ -244,17 +244,17 @@ Deletes a single record from the store.
 store.commit('deleteRecord', { _jv: { type: 'widget', id: '1' } })
 ```
 
-#### modifyRecords
+#### addRecords
 
 Updates records in the store. Replaces or merges with existing records, depending on the value of [mergeRecords](#Configuration)
 
 #### replaceRecords
 
-As `modifyRecords`, but explicitly replaces existing records.
+As `addRecords`, but explicitly replaces existing records.
 
 #### mergeRecords
 
-As `modifyRecords`, but explicitly merges onto existing records.
+As `addRecords`, but explicitly merges onto existing records.
 
 #### setStatus
 
