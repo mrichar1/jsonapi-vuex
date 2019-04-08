@@ -164,27 +164,36 @@ describe('jsonapi-vuex tests', function() {
       })
     })
 
-    describe('addRecords', function() {
-      it('should add several records to the store', function() {
-        const { addRecords } = jm.mutations
-        const state = {}
-        addRecords(state, normRecord)
-        expect(state).to.deep.equal(storeRecord)
+    describe('mergeRecords', function() {
+      it('should update a record in the store (merge)', function() {
+        jm = createJsonapiModule(api, { mergeRecords: true })
+        const { mergeRecords } = jm.mutations
+        mergeRecords(storeWidget1, normWidget1Patch)
+        expect(storeWidget1).to.deep.equal(storeWidget1Update)
       })
     })
 
-    describe('updateRecord', function() {
-      it('should update a specific attribute of a record already in the store', function() {
-        const { updateRecord } = jm.mutations
-        updateRecord(storeWidget1, normWidget1Patch)
-        expect(storeWidget1).to.deep.equal(storeWidget1Update)
+    describe('replaceRecords', function() {
+      it('should add several records to the store (replace)', function() {
+        const { replaceRecords } = jm.mutations
+        // Put an object into state that should get replaced
+        replaceRecords(storeWidget1Update, normRecord)
+        expect(storeWidget1Update).to.deep.equal(storeRecord)
       })
-      it('should throw an error if no type or id present.', function() {
-        const { updateRecord } = jm.mutations
-        // expect needs a function to call, not the return from a function
-        expect(() => updateRecord(storeWidget1, { _jv: {} })).to.throw(
-          _testing.RecordError
-        )
+    })
+
+    describe('addRecords', function() {
+      it('should add several records to the store (replace)', function() {
+        const { addRecords } = jm.mutations
+        // Put an object into state that should get replaced
+        addRecords(storeWidget1Update, normRecord)
+        expect(storeWidget1Update).to.deep.equal(storeRecord)
+      })
+      it('should update a record in the store (merge)', function() {
+        jm = createJsonapiModule(api, { mergeRecords: true })
+        const { addRecords } = jm.mutations
+        addRecords(storeWidget1, normWidget1Patch)
+        expect(storeWidget1).to.deep.equal(storeWidget1Update)
       })
     })
 
@@ -220,6 +229,28 @@ describe('jsonapi-vuex tests', function() {
   }) // mutations
 
   describe('jsonapiModule helpers', function() {
+    describe('updateRecords', function() {
+      it('should add several records to the store (replace)', function() {
+        const { updateRecords } = _testing
+        // Put an object into state that should get replaced
+        updateRecords(storeWidget1Update, normRecord, false)
+        expect(storeWidget1Update).to.deep.equal(storeRecord)
+      })
+
+      it('should add several records to the store (merge)', function() {
+        const { updateRecords } = _testing
+        updateRecords(storeWidget1, normWidget1Patch, true)
+        expect(storeWidget1).to.deep.equal(storeWidget1Update)
+      })
+      it('should not error if no type(s) in state', function() {
+        // Ensures coverage for if (!(type in state))
+        const { updateRecords } = _testing
+        const state = {}
+        updateRecords(state, normRecord, true)
+        expect(state).to.deep.equal(storeRecord)
+      })
+    })
+
     describe('processIncludedRecords', function() {
       it('should process included records', function() {
         const { processIncludedRecords } = _testing

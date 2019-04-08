@@ -76,7 +76,7 @@ describe('patch', function() {
     await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
 
     expect(stubContext.commit).to.have.been.calledWith(
-      'updateRecord',
+      'mergeRecords',
       normWidget1Patch
     )
   })
