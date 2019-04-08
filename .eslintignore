@@ -1,0 +1,5 @@
+# Don't lint other project config files
+karma.conf.js
+nightwatch.config.js
+vue.config.js
+webpack.config.js

@@ -1,3 +1,5 @@
+import { expect } from 'chai'
+
 import createJsonapiModule from '../utils/createJsonapiModule'
 
 describe('update', function() {

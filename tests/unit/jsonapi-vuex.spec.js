@@ -1,6 +1,7 @@
 import chai, { expect } from 'chai'
 import chaiAsPromised from 'chai-as-promised'
 import sinonChai from 'sinon-chai'
+import sinon from 'sinon'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 

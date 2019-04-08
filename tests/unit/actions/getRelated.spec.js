@@ -25,7 +25,7 @@ describe('getRelated', function() {
     normWidget2,
     storeWidget1,
     storeWidget2,
-    storeWidget1_3,
+    storeWidget1_3, // eslint-disable-line camelcase
     jsonapiModule,
     stubContext
 
@@ -39,6 +39,7 @@ describe('getRelated', function() {
 
     storeWidget1 = createStoreWidget1()
     storeWidget2 = createStoreWidget2()
+    // eslint-disable-next-line camelcase
     storeWidget1_3 = {
       widget: {
         1: createNormWidget1(),
@@ -82,7 +83,7 @@ describe('getRelated', function() {
 
     let res = await jsonapiModule.actions.getRelated(stubContext, normWidget2)
 
-    expect(res).to.deep.equal({ widgets: storeWidget1_3 })
+    expect(res).to.deep.equal({ widgets: storeWidget1_3 }) // eslint-disable-line camelcase
   })
 
   it("should get a record's related items (using 'links' string)", async function() {
@@ -128,7 +129,7 @@ describe('getRelated', function() {
 
     let res = await jsonapiModule.actions.getRelated(stubContext, 'widget/2')
 
-    expect(res).to.deep.equal({ widgets: storeWidget1_3 })
+    expect(res).to.deep.equal({ widgets: storeWidget1_3 }) // eslint-disable-line camelcase
   })
 
   it('should return related data for a specific relname', async function() {
