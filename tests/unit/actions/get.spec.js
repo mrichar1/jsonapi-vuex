@@ -81,8 +81,15 @@ describe('get', function() {
       normWidget1,
       { params: params },
     ])
+    expect(this.mockApi.history.get[0].params).to.deep.equal(params)
+  })
 
-    expect(this.mockApi.history.get[0].params).to.equal(params)
+  it('should allow the endpoint url to be overridden in config', async function() {
+    this.mockApi.onAny().reply(200, { data: jsonWidget1 })
+    const url = '/fish/1'
+
+    await jsonapiModule.actions.get(stubContext, [normWidget1, { url: url }])
+    expect(this.mockApi.history.get[0].url).to.equal(url)
   })
 
   it('should add record(s) in the store', async function() {

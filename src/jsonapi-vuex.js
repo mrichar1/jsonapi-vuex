@@ -68,12 +68,13 @@ const actions = (api) => {
     get: (context, args) => {
       const [data, config] = unpackArgs(args)
       const path = getURL(data)
+      const apiConf = { method: 'get', url: path }
       // https://github.com/axios/axios/issues/362
       config['data'] = config['data'] || {}
+      merge(apiConf, config)
       const actionId = actionSequence(context)
       context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
-      let action = api
-        .get(path, config)
+      let action = api(apiConf)
         .then((results) => {
           processIncludedRecords(context, results)
 
@@ -185,10 +186,11 @@ const actions = (api) => {
     post: (context, args) => {
       let [data, config] = unpackArgs(args)
       const path = getURL(data, true)
+      const apiConf = { method: 'post', url: path, data: normToJsonapi(data) }
+      merge(apiConf, config)
       const actionId = actionSequence(context)
       context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
-      let action = api
-        .post(path, normToJsonapi(data), config)
+      let action = api(apiConf)
         .then((results) => {
           processIncludedRecords(context, results)
 
@@ -215,9 +217,10 @@ const actions = (api) => {
       let [data, config] = unpackArgs(args)
       const path = getURL(data)
       const actionId = actionSequence(context)
+      const apiConf = { method: 'patch', url: path, data: normToJsonapi(data) }
+      merge(apiConf, config)
       context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
-      let action = api
-        .patch(path, normToJsonapi(data), config)
+      let action = api(apiConf)
         .then((results) => {
           // If the server handed back data, store it
           if (results.status === 200) {
@@ -249,10 +252,11 @@ const actions = (api) => {
     delete: (context, args) => {
       const [data, config] = unpackArgs(args)
       const path = getURL(data)
+      const apiConf = { method: 'delete', url: path }
+      merge(apiConf, config)
       const actionId = actionSequence(context)
       context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
-      let action = api
-        .delete(path, config)
+      let action = api(apiConf)
         .then((results) => {
           processIncludedRecords(context, results)
 
