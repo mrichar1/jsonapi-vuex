@@ -15,6 +15,7 @@ A module to access [JSONAPI](https://jsonapi.org) data from an API, using a Vuex
 - Uses [jsonpath](https://github.com/dchester/jsonpath) for filtering when getting objects from the store.
 - Records the status of actions (LOADING, SUCCESS, ERROR).
 - New data can overwrite, or be merged onto, existing records. (See [mergeRecords](#Configuration))
+- Override endpoint names per-request (for plural names etc). (See [Endpoints](#Endpoints))
 
 ## Setup
 
@@ -55,6 +56,8 @@ There are a number of features which are worth explaining in more detail. Many o
 - _Merging_ - By default, data returned from the API overwrites records already in the store. However, this may lead to inconsistencies if using [Sparse fieldsets](https://jsonapi.org/format/#fetching-sparse-fieldsets) or otherwise obtaining only a subset of data from the API. If merging is enabled, then new data will be merged onto existing data. this does however mean that you are responsible for explicitly calling the `deleteRecord` mutation in cases where attributes ahve been removed in the API, as they will never be removed from the store, only added to.
 
 - _Preserve JSON_ - The original JSONAPI record(s) can optionally be preserved in `_jv` if needed - for example if you need access to `meta` or other sections. To avoid duplication, the `data` section (`attributes`, `relationships` etc) is removed.
+
+- _Endpoints_ - by default this module assumes that object types and API endpoints (item and collection) all share the same name. however, some APIs use plurals or other variations on the endpoint names. You can override the endpoint name via the `axios` `url` config option (see [Endpoints](#endpoints))
 
 ### Actions
 
@@ -372,6 +375,43 @@ For many of these options, more information is provided in the [Usage](#usage) s
 - `preserveJson` - Whether actions should return the API response json (minus `data`) in `_jv/json` (for access to `meta` etc) (defaults to `false`)
 - `actionStatusCleanAge` - What age must action status records be before they are removed (defaults to 600 seconds). Set to `0` to disable.
 - `mergeRecords`- Whether new records should be merged onto existing records in the store, or just replace them (defaults to `false`).
+
+## Endpoints
+
+By default `jsonapi-vuex` assumes that object type and API endpoint are the same. For example, `type: person` would have endpoint URLs of `/person` and `/person/1` for collections and single items.
+
+However many APIs vary how endpoints are named - for example plurals (e.g. `type:person`, `/person/1` and `/people`), or cases where the endpoint doesn't match the type (e.g. `type: person` `/author` and `/author/1`) or even a combination (e.g. `type: person` `/author/1` and `/authors`)
+
+To solve this it is possible to override the endpoint for a request by explicitly setting the `axios` `url` configuration option:
+
+```
+data = { _jv: { type: 'person' } }
+
+// Default behaviour - will always treat type = itemEP = collectionEP
+this.$store.dispatch('jv/get', data)
+// GETs /person
+
+// Explicitly override the endpoint url
+this.$store.dispatch('jv/get', [data, { url: '/people' }])
+
+this.$store.dispatch('jv/get', [data, { url: '/author/1' }])
+
+// Override using a dynamic function
+const customUrl = (data) => {
+  if (data.hasOwnProperty('id')) {
+    // single item (singular)
+    return `person/${data.id}`
+  } else {
+    // collection (plural)
+    return '/people'
+  }
+}
+
+this.$store.dispatch('jv/get', [{ _jv: { type: 'widget' } }, { url: customUrl(data) }])
+
+```
+
+_Note_ - If provided the `url` option is used as-is - you are responsible for setting a valid collection or item url (with `id`) as appropriate.
 
 ## Restructured Data
 

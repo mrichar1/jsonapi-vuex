@@ -52,7 +52,15 @@ describe('patch', function() {
       { params: params },
     ])
 
-    expect(this.mockApi.history.patch[0].params).to.equal(params)
+    expect(this.mockApi.history.patch[0].params).to.deep.equal(params)
+  })
+
+  it('should allow the endpoint url to be overridden in config', async function() {
+    this.mockApi.onAny().reply(200, { data: jsonWidget1 })
+    const url = '/fish/1'
+
+    await jsonapiModule.actions.patch(stubContext, [normWidget1, { url: url }])
+    expect(this.mockApi.history.patch[0].url).to.equal(url)
   })
 
   it('should delete then add record(s) in the store (from server response)', async function() {
