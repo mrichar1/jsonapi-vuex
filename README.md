@@ -51,6 +51,8 @@ There are a number of features which are worth explaining in more detail. Many o
 
 - _Follow relationships_ - If enabled then any `relationships` specified as `data` resources in the JSONAPI data will be expanded and stored alongside the attributes in the restructured data 'root'. Additionally, helper methods will be added to `_jv` to make dealing with these easier (see [Helper functions](#helper-functions))
 
+- _Clear on update_ - If enabled, then each new set of records is considered to be definitive for that `type`, and any other records of that `type` in the store will be removed. This option is useful for cases where you expect the API response to contain the full set of records from the server, as it avoids the need for manual cache expiry. The code will first apply the new records to the store, and then for each `type` which has had new records added, remove old ones. This is designed to be more efficient in terms of updating computed properties and UI redraws than emptying then repopulating the store.
+
 - _Included_ - If the JSONAPI record contains an `includes` section, the data in this will be added to the store alongisde the 'main' records. (If includes are not used, then you will need to use `getRelated` to fetch relationships).
 
 - _Merging_ - By default, data returned from the API overwrites records already in the store. However, this may lead to inconsistencies if using [Sparse fieldsets](https://jsonapi.org/format/#fetching-sparse-fieldsets) or otherwise obtaining only a subset of data from the API. If merging is enabled, then new data will be merged onto existing data. this does however mean that you are responsible for explicitly calling the `deleteRecord` mutation in cases where attributes ahve been removed in the API, as they will never be removed from the store, only added to.
@@ -375,6 +377,7 @@ For many of these options, more information is provided in the [Usage](#usage) s
 - `preserveJson` - Whether actions should return the API response json (minus `data`) in `_jv/json` (for access to `meta` etc) (defaults to `false`)
 - `actionStatusCleanAge` - What age must action status records be before they are removed (defaults to 600 seconds). Set to `0` to disable.
 - `mergeRecords`- Whether new records should be merged onto existing records in the store, or just replace them (defaults to `false`).
+- `clearOnUpdate` - Whether the store should clear old records and only keep new records when updating. Applies to the `type(s)` associated with the new records. (defaults to false).
 
 ## Endpoints
 

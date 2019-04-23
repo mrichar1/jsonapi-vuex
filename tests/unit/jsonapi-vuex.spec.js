@@ -250,6 +250,23 @@ describe('jsonapi-vuex tests', function() {
         updateRecords(state, normRecord, true)
         expect(state).to.deep.equal(storeRecord)
       })
+      it('should not alter existing records in the store', function() {
+        const { updateRecords } = _testing
+        // Add a test record to the store
+        const state = { widget: { 4: { foo: 4 } } }
+        updateRecords(state, normRecord)
+        // test record should stil exist
+        expect(state['widget']).to.have.property('4')
+      })
+      it('should remove records from the store not in the response (clearOnUpdate)', function() {
+        const { updateRecords, jvConfig } = _testing
+        jvConfig['clearOnUpdate'] = true
+        // Add a test record to the store
+        const state = { widget: { 4: { foo: 4 } } }
+        updateRecords(state, normRecord)
+        // test record should no longer be present
+        expect(state).to.deep.equal(storeRecord)
+      })
     })
 
     describe('processIncludedRecords', function() {

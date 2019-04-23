@@ -27,6 +27,8 @@ let jvConfig = {
   actionStatusCleanAge: 600,
   // Merge store records (or overwrite them)
   mergeRecords: false,
+  // Delete old records not contained in an update (on a per-type basis).
+  clearOnUpdate: false,
 }
 
 const jvtag = jvConfig['jvtag']
@@ -379,6 +381,15 @@ const updateRecords = (state, records, merging = jvConfig.mergeRecords) => {
         }
       }
       Vue.set(state[type], id, data)
+    }
+    if (jvConfig.clearOnUpdate) {
+      // Ensure the store contains no records not in the response
+      const storeRecords = get(state, [type])
+      for (let id of Object.keys(storeRecords)) {
+        if (!item.hasOwnProperty(id)) {
+          Vue.delete(state[type], id)
+        }
+      }
     }
   }
 }
