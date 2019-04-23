@@ -16,6 +16,7 @@ A module to access [JSONAPI](https://jsonapi.org) data from an API, using a Vuex
 - Records the status of actions (LOADING, SUCCESS, ERROR).
 - New data can overwrite, or be merged onto, existing records. (See [mergeRecords](#Configuration))
 - Override endpoint names per-request (for plural names etc). (See [Endpoints](#Endpoints))
+- Can query the API and receive restructured data, without modiying the store. (See the [Search action](#search))
 
 ## Setup
 
@@ -107,6 +108,22 @@ this.$store
   .then((data) => {
     console.log(data)
   })
+```
+
+#### search
+
+The `search` action is trhe same as the `get` action, except that it does not result in any updates to the store. This action exists for efficiency purposes - for example to do 'search-as-you-type' queries without continually updating the store with all the results.
+
+```js
+const widgetSearch = (text) => {
+  const params = { 'filter[text_contains]': text }
+
+  this.$store
+    .dispatch('jv/search', 'widget', { params: params })
+    .then((data) => {
+      return data
+    })
+}
 ```
 
 #### getRelated
