@@ -271,6 +271,10 @@ As `addRecords`, but explicitly replaces existing records.
 
 As `addRecords`, but explicitly merges onto existing records.
 
+#### clearRecords
+
+Will remove all records from the store (of a given type) which aren't contained in given response. (See [clearOnUpdate](#usage)).
+
 #### setStatus
 
 Sets the session status information in the store.
