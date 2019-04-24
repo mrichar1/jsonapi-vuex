@@ -7,6 +7,8 @@
       <pre>{{ sessions }} </pre>
       <h3>API State</h3>
       <pre>{{ widgets }}</pre>
+      <h3>Search</h3>
+      <pre>{{ searchResult }}</pre>
     </div>
     <div id="render_data" style="border: 1px solid;">
       <h2>Rendered Data</h2>
@@ -36,6 +38,18 @@
           <br />
           <span :id="'rel_span_color'">{{ rel.color }}</span>
           <br />
+        </div>
+      </div>
+      <h3>Search</h3>
+      <div v-for="(widget, id, index) in widgets" :key="'search' + index">
+        <div>{{ id }}</div>
+        <div
+          :id="'render_' + id + '_' + index"
+          v-for="(value, name, index) in widget['_jv'].attrs"
+          :key="index"
+        >
+          <span>{{ name }}: </span>
+          <span :id="'search_' + name + '_' + id">{{ value }}</span>
         </div>
       </div>
     </div>
@@ -79,6 +93,7 @@ export default {
   name: 'JsonapiVuex',
   data: () => {
     return {
+      searchResult: {},
       delWidgetId: undefined,
       postWidget: {
         _jv: {
@@ -100,6 +115,9 @@ export default {
   },
   created() {
     this.$store.dispatch('jv/get', 'widget')
+    this.$store.dispatch('jv/search', 'widget').then((res) => {
+      this.searchResult = res
+    })
   },
   methods: {
     patchRecord(record) {
