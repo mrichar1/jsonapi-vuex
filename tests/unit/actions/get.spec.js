@@ -1,5 +1,6 @@
 import { expect } from 'chai'
 
+import { _testing } from '../../../src/jsonapi-vuex'
 import createStubContext from '../stubs/context'
 import createJsonapiModule from '../utils/createJsonapiModule'
 import {
@@ -207,6 +208,20 @@ describe('get', function() {
 
     // collections should have no top-level _jv
     expect(res).to.not.have.key('_jv')
+  })
+
+  it('should call clearRecords if clearOnUpdate is set', async function() {
+    this.mockApi.onAny().reply(200, { data: jsonWidget1 })
+
+    let { jvConfig } = _testing
+    jvConfig['clearOnUpdate'] = true
+
+    await jsonapiModule.actions.get(stubContext, normWidget1)
+
+    expect(stubContext.commit).to.have.been.calledWith(
+      'clearRecords',
+      normWidget1
+    )
   })
 
   it('should handle API errors', async function() {

@@ -54,6 +54,18 @@ const mutations = () => {
     mergeRecords: (state, records) => {
       updateRecords(state, records, true)
     },
+    clearRecords: (state, records) => {
+      for (let [type, item] of Object.entries(records)) {
+        if (type in state) {
+          const typeRecords = get(state, [type])
+          for (let id of Object.keys(typeRecords)) {
+            if (!item.hasOwnProperty(id)) {
+              Vue.delete(state[type], id)
+            }
+          }
+        }
+      }
+    },
     setStatus: (state, { id, status }) => {
       Vue.set(state[jvtag], id, { status: status, time: Date.now() })
     },
@@ -82,6 +94,9 @@ const actions = (api) => {
 
           let resData = jsonapiToNorm(results.data.data)
           context.commit('addRecords', resData)
+          if (jvConfig.clearOnUpdate) {
+            context.commit('clearRecords', resData)
+          }
           resData = checkAndFollowRelationships(context.state, resData)
           resData = preserveJSON(resData, results.data)
           context.commit('setStatus', {
@@ -381,15 +396,6 @@ const updateRecords = (state, records, merging = jvConfig.mergeRecords) => {
         }
       }
       Vue.set(state[type], id, data)
-    }
-    if (jvConfig.clearOnUpdate) {
-      // Ensure the store contains no records not in the response
-      const storeRecords = get(state, [type])
-      for (let id of Object.keys(storeRecords)) {
-        if (!item.hasOwnProperty(id)) {
-          Vue.delete(state[type], id)
-        }
-      }
     }
   }
 }
