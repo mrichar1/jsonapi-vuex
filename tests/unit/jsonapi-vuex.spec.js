@@ -202,7 +202,7 @@ describe('jsonapi-vuex tests', function() {
       it('should remove records from the store not in the response (clearOnUpdate)', function() {
         const { clearRecords } = jm.mutations
         const state = { widget: { 4: { foo: 4 } } }
-        clearRecords(state, storeRecord)
+        clearRecords(state, normRecord)
         // '4' not in storeRecord, so should no longer be present in state
         expect(state['widget']).to.not.have.property('4')
       })

@@ -55,10 +55,11 @@ const mutations = () => {
       updateRecords(state, records, true)
     },
     clearRecords: (state, records) => {
-      for (let [type, item] of Object.entries(records)) {
+      const newRecords = normToStore(records)
+      for (let [type, item] of Object.entries(newRecords)) {
         if (type in state) {
-          const typeRecords = get(state, [type])
-          for (let id of Object.keys(typeRecords)) {
+          const storeRecords = get(state, [type])
+          for (let id of Object.keys(storeRecords)) {
             if (!item.hasOwnProperty(id)) {
               Vue.delete(state[type], id)
             }
