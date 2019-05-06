@@ -27,6 +27,10 @@ module.exports = {
     be.element('#rel_span_name').text.to.equal('spring')
     be.element('#rel_span_color').text.to.equal('silver')
 
+    // Values from initial API search in table
+    be.element('#search_name_1').text.to.equal('sprocket')
+    be.element('#search_color_1').text.to.equal('black')
+
     // Inputs exist and have correct values
     be.element('#patch').to.be.present
     be.element('#patch_name').value.to.be.equal('sprocket')

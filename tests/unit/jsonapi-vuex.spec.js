@@ -130,6 +130,7 @@ describe('jsonapi-vuex tests', function() {
 
   describe('jsonapiModule actions', function() {
     require('./actions/get.spec')
+    require('./actions/search.spec')
     require('./actions/fetch.spec')
     require('./actions/getRelated.spec')
     require('./actions/post.spec')

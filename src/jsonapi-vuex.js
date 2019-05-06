@@ -278,6 +278,12 @@ const actions = (api) => {
       action[jvtag + 'Id'] = actionId
       return action
     },
+    search: (context, args) => {
+      // Create a 'noop' context.commit to avoid store modifications
+      const nocontext = { commit: () => {} }
+      // Use a new actions 'instance' instead of 'dispatch' to allow context override
+      return actions(api).get(nocontext, args)
+    },
     get fetch() {
       return this.get
     },
