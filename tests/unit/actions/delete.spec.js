@@ -24,7 +24,7 @@ describe('delete', function() {
     await jsonapiModule.actions.delete(stubContext, normWidget1)
 
     expect(this.mockApi.history.delete[0].url).to.equal(
-      `/${normWidget1['_jv']['type']}/${normWidget1['_jv']['id']}`
+      normWidget1['_jv']['links']['self']
     )
   })
 

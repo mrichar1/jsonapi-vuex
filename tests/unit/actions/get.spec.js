@@ -58,13 +58,14 @@ describe('get', function() {
     await jsonapiModule.actions.get(stubContext, normWidget1)
 
     expect(this.mockApi.history.get[0].url).to.equal(
-      `/${normWidget1['_jv']['type']}/${normWidget1['_jv']['id']}`
+      normWidget1['_jv']['links']['self']
     )
   })
 
   it('should make an api call to GET a collection', async function() {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
     delete normWidget1['_jv']['id']
+    delete normWidget1['_jv']['links']
 
     await jsonapiModule.actions.get(stubContext, normWidget1)
 

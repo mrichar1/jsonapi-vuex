@@ -455,6 +455,24 @@ describe('jsonapi-vuex tests', function() {
         expect(normWidget1['_jv'].isRel('no_such_rel')).to.be.false
       })
     })
+
+    describe('getURL function', function() {
+      it('returns the path if a path is provided', function() {
+        expect(_testing.getURL('a/path')).to.equal('/a/path')
+      })
+      describe('on objects', function() {
+        describe('without links.self', function() {
+          it('computes a path from type and id', function() {
+            expect(_testing.getURL(normWidget2)).to.equal('/widget/2')
+          })
+        })
+        describe('with links.self', function() {
+          it('uses the URL', function() {
+            expect(_testing.getURL(normWidget1)).to.equal('/weirdPath/1')
+          })
+        })
+      })
+    })
   }) // Helper methods
 
   describe('jsonapiModule getters', function() {

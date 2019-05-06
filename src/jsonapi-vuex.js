@@ -549,11 +549,15 @@ const getTypeId = (data) => {
 const getURL = (data, post = false) => {
   let path = data
   if (typeof data === 'object') {
-    let { type, id } = data[jvtag]
-    path = type
-    // POST endpoints are always to collections, not items
-    if (id && !post) {
-      path += '/' + id
+    if ('links' in data[jvtag] && 'self' in data[jvtag]['links'] && !post) {
+      path = data[jvtag]['links']['self']
+    } else {
+      let { type, id } = data[jvtag]
+      path = type
+      // POST endpoints are always to collections, not items
+      if (id && !post) {
+        path += '/' + id
+      }
     }
   }
   if (!path.startsWith('/')) {
@@ -676,6 +680,7 @@ const _testing = {
   RecordError: RecordError,
   addJvHelpers: addJvHelpers,
   updateRecords: updateRecords,
+  getURL: getURL,
 }
 
 // Export this module
