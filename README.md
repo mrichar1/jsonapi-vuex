@@ -15,7 +15,7 @@ A module to access [JSONAPI](https://jsonapi.org) data from an API, using a Vuex
 - Uses [jsonpath](https://github.com/dchester/jsonpath) for filtering when getting objects from the store.
 - Records the status of actions (LOADING, SUCCESS, ERROR).
 - New data can overwrite, or be merged onto, existing records. (See [mergeRecords](#Configuration))
-- Override endpoint names per-request (for plural names etc). (See [Endpoints](#Endpoints))
+- Override endpoint names per-request (for plural names etc). Use `links.self` when available/applicable (See [Endpoints](#Endpoints))
 
 ## Setup
 
@@ -57,7 +57,7 @@ There are a number of features which are worth explaining in more detail. Many o
 
 - _Preserve JSON_ - The original JSONAPI record(s) can optionally be preserved in `_jv` if needed - for example if you need access to `meta` or other sections. To avoid duplication, the `data` section (`attributes`, `relationships` etc) is removed.
 
-- _Endpoints_ - by default this module assumes that object types and API endpoints (item and collection) all share the same name. however, some APIs use plurals or other variations on the endpoint names. You can override the endpoint name via the `axios` `url` config option (see [Endpoints](#endpoints))
+- _Endpoints_ - by default this module assumes that object types and API endpoints (item and collection) all share the same name. however, some APIs use plurals or other variations on the endpoint names. You can override the endpoint name via the `axios` `url` config option or the `links.self` attribute (see [Endpoints](#endpoints))
 
 ### Actions
 
@@ -379,6 +379,8 @@ For many of these options, more information is provided in the [Usage](#usage) s
 ## Endpoints
 
 By default `jsonapi-vuex` assumes that object type and API endpoint are the same. For example, `type: person` would have endpoint URLs of `/person` and `/person/1` for collections and single items.
+
+When performing request on an already known single item (like an update), `jsonapi-vuex` will use the `links.self` attribute of an item to determine the API endpoint, if it is present.
 
 However many APIs vary how endpoints are named - for example plurals (e.g. `type:person`, `/person/1` and `/people`), or cases where the endpoint doesn't match the type (e.g. `type: person` `/author` and `/author/1`) or even a combination (e.g. `type: person` `/author/1` and `/authors`)
 
