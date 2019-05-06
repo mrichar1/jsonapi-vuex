@@ -199,6 +199,16 @@ describe('jsonapi-vuex tests', function() {
       })
     })
 
+    describe('clearRecords', function() {
+      it('should remove records from the store not in the response (clearOnUpdate)', function() {
+        const { clearRecords } = jm.mutations
+        const state = { widget: { 4: { foo: 4 } } }
+        clearRecords(state, normRecord)
+        // '4' not in storeRecord, so should no longer be present in state
+        expect(state['widget']).to.not.have.property('4')
+      })
+    })
+
     describe('setStatus', function() {
       it('should set the status for a specific id', function() {
         const state = { _jv: {} }
@@ -250,6 +260,14 @@ describe('jsonapi-vuex tests', function() {
         const state = {}
         updateRecords(state, normRecord, true)
         expect(state).to.deep.equal(storeRecord)
+      })
+      it('should not alter existing records in the store', function() {
+        const { updateRecords } = _testing
+        // Add a test record to the store
+        const state = { widget: { 4: { foo: 4 } } }
+        updateRecords(state, normRecord)
+        // test record should stil exist
+        expect(state['widget']).to.have.property('4')
       })
     })
 

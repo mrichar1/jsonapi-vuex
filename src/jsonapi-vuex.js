@@ -27,6 +27,8 @@ let jvConfig = {
   actionStatusCleanAge: 600,
   // Merge store records (or overwrite them)
   mergeRecords: false,
+  // Delete old records not contained in an update (on a per-type basis).
+  clearOnUpdate: false,
 }
 
 const jvtag = jvConfig['jvtag']
@@ -51,6 +53,19 @@ const mutations = () => {
     },
     mergeRecords: (state, records) => {
       updateRecords(state, records, true)
+    },
+    clearRecords: (state, records) => {
+      const newRecords = normToStore(records)
+      for (let [type, item] of Object.entries(newRecords)) {
+        if (type in state) {
+          const storeRecords = get(state, [type])
+          for (let id of Object.keys(storeRecords)) {
+            if (!item.hasOwnProperty(id)) {
+              Vue.delete(state[type], id)
+            }
+          }
+        }
+      }
     },
     setStatus: (state, { id, status }) => {
       Vue.set(state[jvtag], id, { status: status, time: Date.now() })
@@ -80,6 +95,9 @@ const actions = (api) => {
 
           let resData = jsonapiToNorm(results.data.data)
           context.commit('addRecords', resData)
+          if (jvConfig.clearOnUpdate) {
+            context.commit('clearRecords', resData)
+          }
           resData = checkAndFollowRelationships(context.state, resData)
           resData = preserveJSON(resData, results.data)
           context.commit('setStatus', {
