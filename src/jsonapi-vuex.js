@@ -235,7 +235,10 @@ const actions = (api) => {
       let [data, config] = unpackArgs(args)
       const path = getURL(data)
       const actionId = actionSequence(context)
-      const apiConf = { method: 'patch', url: path, data: normToJsonapi(data) }
+      const normData = normToJsonapi(data)
+      // Links are supported in all json api methods except for patches
+      delete normData.data.links
+      const apiConf = { method: 'patch', url: path, data: normData }
       merge(apiConf, config)
       context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
       let action = api(apiConf)
