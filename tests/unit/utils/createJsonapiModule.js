@@ -10,6 +10,7 @@ export default function(api, options = {}) {
     followRelationshipsData: false,
     preserveJson: false,
     mergeRecords: false,
+    patchClean: false,
     ...options,
   })
 }
