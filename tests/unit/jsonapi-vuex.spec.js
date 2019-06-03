@@ -241,6 +241,39 @@ describe('jsonapi-vuex tests', function() {
   }) // mutations
 
   describe('jsonapiModule helpers', function() {
+    describe('cleanPatch', function() {
+      it('should return patch unmodified if record not in state', function() {
+        const { jvConfig, cleanPatch } = _testing
+        jvConfig.cleanPatch = true
+
+        const res = cleanPatch(normWidget1Patch, {})
+        expect(res).to.deep.equal(normWidget1Patch)
+      })
+      it('should pick modified/new attributes from a record (no _jv)', function() {
+        const { jvConfig, cleanPatch } = _testing
+        jvConfig.cleanPatch = true
+
+        const res = cleanPatch(normWidget1Patch, normRecord)
+        expect(res).to.not.have.property('bar')
+        expect(res['foo']).to.equal('update')
+      })
+      it('should pick modified/new attributes from a record (with _jv)', function() {
+        const { addJvHelpers, jvConfig, cleanPatch } = _testing
+        jvConfig.cleanPatch = true
+
+        const patch = JSON.parse(JSON.stringify(normWidget1))
+        patch['foo'] = 'update'
+        // Add the relationship to root (tests attrs getter)
+        patch['widgets'] = {}
+        addJvHelpers(patch)
+
+        const res = cleanPatch(patch, normRecord)
+        expect(res).to.not.have.property('bar')
+        expect(res['foo']).to.equal('update')
+        expect(res).to.not.have.property('widgets')
+      })
+    })
+
     describe('updateRecords', function() {
       it('should add several records to the store (replace)', function() {
         const { updateRecords } = _testing

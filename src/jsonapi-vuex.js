@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import get from 'lodash.get'
+import isEqual from 'lodash.isequal'
 import merge from 'lodash.merge'
 import cloneDeep from 'lodash.clonedeep'
 // https://github.com/dchester/jsonpath/issues/89
@@ -29,6 +30,8 @@ let jvConfig = {
   mergeRecords: false,
   // Delete old records not contained in an update (on a per-type basis).
   clearOnUpdate: false,
+  // Only preserve new or modified attributes in a patch, compared to the store record.
+  cleanPatch: false,
 }
 
 const jvtag = jvConfig['jvtag']
@@ -233,6 +236,7 @@ const actions = (api) => {
     },
     patch: (context, args) => {
       let [data, config] = unpackArgs(args)
+      data = cleanPatch(data, context.state)
       const path = getURL(data)
       const actionId = actionSequence(context)
       const apiConf = { method: 'patch', url: path, data: normToJsonapi(data) }
@@ -386,6 +390,27 @@ const jsonapiModule = (api, conf = {}) => {
 }
 
 // Helper methods
+
+const cleanPatch = (patch, state) => {
+  if (!jvConfig.cleanPatch) {
+    return patch
+  }
+  const stateRecord = get(state, patch[jvtag]['id'])
+  if (!stateRecord) {
+    return patch
+  }
+  const clean = {}
+  // Get attrs (or if getter is missing, use all of patch object)
+  const attrs = get(patch, [jvtag, 'attrs'], patch)
+  for (let [k, v] of Object.entries(attrs)) {
+    if (!stateRecord.hasOwnProperty(k) || !isEqual(stateRecord[k], v)) {
+      clean[k] = v
+    }
+  }
+  // Add back jvtag - in future we should also process the contents
+  clean[jvtag] = stateRecord[jvtag]
+  return clean
+}
 
 const updateRecords = (state, records, merging = jvConfig.mergeRecords) => {
   const storeRecords = normToStore(records)
@@ -699,6 +724,7 @@ const _testing = {
   addJvHelpers: addJvHelpers,
   updateRecords: updateRecords,
   getURL: getURL,
+  cleanPatch: cleanPatch,
 }
 
 // Export this module

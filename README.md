@@ -16,6 +16,7 @@ A module to access [JSONAPI](https://jsonapi.org) data from an API, using a Vuex
 - Records the status of actions (LOADING, SUCCESS, ERROR).
 - New data can overwrite, or be merged onto, existing records. (See [mergeRecords](#Configuration))
 - Override endpoint names per-request (for plural names etc). Use `links.self` when available/applicable (See [Endpoints](#Endpoints))
+- Patches can be 'cleaned' to ensure they only contain new or modified data. (See [cleanPatch](#Configuration))
 - Can query the API and receive restructured data, without modifying the store. (See the [Search action](#search))
 
 ## Setup
@@ -61,6 +62,8 @@ There are a number of features which are worth explaining in more detail. Many o
 - _Preserve JSON_ - The original JSONAPI record(s) can optionally be preserved in `_jv` if needed - for example if you need access to `meta` or other sections. To avoid duplication, the `data` section (`attributes`, `relationships` etc) is removed.
 
 - _Endpoints_ - by default this module assumes that object types and API endpoints (item and collection) all share the same name. however, some APIs use plurals or other variations on the endpoint names. You can override the endpoint name via the `axios` `url` config option or the `links.self` attribute (see [Endpoints](#endpoints))
+
+- _Clean Patches_ - by default, data passed to the `patch` action is used as-is. If `cleanPatch` is enabled, then the patch object is compared to the record in the store (if it exists), and any attributes with identical values are removed. This means that the final `patch` will only contain new or modified attributes, which is safer and more efficient, as it avoids sending unnecessary or 'stale' data.
 
 ### Actions
 
@@ -399,6 +402,7 @@ For many of these options, more information is provided in the [Usage](#usage) s
 - `actionStatusCleanAge` - What age must action status records be before they are removed (defaults to 600 seconds). Set to `0` to disable.
 - `mergeRecords`- Whether new records should be merged onto existing records in the store, or just replace them (defaults to `false`).
 - `clearOnUpdate` - Whether the store should clear old records and only keep new records when updating. Applies to the `type(s)` associated with the new records. (defaults to false).
+- `cleanPatch` - If enabled, patch object is compared to the record in the store, and only unique or modified attributes are kept in the patch. (defaults to false).
 
 ## Endpoints
 
