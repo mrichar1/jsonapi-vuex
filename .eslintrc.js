@@ -18,5 +18,6 @@ module.exports = {
   rules: {
     'prettier/prettier': 'error',
     camelcase: 'error',
+    'no-console': 'warn',
   },
 }

@@ -13,7 +13,7 @@ module.exports = {
         exclude: /(node_modules|bower_components)/,
         loader: 'eslint-loader',
         options: {
-          failOnWarning: true,
+          failOnWarning: false,
           failOnError: true,
         },
       },
