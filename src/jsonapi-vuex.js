@@ -118,7 +118,12 @@ const actions = (api) => {
     },
     getRelated: (context, args) => {
       const data = unpackArgs(args)[0]
+      const config = unpackArgs(args)[1]
       let [, id, relName] = getTypeId(data)
+      // add support for a fallback relName value if supplying an object as the data argument
+      if (!relName && config['relName']) {
+        relName = config['relName']
+      }
       if (!id) {
         throw 'No id specified'
       }
@@ -166,6 +171,11 @@ const actions = (api) => {
               relData = [relData]
             }
             for (let entry of relData) {
+              // skip empty data values
+              if (!entry) {
+                continue
+              }
+
               // Rewrite 'data' objects to normalised form
               if (!(typeof entry === 'string')) {
                 entry = { [jvtag]: entry }
@@ -180,16 +190,27 @@ const actions = (api) => {
         .then((results) => {
           let related = {}
           results.forEach((result, i) => {
+
             // Get the relName from the same array position as the result item
             let relName = relNames[i]
-            let normItem = {
-              [relName]: {
-                [result[jvtag]['type']]: {
-                  [result[jvtag]['id']]: result,
+
+            // if this was not a response that contained multiple data items then make the results consistent
+            let resultItems = (!result[jvtag] || !result[jvtag]['type']) ? Object.values(result) : [result]
+
+            resultItems.forEach((resultItem) => {
+              if (!resultItem[jvtag]) {
+                return;
+              }
+
+              let normItem = {
+                [relName]: {
+                  [resultItem[jvtag]['type']]: {
+                    [resultItem[jvtag]['id']]: resultItem,
+                  },
                 },
-              },
-            }
-            merge(related, normItem)
+              }
+              merge(related, normItem)
+            })
           })
           context.commit('setStatus', {
             id: actionId,
@@ -603,7 +624,8 @@ const getURL = (data, post = false) => {
       }
     }
   }
-  if (!path.startsWith('/')) {
+  // add a prefix if none provided and path is not a URL
+  if (!path.startsWith('/') && !path.startsWith('http')) {
     path = '/' + path
   }
   return path
