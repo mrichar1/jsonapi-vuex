@@ -39,7 +39,7 @@ describe('patch', function() {
     await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
 
     expect(this.mockApi.history.patch[0].url).to.equal(
-      `/${normWidget1Patch['_jv']['type']}/${normWidget1Patch['_jv']['id']}`
+      `${normWidget1Patch['_jv']['type']}/${normWidget1Patch['_jv']['id']}`
     )
   })
 

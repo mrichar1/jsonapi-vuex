@@ -25,7 +25,7 @@ describe('post', function() {
     await jsonapiModule.actions.post(stubContext, normWidget1)
 
     expect(this.mockApi.history.post[0].url).to.equal(
-      `/${normWidget1['_jv']['type']}`
+      `${normWidget1['_jv']['type']}`
     )
   })
 
