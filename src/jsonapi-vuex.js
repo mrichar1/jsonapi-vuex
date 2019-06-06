@@ -603,9 +603,6 @@ const getURL = (data, post = false) => {
       }
     }
   }
-  if (!path.startsWith('/')) {
-    path = '/' + path
-  }
   return path
 }
 

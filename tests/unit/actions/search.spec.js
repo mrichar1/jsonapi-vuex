@@ -54,7 +54,7 @@ describe('search', function() {
     await jsonapiModule.actions.search(stubContext, normWidget1)
 
     expect(this.mockApi.history.get[0].url).to.equal(
-      `/${normWidget1['_jv']['type']}`
+      `${normWidget1['_jv']['type']}`
     )
   })
 
