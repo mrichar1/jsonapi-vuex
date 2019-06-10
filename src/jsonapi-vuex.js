@@ -245,12 +245,14 @@ const actions = (api) => {
       let action = api(apiConf)
         .then((results) => {
           // If the server handed back data, store it
-          if (results.status === 200) {
+          if (results.status === 200 && results.data.hasOwnProperty('data')) {
+            // Full response
             context.commit('deleteRecord', data)
             data = jsonapiToNorm(results.data.data)
             context.commit('addRecords', data)
-          } else if (results.status === 204) {
-            // Otherwise, update the store record from the patch (merge=true)
+          } else {
+            // 200 (meta-only), or 204 (no resource) response
+            // Update the store record from the patch
             context.commit('mergeRecords', data)
           }
 
