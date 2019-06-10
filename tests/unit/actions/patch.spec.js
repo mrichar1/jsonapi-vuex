@@ -89,6 +89,17 @@ describe('patch', function() {
     )
   })
 
+  it('should update record(s) in the store (meta-only response)', async function() {
+    this.mockApi.onAny().reply(200, { meta: 'testing' })
+
+    await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
+
+    expect(stubContext.commit).to.have.been.calledWith(
+      'mergeRecords',
+      normWidget1Patch
+    )
+  })
+
   it("should return data via the 'get' getter", async function() {
     this.mockApi.onAny().reply(204)
 
