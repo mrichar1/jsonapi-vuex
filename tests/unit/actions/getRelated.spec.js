@@ -10,7 +10,6 @@ import {
 import {
   jsonFormat as createJsonWidget2,
   storeFormat as createStoreWidget2,
-  normFormat as createNormWidget2,
 } from '../fixtures/widget2'
 import {
   jsonFormat as createJsonWidget3,
@@ -22,7 +21,6 @@ describe('getRelated', function() {
     jsonWidget2,
     jsonWidget3,
     normWidget1,
-    normWidget2,
     storeWidget1,
     storeWidget2,
     storeWidget1_3, // eslint-disable-line camelcase
@@ -35,7 +33,6 @@ describe('getRelated', function() {
     jsonWidget3 = createJsonWidget3()
 
     normWidget1 = createNormWidget1()
-    normWidget2 = createNormWidget2()
 
     storeWidget1 = createStoreWidget1()
     storeWidget2 = createStoreWidget2()
@@ -62,12 +59,72 @@ describe('getRelated', function() {
     }
   })
 
-  it("should get a record's single related item (using 'data')", async function() {
+  it('should use existing rel info in the object passed in.', async function() {
+    // Only return related record (no initial object GET)
+    this.mockApi.onGet().reply(200, { data: jsonWidget2 })
+
+    const rel = { widgets: { data: { type: 'widget', id: 2 } } }
+
+    normWidget1['_jv']['relationships'] = rel
+
+    const res = await jsonapiModule.actions.getRelated(stubContext, normWidget1)
+
+    expect(res).to.deep.equal({ widgets: storeWidget2 })
+  })
+
+  it('should use existing rel info in the object passed in - keys only.', async function() {
+    // Return resource linkage, then related record
+    this.mockApi
+      .onGet()
+      .replyOnce(200, { data: { type: 'widget', id: 2 } })
+      .onGet()
+      .replyOnce(200, { data: jsonWidget2 })
+
+    const rel = { widgets: undefined }
+
+    normWidget1['_jv']['relationships'] = rel
+
+    const res = await jsonapiModule.actions.getRelated(stubContext, normWidget1)
+
+    expect(res).to.deep.equal({ widgets: storeWidget2 })
+  })
+
+  it('should throw an error fetching resource linkage for unknown relationship.', async function() {
+    // Return 404 - no such resource linkage
+    this.mockApi.onGet().replyOnce(404)
+
+    const rel = { invalidRelName: undefined }
+
+    normWidget1['_jv']['relationships'] = rel
+
+    try {
+      await jsonapiModule.actions.getRelated(stubContext, normWidget1)
+      throw 'should have thrown an error (invalidRelName)'
+    } catch (error) {
+      expect(error).to.equal('No such relationship: invalidRelName')
+    }
+  })
+
+  it("should get a record's single related item (using 'data') - string", async function() {
     this.mockApi
       .onGet()
       .replyOnce(200, { data: jsonWidget1 })
       .onGet()
       .replyOnce(200, { data: jsonWidget2 })
+
+    let res = await jsonapiModule.actions.getRelated(stubContext, 'widget/1')
+
+    expect(res).to.deep.equal({ widgets: storeWidget2 })
+  })
+
+  it("should get a record's single related item (using 'data') - object", async function() {
+    this.mockApi
+      .onGet()
+      .replyOnce(200, { data: jsonWidget1 })
+      .onGet()
+      .replyOnce(200, { data: jsonWidget2 })
+
+    delete normWidget1['_jv']['relationships']
 
     let res = await jsonapiModule.actions.getRelated(stubContext, normWidget1)
 
@@ -84,7 +141,7 @@ describe('getRelated', function() {
       .onGet()
       .replyOnce(200, { data: jsonWidget3 })
 
-    let res = await jsonapiModule.actions.getRelated(stubContext, normWidget2)
+    let res = await jsonapiModule.actions.getRelated(stubContext, 'widget/2')
 
     expect(res).to.deep.equal({ widgets: storeWidget1_3 }) // eslint-disable-line camelcase
   })
@@ -98,7 +155,7 @@ describe('getRelated', function() {
       .onGet()
       .replyOnce(200, { data: jsonWidget2 })
 
-    let res = await jsonapiModule.actions.getRelated(stubContext, normWidget1)
+    let res = await jsonapiModule.actions.getRelated(stubContext, 'widget/1')
 
     expect(res).to.deep.equal({ widgets: storeWidget2 })
   })
@@ -116,7 +173,7 @@ describe('getRelated', function() {
       .onGet()
       .replyOnce(200, { data: jsonWidget2 })
 
-    let res = await jsonapiModule.actions.getRelated(stubContext, normWidget1)
+    let res = await jsonapiModule.actions.getRelated(stubContext, 'widget/1')
 
     expect(res).to.deep.equal({ widgets: storeWidget2 })
   })
@@ -150,12 +207,26 @@ describe('getRelated', function() {
     expect(res).to.deep.equal({ widgets: storeWidget1 })
   })
 
-  it('Should handle API errors', async function() {
+  it('Should handle API errors (initial GET)', async function() {
     // Fake an API error response
     this.mockApi.onGet().replyOnce(500)
 
     try {
       await jsonapiModule.actions.getRelated(stubContext, 'none/1')
+    } catch (error) {
+      expect(error.response.status).to.equal(500)
+    }
+  })
+
+  it('Should handle API errors (in the data)', async function() {
+    this.mockApi
+      .onGet()
+      .replyOnce(200, { data: jsonWidget1 })
+      .onGet()
+      .replyOnce(500)
+
+    try {
+      await jsonapiModule.actions.getRelated(stubContext, 'widget/1')
     } catch (error) {
       expect(error.response.status).to.equal(500)
     }
@@ -171,7 +242,7 @@ describe('getRelated', function() {
       .replyOnce(500)
 
     try {
-      await jsonapiModule.actions.getRelated(stubContext, normWidget1)
+      await jsonapiModule.actions.getRelated(stubContext, 'widget/1')
     } catch (error) {
       expect(error.response.status).to.equal(500)
     }

@@ -118,7 +118,7 @@ const actions = (api) => {
     },
     getRelated: async (context, args) => {
       const data = unpackArgs(args)[0]
-      let [, id, relName] = getTypeId(data)
+      let [type, id, relName] = getTypeId(data)
       if (!id) {
         throw 'No id specified'
       }
@@ -126,18 +126,25 @@ const actions = (api) => {
       context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
 
       let rels
-      try {
-        let record = await context.dispatch('get', args)
+      if (
+        typeof data === 'object' &&
+        data[jvtag].hasOwnProperty('relationships')
+      ) {
+        rels = data[jvtag]['relationships']
+      } else {
+        try {
+          let record = await context.dispatch('get', args)
 
-        rels = get(record, [jvtag, 'relationships'], {})
-        if (relName && rels) {
-          // Only process requested relname
-          rels = { [relName]: rels[relName] }
+          rels = get(record, [jvtag, 'relationships'], {})
+          if (relName && rels) {
+            // Only process requested relname
+            rels = { [relName]: rels[relName] }
+          }
+        } catch (error) {
+          // Log and re-throw if 'get' action fails
+          context.commit('setStatus', { id: actionId, status: STATUS_ERROR })
+          throw error
         }
-      } catch (error) {
-        // Log and re-throw if 'get' action fails
-        context.commit('setStatus', { id: actionId, status: STATUS_ERROR })
-        throw error
       }
 
       // We can't pass multiple/non-promise vars in a promise chain,
@@ -148,6 +155,18 @@ const actions = (api) => {
       // Iterate over all records in rels
       for (let [relName, relItems] of Object.entries(rels)) {
         let relData
+        // relationships value might be empty if user-constructed
+        // so fetch relationships resource linkage for these
+        if (!relItems) {
+          try {
+            const resLink = await api.get(
+              `${type}/${id}/relationships/${relName}`
+            )
+            relItems = resLink.data
+          } catch (error) {
+            throw `No such relationship: ${relName}`
+          }
+        }
         // Extract relationships from 'data' (type/id)
         if ('data' in relItems) {
           relData = relItems['data']
