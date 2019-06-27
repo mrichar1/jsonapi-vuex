@@ -1,6 +1,7 @@
 module.exports = {
   root: true,
   extends: ['plugin:prettier/recommended'],
+  plugins: ['prettier'],
   env: {
     node: true,
   },
@@ -13,4 +14,4 @@ module.exports = {
   parserOptions: {
     parser: 'babel-eslint',
   },
-};
+}
