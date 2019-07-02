@@ -32,6 +32,8 @@ let jvConfig = {
   clearOnUpdate: false,
   // Only preserve new or modified attributes in a patch, compared to the store record.
   cleanPatch: false,
+  // Add a toJSON method to rels to prevent recursion errors
+  toJSON: true,
 }
 
 const jvtag = jvConfig['jvtag']
@@ -551,12 +553,42 @@ const followRelationships = (state, getters, record) => {
           rootObj = data
           key = relName
         }
+
         Object.defineProperty(rootObj, key, {
           get() {
             return getters.get(`${type}/${id}`)
           },
           enumerable: true,
+          // For deletion in `toJSON`
+          configurable: true,
         })
+
+        if (jvConfig.toJSON) {
+          // Add toJSON method to serialise (potentially recursive) getters
+          if (!rootObj.hasOwnProperty('toJSON')) {
+            Object.defineProperty(rootObj, 'toJSON', {
+              value: function() {
+                const json = Object.assign({}, this)
+                // Store updates may be asynchronous, so test for 'real' data
+                if (this[key].hasOwnProperty(jvtag)) {
+                  const thisjv = this[key][jvtag]
+                  // Replace getter with type and id
+                  json[key] = {
+                    [jvtag]: {
+                      type: thisjv['type'],
+                      id: thisjv['id'],
+                    },
+                  }
+                } else {
+                  // No 'real' data (yet) so delete the getter to prevent recursion
+                  delete json[key]
+                }
+                return json
+              },
+              enumerable: false,
+            })
+          }
+        }
       }
     }
   }
