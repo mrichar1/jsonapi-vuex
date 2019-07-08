@@ -11,6 +11,7 @@ export default function(api, options = {}) {
     preserveJson: false,
     mergeRecords: false,
     patchClean: false,
+    toJSON: false,
     ...options,
   })
 }

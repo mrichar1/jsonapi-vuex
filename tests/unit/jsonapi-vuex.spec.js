@@ -439,11 +439,39 @@ describe('jsonapi-vuex tests', function() {
     })
 
     describe('followRelationships', function() {
-      it('Should expand relationships into root for a single item', function() {
+      it('Should add a getter for relationships into root for a single item', function() {
         const { followRelationships } = _testing
-        let rels = followRelationships(storeRecord, normWidget1)
-        // Object is recursive so only compare top-level keys
-        expect(rels['widgets']).to.have.all.keys(normWidget2Rels)
+        const getters = { get: sinon.stub() }
+        let rels = followRelationships(storeRecord, getters, normWidget1)
+        // Test if the the relName value is a getter
+        expect(
+          Object.getOwnPropertyDescriptor(rels, 'widgets')
+        ).to.have.property('get')
+      })
+      it('should add a toJSON method to allow serialisation without recursion', function() {
+        const { followRelationships } = _testing
+        const getters = {
+          get: sinon.stub().returns({ _jv: { type: 'test', id: 1 }, x: 'y' }),
+        }
+        jm = jsonapiModule(api, { followRelationshipsData: true, toJSON: true })
+        let rels = followRelationships(storeRecord, getters, normWidget1)
+        expect(rels).to.have.property('toJSON')
+        // Invoke toJSON
+        const deserial = JSON.parse(JSON.stringify(rels))
+        // _jv preserved, all other attrs dropped
+        expect(deserial['widgets']).to.have.property('_jv')
+        expect(deserial['widgets']).to.not.have.property('x')
+      })
+      it('should add a toJSON method which deletes getters if getter result is empty', function() {
+        const { followRelationships } = _testing
+        // Return empty object to simulate async action not yet completed
+        const getters = { get: sinon.stub().returns({}) }
+        jm = jsonapiModule(api, { followRelationshipsData: true, toJSON: true })
+        let rels = followRelationships(storeRecord, getters, normWidget1)
+        expect(rels).to.have.property('toJSON')
+        // Invoke toJSON
+        const deserial = JSON.parse(JSON.stringify(rels))
+        expect(deserial).to.not.have.property('widgets')
       })
     })
 

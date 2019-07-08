@@ -10,7 +10,7 @@ A module to access [JSONAPI](https://jsonapi.org) data from an API, using a Vuex
 - High-level methods to wrap common RESTful operations (GET, POST, PUT, DELETE). (See [Actions](#actions))
 - Restructures/normalizes data, making record handling easier. (See [Restructured Data](#restructured-data))
 - Makes fetching related objects easy. (See [getRelated](#getrelated))
-- Relationships can be followed and expanded into records automatically (recursively). (See [Related Items](#related-items))
+- Relationships can be followed and expanded into records automatically. (See [Related Items](#related-items))
 - Uses [Axios](https://github.com/axios/axios) (or your own axios-like module) as the HTTP client.
 - Uses [jsonpath](https://github.com/dchester/jsonpath) for filtering when getting objects from the store.
 - Records the status of actions (LOADING, SUCCESS, ERROR).
@@ -51,7 +51,7 @@ The most common way to access the API and update the store is through high-level
 
 There are a number of features which are worth explaining in more detail. Many of these can be configured - see the [Configuration](#configuration) section.
 
-- _Follow relationships_ - If enabled then any `relationships` specified as `data` resources in the JSONAPI data will be expanded and stored alongside the attributes in the restructured data 'root'. Additionally, helper methods will be added to `_jv` to make dealing with these easier (see [Helper functions](#helper-functions))
+- _Follow relationships_ - If enabled then any `relationships` specified as `data` resources in the JSONAPI data will be added alongside the attributes in the restructured data 'root' as a `get` getter property. Querying this key will return the record from the store, if present. Additionally, helper methods will be added to `_jv` to make dealing with these easier (see [Helper functions](#helper-functions))
 
 - _Clear on update_ - If enabled, then each new set of records is considered to be definitive for that `type`, and any other records of that `type` in the store will be removed. This option is useful for cases where you expect the API response to contain the full set of records from the server, as it avoids the need for manual cache expiry. The code will first apply the new records to the store, and then for each `type` which has had new records added, remove old ones. This is designed to be more efficient in terms of updating computed properties and UI redraws than emptying then repopulating the store.
 
@@ -343,11 +343,11 @@ Deletes a session status record from the store.
 
 ### Related Items
 
-By default the `get` action and getter are both configured to follow and expand out relationships recursively, if they are provided as `data` entries (i.e. `{type: 'widget', id: '1'}`). This behaviour is controlled with the `followRelationshipsData` config option.
+By default the `get` action and getter are both configured to follow and expand out relationships, if they are provided as `data` entries (i.e. `{type: 'widget', id: '1'}`). This behaviour is controlled with the `followRelationshipsData` config option.
 
 _Note_ - If using the `action` you may wish to also set the `include` parameter on the server query to include the relationships you are interested in. Any records returned in the `included` section of the jsonapi data will be automatically added to the store.
 
-For any relationships where the related item is already in the store, this is added to the returned object(s) in the 'root', alongside the `attributes`. For items with a single relationship, the object is placed directly under the `relName` - for mutiple items, they are indexed by id:
+This expansion is done by adding an attribute where the key is the relationship name, and the value is a javascript [`getter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get) that calls the `get` vuex getter for that record. the value will therefore be the value of the related object (if in the store), or an empty object (if not). For items with a single relationship, the object is placed directly under the `relName` - for mutiple items, they are indexed by id:
 
 ```js
 // Assuming the store is as follows:
@@ -379,7 +379,6 @@ store = {
 // (Note the use of include to ensure `parts` is in the store)
 let item1 = await this.$store.dispatch('jv/get', 'widget/1', [{ include: 'parts' }])
 
-
 // OR...
 
 let item1 = this.$store.getters['jv/get']('widget/1')
@@ -387,7 +386,7 @@ let item1 = this.$store.getters['jv/get']('widget/1')
 // This will return:
 {
   name: 'sprocket',
-  parts: {
+  parts: { // getter property, which will return:
     name: 'cog'
     _jv: { /* ... */ }
   },
@@ -398,6 +397,8 @@ let item1 = this.$store.getters['jv/get']('widget/1')
 }
 
 ```
+
+_Note_ - since relationships can be recursive, calling methods on such objects which try to walk the entire tree will cause recursion errors (e.g. `JSON.stringify`). In order to prevent this common error, a `toJSON` function is added to spot and remove any potentially recursive relationships. In these cases the getter is relpaced with just the `_jv` section, containing `type` and `id` as an indicator of the unfollowed relationship. This behaviour can be disabled - see [toJSON](#Configuration).
 
 ## Helper Functions
 
@@ -441,6 +442,7 @@ For many of these options, more information is provided in the [Usage](#usage) s
 - `mergeRecords`- Whether new records should be merged onto existing records in the store, or just replace them (defaults to `false`).
 - `clearOnUpdate` - Whether the store should clear old records and only keep new records when updating. Applies to the `type(s)` associated with the new records. (defaults to false).
 - `cleanPatch` - If enabled, patch object is compared to the record in the store, and only unique or modified attributes are kept in the patch. (defaults to false).
+- `toJSON` - Add a `toJSON` function to records to remove potentially recursive relationships when serialising to JSON. (defaults to true).
 
 ## Endpoints
 

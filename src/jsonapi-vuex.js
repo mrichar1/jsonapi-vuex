@@ -32,6 +32,8 @@ let jvConfig = {
   clearOnUpdate: false,
   // Only preserve new or modified attributes in a patch, compared to the store record.
   cleanPatch: false,
+  // Add a toJSON method to rels to prevent recursion errors
+  toJSON: true,
 }
 
 const jvtag = jvConfig['jvtag']
@@ -101,7 +103,11 @@ const actions = (api) => {
           if (jvConfig.clearOnUpdate) {
             context.commit('clearRecords', resData)
           }
-          resData = checkAndFollowRelationships(context.state, resData)
+          resData = checkAndFollowRelationships(
+            context.state,
+            context.getters,
+            resData
+          )
           resData = preserveJSON(resData, results.data)
           context.commit('setStatus', {
             id: actionId,
@@ -320,7 +326,11 @@ const actions = (api) => {
     },
     search: (context, args) => {
       // Create a 'noop' context.commit to avoid store modifications
-      const nocontext = { commit: () => {} }
+      const nocontext = {
+        commit: () => {},
+        dispatch: context.dispatch,
+        getters: context.getters,
+      }
       // Use a new actions 'instance' instead of 'dispatch' to allow context override
       return actions(api).get(nocontext, args)
     },
@@ -338,7 +348,7 @@ const actions = (api) => {
 
 const getters = () => {
   return {
-    get: (state) => (data, jsonpath) => {
+    get: (state, getters) => (data, jsonpath) => {
       let result
       if (!data) {
         // No data arg - return whole state object
@@ -359,7 +369,7 @@ const getters = () => {
             // whole collection, indexed by id
             result = state[type]
           }
-          result = checkAndFollowRelationships(state, result)
+          result = checkAndFollowRelationships(state, getters, result)
         } else {
           // no records for that type in state
           return {}
@@ -514,17 +524,16 @@ const preserveJSON = (data, json) => {
   return data
 }
 
-const checkAndFollowRelationships = (state, records, followState) => {
+const checkAndFollowRelationships = (state, getters, records) => {
   if (jvConfig.followRelationshipsData) {
-    followState = followState || {}
     let resData = {}
     if (jvtag in records) {
       // single item
-      resData = followRelationships(state, records, followState)
+      resData = followRelationships(state, getters, records)
     } else {
       // multiple items
       for (let [key, item] of Object.entries(records)) {
-        resData[key] = followRelationships(state, item, followState)
+        resData[key] = followRelationships(state, getters, item)
       }
     }
     if (resData) {
@@ -535,24 +544,9 @@ const checkAndFollowRelationships = (state, records, followState) => {
 }
 
 // Follow relationships and expand them into _jv/rels
-const followRelationships = (state, record, followState) => {
-  followState = followState || {}
-
-  let [recordType, recordId] = getTypeId(record)
-  // First check if we've already visited this object during recursion
-  let local = get(followState, [recordType, recordId])
-  if (local) {
-    return local
-  }
-  if (!(recordType in followState)) {
-    followState[recordType] = {}
-  }
-
+const followRelationships = (state, getters, record) => {
   // Copy item before modifying
   const data = cloneDeep(record)
-
-  // Store cloned object in followState for future reuse during recursion
-  followState[recordType][recordId] = data
 
   const relNames = get(data, [jvtag, 'relationships'], {})
   for (let [relName, relInfo] of Object.entries(relNames)) {
@@ -568,16 +562,47 @@ const followRelationships = (state, record, followState) => {
       }
       for (let relItem of relData) {
         let [type, id] = getTypeId({ [jvtag]: relItem })
-        let result = get(state, [type, id])
-        if (result) {
-          // Recursive call to follow children relationships
-          result = followRelationships(state, result, followState)
-          if (isItem) {
-            // Store attrs directly under relName
-            data[relName] = result
-          } else {
-            // Store attrs indexed by id
-            data[relName][id] = result
+        let rootObj = data[relName]
+        let key = id
+        if (isItem) {
+          // Store directly under relName, not under an id
+          rootObj = data
+          key = relName
+        }
+
+        Object.defineProperty(rootObj, key, {
+          get() {
+            return getters.get(`${type}/${id}`)
+          },
+          enumerable: true,
+          // For deletion in `toJSON`
+          configurable: true,
+        })
+
+        if (jvConfig.toJSON) {
+          // Add toJSON method to serialise (potentially recursive) getters
+          if (!rootObj.hasOwnProperty('toJSON')) {
+            Object.defineProperty(rootObj, 'toJSON', {
+              value: function() {
+                const json = Object.assign({}, this)
+                // Store updates may be asynchronous, so test for 'real' data
+                if (this[key].hasOwnProperty(jvtag)) {
+                  const thisjv = this[key][jvtag]
+                  // Replace getter with type and id
+                  json[key] = {
+                    [jvtag]: {
+                      type: thisjv['type'],
+                      id: thisjv['id'],
+                    },
+                  }
+                } else {
+                  // No 'real' data (yet) so delete the getter to prevent recursion
+                  delete json[key]
+                }
+                return json
+              },
+              enumerable: false,
+            })
           }
         }
       }
