@@ -116,67 +116,83 @@ const actions = (api) => {
       action[jvtag + 'Id'] = actionId
       return action
     },
-    getRelated: (context, args) => {
+    getRelated: async (context, args) => {
       const data = unpackArgs(args)[0]
-      let [, id, relName] = getTypeId(data)
+      let [type, id, relName] = getTypeId(data)
       if (!id) {
         throw 'No id specified'
       }
       const actionId = actionSequence(context)
       context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
-      // We can't pass multiple/non-promise vars in a promise chain,
-      // so must define such vars in a higher scope
 
-      let relNames = []
-      //Get initial record
-      let action = context
-        .dispatch('get', args)
-        .then((record) => {
-          let rels = get(record, [jvtag, 'relationships'], {})
+      let rels
+      if (
+        typeof data === 'object' &&
+        data[jvtag].hasOwnProperty('relationships')
+      ) {
+        rels = data[jvtag]['relationships']
+      } else {
+        try {
+          let record = await context.dispatch('get', args)
+
+          rels = get(record, [jvtag, 'relationships'], {})
           if (relName && rels) {
             // Only process requested relname
             rels = { [relName]: rels[relName] }
           }
-          return rels
-        })
-        .catch((error) => {
+        } catch (error) {
           // Log and re-throw if 'get' action fails
           context.commit('setStatus', { id: actionId, status: STATUS_ERROR })
           throw error
-        })
-        .then((rels) => {
-          // Store an array of relNames & promises
-          // let relNames = []
-          let relPromises = []
-          // Iterate over all records in rels
-          for (let [relName, relItems] of Object.entries(rels)) {
-            let relData
-            // Extract relationships from 'data' (type/id)
-            if ('data' in relItems) {
-              relData = relItems['data']
-              if (!Array.isArray(relData)) {
-                // Treat as if always an array
-                relData = [relData]
-              }
-            } else if ('links' in relItems) {
-              relData = relItems['links']['related']
-              if (!(typeof relData === 'string')) {
-                relData = relData['href']
-              }
-              relData = [relData]
-            }
-            for (let entry of relData) {
-              // Rewrite 'data' objects to normalised form
-              if (!(typeof entry === 'string')) {
-                entry = { [jvtag]: entry }
-              }
-              relNames.push(relName)
-              relPromises.push(context.dispatch('get', entry))
-            }
+        }
+      }
+
+      // We can't pass multiple/non-promise vars in a promise chain,
+      // so must define such vars in a higher scope
+      let relNames = []
+      let relPromises = []
+
+      // Iterate over all records in rels
+      for (let [relName, relItems] of Object.entries(rels)) {
+        let relData
+        // relationships value might be empty if user-constructed
+        // so fetch relationships resource linkage for these
+        if (!relItems) {
+          try {
+            const resLink = await api.get(
+              `${type}/${id}/relationships/${relName}`
+            )
+            relItems = resLink.data
+          } catch (error) {
+            throw `No such relationship: ${relName}`
           }
-          // 'Merge' all promise resolution/rejection
-          return Promise.all(relPromises)
-        })
+        }
+        // Extract relationships from 'data' (type/id)
+        if ('data' in relItems) {
+          relData = relItems['data']
+          if (!Array.isArray(relData)) {
+            // Treat as if always an array
+            relData = [relData]
+          }
+          // Or from 'links/related'
+        } else if ('links' in relItems) {
+          relData = relItems['links']['related']
+          if (!(typeof relData === 'string')) {
+            relData = relData['href']
+          }
+          relData = [relData]
+        }
+        for (let entry of relData) {
+          // Rewrite 'data' objects to normalised form
+          if (!(typeof entry === 'string')) {
+            entry = { [jvtag]: entry }
+          }
+          relNames.push(relName)
+          relPromises.push(context.dispatch('get', entry))
+        }
+      }
+      // 'Merge' all promise resolution/rejection
+      let action = Promise.all(relPromises)
         .then((results) => {
           let related = {}
           results.forEach((result, i) => {

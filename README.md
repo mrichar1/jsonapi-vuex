@@ -135,9 +135,15 @@ const widgetSearch = (text) => {
 
 _Note_ - in many cases you may prefer to use the jsonapi server-side `include` option to get data on relationships included in your original query. (See [Related Items](#related-items)).
 
-Like the RESTful actions, this takes 2 arguments - the URL/object to be acted on, and an axios config object. It returns a deeply nested restructured tree - `relationship -> type -> id -> data`.
+Like the RESTful actions, this takes 2 arguments - the string or object to be acted on, and an axios config object. It returns a deeply nested restructured tree - `relationship -> type -> id -> data`.
 
 _Note_ - [getRelated](#getrelated) only works on specific items, not collections.
+
+By default this action will fetch the record specified from the API, then work out it's relationships and also fetch those.
+
+If the argument is a string, it can optionally take a 3rd argument, e.g. `type/id/relationship` to cause only the named relationship to be followed.
+
+If the argument is an object, then if the object contains a `_jv/relationships` section, then only these relationships will are followed. If the relationships section contains keys (i.e relationship `names`) but no values (i.e. [resource linkage](https://jsonapi.org/format/#fetching-relationships)) then these will be fetched from the API.
 
 ```js
 // Assuming the API holds the following data
@@ -169,6 +175,38 @@ this.$store.dispatch('jv/getRelated', 'widget/1').then((data) => {
 
 // Get only the items in the 'widgets' relationship
 this.$store.dispatch('jv/getRelated', 'widget/1/widgets').then((data) => {
+  console.log(data)
+})
+
+// Equivalent, using object instead of string argument
+const customRels = {
+  _jv: {
+    type: 'widget',
+    id: '1',
+    relationships: {
+      widgets: {
+        data: {
+          type: 'widget',
+          id: '2',
+        },
+      },
+    },
+  },
+}
+
+// Equivalent, but 'doohickeys' resource linkage will be fetched from the server
+// i.e. { data: { type: 'doohickey', id: '10' }}
+const customRelsNoData = {
+  _jv: {
+    type: 'widget',
+    id: '1',
+    relationships: {
+      doohickeys: undefined,
+    },
+  },
+}
+
+this.$store.dispatch('jv/getRelated', customRels).then((data) => {
   console.log(data)
 })
 ```
