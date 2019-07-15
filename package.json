@@ -82,7 +82,7 @@
     "lodash.clonedeep": "^4.5.0",
     "lodash.get": "^4.4.2",
     "lodash.isequal": "^4.5.0",
-    "lodash.merge": "^4.6.1"
+    "lodash.merge": "^4.6.2"
   },
   "peerDependencies": {
     "vue": "^2.5.17",
