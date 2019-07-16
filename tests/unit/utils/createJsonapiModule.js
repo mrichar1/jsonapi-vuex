@@ -1,17 +1,23 @@
-import { jsonapiModule } from '../../../src/jsonapi-vuex.js'
+import { jsonapiModule, _testing } from '../../../src/jsonapi-vuex.js'
+
+// Turn off the following to simplify test data in most cases
+const customConfig = {
+  followRelationshipsData: false,
+  preserveJson: false,
+  mergeRecords: false,
+  patchClean: false,
+  toJSON: false,
+}
+// Get a copy of the default config as tests may modify it.
+const config = Object.assign({}, _testing.jvConfig, customConfig)
 
 export default function(api, options = {}) {
   if (!api) {
     throw new Error('No api passed to jsonapiModule creator')
   }
 
-  // Turn off following by default to simplify test data in most cases
   return jsonapiModule(api, {
-    followRelationshipsData: false,
-    preserveJson: false,
-    mergeRecords: false,
-    patchClean: false,
-    toJSON: false,
+    ...config,
     ...options,
   })
 }
