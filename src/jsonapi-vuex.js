@@ -36,7 +36,7 @@ let jvConfig = {
   toJSON: true,
 }
 
-const jvtag = jvConfig['jvtag']
+let jvtag
 
 // Global sequence counter for unique action ids
 let actionSequenceCounter = 0
@@ -403,6 +403,7 @@ const getters = () => {
 // Store Module
 const jsonapiModule = (api, conf = {}) => {
   Object.assign(jvConfig, conf)
+  jvtag = jvConfig['jvtag']
 
   let state = { [jvtag]: {} }
 
