@@ -243,23 +243,20 @@ describe('jsonapi-vuex tests', function() {
   describe('jsonapiModule helpers', function() {
     describe('cleanPatch', function() {
       it('should return patch unmodified if record not in state', function() {
-        const { jvConfig, cleanPatch } = _testing
-        jvConfig.cleanPatch = true
+        const { cleanPatch } = _testing
 
         const res = cleanPatch(normWidget1Patch, {})
         expect(res).to.deep.equal(normWidget1Patch)
       })
       it('should pick modified/new attributes from a record (no _jv)', function() {
-        const { jvConfig, cleanPatch } = _testing
-        jvConfig.cleanPatch = true
+        const { cleanPatch } = _testing
 
         const res = cleanPatch(normWidget1Patch, normRecord)
         expect(res).to.not.have.property('bar')
         expect(res['foo']).to.equal('update')
       })
       it('should pick modified/new attributes from a record (with _jv)', function() {
-        const { addJvHelpers, jvConfig, cleanPatch } = _testing
-        jvConfig.cleanPatch = true
+        const { addJvHelpers, cleanPatch } = _testing
 
         const patch = JSON.parse(JSON.stringify(normWidget1))
         patch['foo'] = 'update'
