@@ -427,16 +427,44 @@ These are particularly useful in `Vue` templates. For example to iterate over an
 Some functions are potentially useful for data manipulation etc outside the normal code flow. These functions are exported as `utils`, i.e:
 
 ```
-import { utils } frmo `jsonapi-vuex`
+import { utils } from `jsonapi-vuex`
 ```
 
 The current utility functions are:
+
+### `addJvHelpers`
+
+Adds the 'helper' functions/properties to `_jv` in a restructured object.
+
+`addJvHelpers` takes a restructured object as it's argument, and returns (and modifies in-place) the obejct to include the helper methods (see [Helper functions](#helper-functions))
 
 ### `cleanPatch`
 
 If you wish to clean patches on a per-patch basis, then set the `cleanPatch` configuration option to false, and instead use this method on your patch record prior to passing it to the action.
 
 `cleanPatch` takes 3 arguments - the patch data, the state to be compared to, and an array of `_jv` properties to be preserved (see `cleanPatchProps` config option).
+
+### `getTypeId`
+
+Returns an array containing the type, id and rels for a given restructured object (if defined).
+
+### `getUrl`
+
+Returns the `self.links` url, or constructs a path from the type and id.
+
+`getUrl` takes 2 arguments, the restructured object, and optionall `post` (defaults to `false`). If `post` is true, then the constructed path will not contain an `id`.
+
+### `jsonapiToNorm`
+
+Convert a JSONAPI object to a restructured object.
+
+### `normtoJsonapi`
+
+Convert a restructured object to a JSONAPI object.
+
+### `normToStore`
+
+Convert a restructured object to it's `store` form.
 
 ## Configuration
 

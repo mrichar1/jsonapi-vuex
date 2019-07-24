@@ -763,7 +763,13 @@ const processIncludedRecords = (context, results) => {
 }
 
 const utils = {
+  addJvHelpers: addJvHelpers,
   cleanPatch: cleanPatch,
+  getTypeId: getTypeId,
+  getURL: getURL,
+  jsonapiToNorm: jsonapiToNorm,
+  normToJsonapi: normToJsonapi,
+  normToStore: normToStore,
 }
 
 // Export a single object with references to 'private' functions for the test suite
