@@ -130,16 +130,55 @@ describe('patch', function() {
     }
   })
 
-  it('should not include rels in requests', async function() {
-    const { addJvHelpers } = _testing
+  it('should not include rels/links/meta in requests (auto cleanPatch)', async function() {
     this.mockApi.onAny().reply(204)
-    // Helper functions needed for attrs() call in normtoJsonapi() in patch()
-    const widget = addJvHelpers(createNormWidget1WithRels())
-    jsonapiModule = createJsonapiModule(this.api, {followRelationshipsData: true}) //prettier-ignore
+    const widget = createNormWidget1WithRels()
+    jsonapiModule = createJsonapiModule(this.api, {followRelationshipsData: true, cleanPatch: true }) //prettier-ignore
     await jsonapiModule.actions.patch(stubContext, widget)
+    const res = JSON.parse(this.mockApi.history.patch[0].data)
+    expect(res.data).to.not.have.property('relationships')
+    expect(res.data).to.not.have.property('links')
+    expect(res.data).to.not.have.property('meta')
+  })
 
-    expect(JSON.parse(this.mockApi.history.patch[0].data)).to.deep.equal({
-      data: jsonWidget1,
-    })
+  it('should include rels/links/meta in requests (auto cleanPatch)', async function() {
+    this.mockApi.onAny().reply(204)
+    const widget = createNormWidget1WithRels()
+    const conf = {
+      followRelationshipsData: true,
+      cleanPatch: true,
+      cleanPatchProps: ['links', 'meta', 'relationships'],
+    }
+    jsonapiModule = createJsonapiModule(this.api, conf) //prettier-ignore
+    await jsonapiModule.actions.patch(stubContext, widget)
+    const res = JSON.parse(this.mockApi.history.patch[0].data)
+    expect(res.data).to.have.property('relationships')
+    expect(res.data).to.have.property('links')
+    expect(res.data).to.have.property('meta')
+  })
+
+  it('should not include rels/links/meta in requests (manual cleanPatch)', async function() {
+    const { cleanPatch } = _testing
+    this.mockApi.onAny().reply(204)
+    const widget = createNormWidget1WithRels()
+    jsonapiModule = createJsonapiModule(this.api, {followRelationshipsData: true}) //prettier-ignore
+    await jsonapiModule.actions.patch(stubContext, cleanPatch(widget))
+    const res = JSON.parse(this.mockApi.history.patch[0].data)
+    expect(res.data).to.not.have.property('relationships')
+    expect(res.data).to.not.have.property('links')
+    expect(res.data).to.not.have.property('meta')
+  })
+
+  it('should include rels/links/meta in requests', async function() {
+    const { cleanPatch } = _testing
+    this.mockApi.onAny().reply(204)
+    const widget = createNormWidget1WithRels()
+    jsonapiModule = createJsonapiModule(this.api, {followRelationshipsData: true}) //prettier-ignore
+    const clean = cleanPatch(widget, {}, ['links', 'meta', 'relationships'])
+    await jsonapiModule.actions.patch(stubContext, clean)
+    const res = JSON.parse(this.mockApi.history.patch[0].data)
+    expect(res.data).to.have.property('relationships')
+    expect(res.data).to.have.property('links')
+    expect(res.data).to.have.property('meta')
   })
 })

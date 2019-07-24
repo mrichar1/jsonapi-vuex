@@ -30,8 +30,10 @@ let jvConfig = {
   mergeRecords: false,
   // Delete old records not contained in an update (on a per-type basis).
   clearOnUpdate: false,
-  // Only preserve new or modified attributes in a patch, compared to the store record.
+  // Always run 'cleanPatch' method when patching.
   cleanPatch: false,
+  // If cleanPatch is enabled, which _jv props (links, meta, rels) be kept?
+  cleanPatchProps: [],
   // Add a toJSON method to rels to prevent recursion errors
   toJSON: true,
 }
@@ -258,7 +260,9 @@ const actions = (api) => {
     },
     patch: (context, args) => {
       let [data, config] = unpackArgs(args)
-      data = cleanPatch(data, context.state)
+      if (jvConfig.cleanPatch) {
+        data = cleanPatch(data, context.state, jvConfig.cleanPatchProps)
+      }
       const path = getURL(data)
       const actionId = actionSequence(context)
       const apiConf = { method: 'patch', url: path, data: normToJsonapi(data) }
@@ -419,24 +423,31 @@ const jsonapiModule = (api, conf = {}) => {
 
 // Helper methods
 
-const cleanPatch = (patch, state) => {
-  if (!jvConfig.cleanPatch) {
-    return patch
-  }
-  const stateRecord = get(state, patch[jvtag]['id'])
-  if (!stateRecord) {
-    return patch
-  }
-  const clean = {}
-  // Get attrs (or if getter is missing, use all of patch object)
-  const attrs = get(patch, [jvtag, 'attrs'], patch)
-  for (let [k, v] of Object.entries(attrs)) {
-    if (!stateRecord.hasOwnProperty(k) || !isEqual(stateRecord[k], v)) {
-      clean[k] = v
+const cleanPatch = (patch, state = {}, jvProps = []) => {
+  // Add helper properties (use a copy to prevent side-effects)
+  const modPatch = cloneDeep(patch)
+  addJvHelpers(modPatch)
+  const attrs = get(modPatch, [jvtag, 'attrs'])
+  let clean = { [jvtag]: {} }
+  // Only try to clean the patch if it exists in the store
+  const stateRecord = get(state, modPatch[jvtag]['id'])
+  if (stateRecord) {
+    for (let [k, v] of Object.entries(attrs)) {
+      if (!stateRecord.hasOwnProperty(k) || !isEqual(stateRecord[k], v)) {
+        clean[k] = v
+      }
     }
+  } else {
+    Object.assign(clean, attrs)
   }
-  // Add back jvtag - in future we should also process the contents
-  clean[jvtag] = stateRecord[jvtag]
+
+  // Add _jv data, as required
+  clean[jvtag]['type'] = patch[jvtag]['type']
+  clean[jvtag]['id'] = patch[jvtag]['id']
+  for (let prop of jvProps) {
+    clean[jvtag][prop] = get(patch, [jvtag, prop], {})
+  }
+
   return clean
 }
 
@@ -461,6 +472,10 @@ const updateRecords = (state, records, merging = jvConfig.mergeRecords) => {
 }
 
 const addJvHelpers = (obj) => {
+  // Do nothing if already has helpers
+  if (get(obj[jvtag]['isRel'])) {
+    return obj
+  }
   // Add Utility functions to _jv child object
   Object.assign(obj[jvtag], {
     isRel(name) {
@@ -747,6 +762,10 @@ const processIncludedRecords = (context, results) => {
   }
 }
 
+const utils = {
+  cleanPatch: cleanPatch,
+}
+
 // Export a single object with references to 'private' functions for the test suite
 const _testing = {
   actionSequence: actionSequence,
@@ -768,4 +787,4 @@ const _testing = {
 }
 
 // Export this module
-export { jsonapiModule, _testing }
+export { jsonapiModule, utils, _testing }

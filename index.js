@@ -1,1 +1,1 @@
-export { jsonapiModule } from './src/jsonapi-vuex'
+export { jsonapiModule, utils } from './src/jsonapi-vuex'

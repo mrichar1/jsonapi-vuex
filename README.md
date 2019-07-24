@@ -63,7 +63,7 @@ There are a number of features which are worth explaining in more detail. Many o
 
 - _Endpoints_ - by default this module assumes that object types and API endpoints (item and collection) all share the same name. however, some APIs use plurals or other variations on the endpoint names. You can override the endpoint name via the `axios` `url` config option or the `links.self` attribute (see [Endpoints](#endpoints))
 
-- _Clean Patches_ - by default, data passed to the `patch` action is used as-is. If `cleanPatch` is enabled, then the patch object is compared to the record in the store (if it exists), and any attributes with identical values are removed. This means that the final `patch` will only contain new or modified attributes, which is safer and more efficient, as it avoids sending unnecessary or 'stale' data.
+- _Clean Patches_ - by default, data passed to the `patch` action is used as-is. If `cleanPatch` is enabled, then the patch object is compared to the record in the store (if it exists), and any attributes with identical values are removed. This means that the final `patch` will only contain new or modified attributes, which is safer and more efficient, as it avoids sending unnecessary or 'stale' data. Additionally, unwanted properties in `_jv` (links, meta, relationships) can be removed.
 
 ### Actions
 
@@ -422,6 +422,22 @@ These are particularly useful in `Vue` templates. For example to iterate over an
 <li v-for="(val, key) in widget" v-if="widget._jv.isAttr(key)">{{ key }} {{ val }}</li>
 ```
 
+## Utility functions
+
+Some functions are potentially useful for data manipulation etc outside the normal code flow. These functions are exported as `utils`, i.e:
+
+```
+import { utils } frmo `jsonapi-vuex`
+```
+
+The current utility functions are:
+
+### `cleanPatch`
+
+If you wish to clean patches on a per-patch basis, then set the `cleanPatch` configuration option to false, and instead use this method on your patch record prior to passing it to the action.
+
+`cleanPatch` takes 3 arguments - the patch data, the state to be compared to, and an array of `_jv` properties to be preserved (see `cleanPatchProps` config option).
+
 ## Configuration
 
 A config object can be passed to `jsonapiModule` when instantiating. It will override the default options:
@@ -442,6 +458,7 @@ For many of these options, more information is provided in the [Usage](#usage) s
 - `mergeRecords`- Whether new records should be merged onto existing records in the store, or just replace them (defaults to `false`).
 - `clearOnUpdate` - Whether the store should clear old records and only keep new records when updating. Applies to the `type(s)` associated with the new records. (defaults to false).
 - `cleanPatch` - If enabled, patch object is compared to the record in the store, and only unique or modified attributes are kept in the patch. (defaults to false).
+- `cleanPatchProps` - If cleanPatch is enabled, an array of `_jv` properties that should be preserved - `links`, `meta`, and/or `relationships`. (defaults to `[]`).
 - `toJSON` - Add a `toJSON` function to records to remove potentially recursive relationships when serialising to JSON. (defaults to true).
 
 ## Endpoints
