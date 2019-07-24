@@ -7,12 +7,12 @@ env:
   global:
     - DISPLAY=:99.0
 
+services:
+  - xvfb
+
 # Install the latest firefox for nightwatch e2e tests
 addons:
   firefox: latest
-
-before_script:
-  - sh -e /etc/init.d/xvfb start
 
 script:
   - npm run lint
