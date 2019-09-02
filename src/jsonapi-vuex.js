@@ -642,8 +642,15 @@ const getTypeId = (data) => {
   } else {
     ;({ type, id } = data[jvtag])
   }
+
+  // Spec: The values of the id and type members MUST be strings.
+  // uri encode to prevent mis-interpretation as url parts.
   // Strip any empty strings (falsey items)
-  return [type, id, rel].filter(Boolean)
+  return [
+    type && encodeURIComponent(type),
+    id && encodeURIComponent(id),
+    rel && encodeURIComponent(rel),
+  ].filter(Boolean)
 }
 
 // Return path, or construct one if restructured data

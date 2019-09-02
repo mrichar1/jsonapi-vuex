@@ -336,6 +336,16 @@ describe('jsonapi-vuex tests', function() {
         delete normWidget1['_jv']['id']
         expect(getTypeId(normWidget1)).to.deep.equal(['widget'])
       })
+      it('should uri encode type and/or id', function() {
+        const { getTypeId } = _testing
+        const urlWidget = {
+          _jv: {
+            type: '/#',
+            id: '? &',
+          },
+        }
+        expect(getTypeId(urlWidget)).to.deep.equal(['%2F%23', '%3F%20%26'])
+      })
     })
 
     describe('jsonapiToNormItem', function() {
