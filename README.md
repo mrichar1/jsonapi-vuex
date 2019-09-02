@@ -255,11 +255,11 @@ store = {
 this.$store.getters['jv/get']('', '$.*.10')
 
 // Get all widgets that are red:
-this.$store.getters['jv/get']('widget', '[?(@.color=="red")]')
+this.$store.getters['jv/get']('widget', '$[?(@.color=="red")]')
 
 // Note that filters can create impossible conditions
 // The following will return empty, as widget 1 is not red
-this.$store.getters['jv/get']('widget/1', '[?(@.color=="red")]')
+this.$store.getters['jv/get']('widget/1', '$[?(@.color=="red")]')
 ```
 
 #### status
