@@ -455,30 +455,38 @@ describe('jsonapi-vuex tests', function() {
           Object.getOwnPropertyDescriptor(rels, 'widgets')
         ).to.have.property('get')
       })
-      it('should add a toJSON method to allow serialisation without recursion', function() {
+
+      it('Should not limit recursion (recurseRelationships)', function() {
+        const { jvConfig } = _testing
+        jvConfig.recurseRelationships = true
         const { followRelationships } = _testing
-        const getters = {
-          get: sinon.stub().returns({ _jv: { type: 'test', id: 1 }, x: 'y' }),
-        }
-        jm = jsonapiModule(api, { followRelationshipsData: true, toJSON: true })
-        let rels = followRelationships(storeRecord, getters, normWidget1)
-        expect(rels).to.have.property('toJSON')
-        // Invoke toJSON
-        const deserial = JSON.parse(JSON.stringify(rels))
-        // _jv preserved, all other attrs dropped
-        expect(deserial['widgets']).to.have.property('_jv')
-        expect(deserial['widgets']).to.not.have.property('x')
+        let getStub = sinon.stub()
+        const getters = { get: getStub }
+        let rel = followRelationships(storeRecord, getters, normWidget1, {})
+        // 'Get' the getter
+        rel['widgets']
+        // The seenState Object (3rd arg to get()) shouldn't be updated
+        expect(getStub.args[0][2]).to.deep.equal({})
       })
-      it('should add a toJSON method which deletes getters if getter result is empty', function() {
+
+      it('Should limit recursion (!recurseRelationships)', function() {
+        const { jvConfig } = _testing
+        jvConfig.recurseRelationships = false
         const { followRelationships } = _testing
-        // Return empty object to simulate async action not yet completed
-        const getters = { get: sinon.stub().returns({}) }
-        jm = jsonapiModule(api, { followRelationshipsData: true, toJSON: true })
-        let rels = followRelationships(storeRecord, getters, normWidget1)
-        expect(rels).to.have.property('toJSON')
-        // Invoke toJSON
-        const deserial = JSON.parse(JSON.stringify(rels))
-        expect(deserial).to.not.have.property('widgets')
+        const getters = { get: sinon.stub() }
+
+        // Mark widget/1's rel of widget/2 as already seen
+        let seenState = { widgets: { widget: { _2: true } } }
+        let rels = followRelationships(
+          storeRecord,
+          getters,
+          normWidget1,
+          seenState
+        )
+
+        // The result should be a custom resource identifier
+        // It should *only* have _jv - no attrs or rels as a result
+        expect(rels['widgets']).to.have.all.keys('_jv')
       })
     })
 
