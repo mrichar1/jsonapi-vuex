@@ -2,26 +2,142 @@
 
 [![Build Status](https://travis-ci.com/mrichar1/jsonapi-vuex.svg?branch=master)](https://travis-ci.com/mrichar1/jsonapi-vuex) [![npm bundle size](https://img.shields.io/bundlephobia/min/jsonapi-vuex.svg)](https://bundlephobia.com/result?p=jsonapi-vuex) [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/mrichar1/jsonapi-vuex.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/mrichar1/jsonapi-vuex/context:javascript)
 
-A module to access [JSONAPI](https://jsonapi.org) data from an API, using a Vuex store, restructured to make life easier.
+A module to access [JSONAPI](https://jsonapi.org) data from an API, using a [Vuex](https://vuex.vuejs.org/) store, restructured to make life easier.
 
-## Features
+## Contents
 
-- Creates a [Vuex](https://vuex.vuejs.org/) module to store API data.
-- High-level methods to wrap common RESTful operations (GET, POST, PUT, DELETE). (See [Actions](#actions))
-- Restructures/normalizes data, making record handling easier. (See [Restructured Data](#restructured-data))
-- Makes fetching related objects easy. (See [getRelated](#getrelated))
-- Relationships can be followed and expanded into records automatically. (See [Related Items](#related-items))
-- Uses [Axios](https://github.com/axios/axios) (or your own axios-like module) as the HTTP client.
-- Uses [jsonpath](https://github.com/dchester/jsonpath) for filtering when getting objects from the store.
-- Records the status of actions (LOADING, SUCCESS, ERROR).
-- New data can overwrite, or be merged onto, existing records. (See [mergeRecords](#Configuration))
-- Override endpoint names per-request (for plural names etc). Use `links.self` when available/applicable (See [Endpoints](#Endpoints))
-- Patches can be 'cleaned' to ensure they only contain new or modified data. (See [cleanPatch](#Configuration))
-- Can query the API and receive restructured data, without modifying the store. (See the [Search action](#search))
+- [Restructured Data](#restructured-data)
+- [Getting Started](#getting-started)
+- [Usage](#usage)
+  - [Features](#features)
+  - [Actions](#actions)
+  - [Getters](#getters)
+  - [Mutations](#mutations)
+  - [Helper Functions](#helper-functions)
+  - [Utility Functions](#utility-functions)
+  - [Configuration](#configuration)
+  - [Endpoints](#endpoints)
+- [Development](#development)
 
-## Setup
+## Restructured Data
 
-Having created a Vue project, simply add the module to your store.js, passing it an axios-like instance:
+### Attributes
+
+JSONAPI is an extremely useful format for clearly interacting with an API - however it is less useful for the end developer, who is generally more interested in the data contained in a record than the structure surrounding it.
+
+In this module we 'reverse' the JSONAPI data into a form where data attributes become top-level keys, and JSONAPI-specific data is moved down under another key: `_jv`.
+
+For example, the JSONAPI record:
+
+```json
+{
+  "id": "1",
+  "type": "widget",
+  "attributes": {
+    "name": "sprocket",
+    "color": "black"
+  },
+  "meta": {}
+}
+```
+
+This would be accessed as `record.attributes.color`
+
+This module would restructure this record to be:
+
+```json
+{
+  "name": "sprocket",
+  "color": "black",
+  "_jv": {
+    "id": "1",
+    "type": "widget",
+    "meta": {}
+  }
+}
+```
+
+This would now be accessed as `record.color`
+
+In cases where there are multiple records being returned in an object, the id is used as the key (though this is ignored in the code, and the 'real' id is always read from `_jv`):
+
+```json
+{
+  "1": {
+    "name": "sprocket",
+    "color": "black"
+  },
+  "2": {
+    "name": "cog",
+    "color": "red"
+  }
+}
+```
+
+These are accessed as `record.1.name` or `record.2.color`, or if a list is needed, via `Object.values(record)`.
+
+The above structure is actually how records are maintained in the store, nested below the `endpoint`:
+
+```json
+{
+  "widget": {
+    "1": {...},
+    "2": {...}
+  },
+  "doohickey": {
+    "20": {...}
+  }
+}
+```
+
+### Relationships
+
+Relationships in JSONAPI are structured as either a `data` key containing one or more resource identifier objects under the relationship name, (or `links` which point to the related object in the API). For `data` entries, these are added to the 'root' of the object, where the key is the relationship name, and the value is a javascript [`getter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get) that calls the `get` vuex getter for that record. This allows related data to be handled as if it was an attribute. (The object is structured using the same 'id-as-key' system for multiple entries as for records as described above).
+
+The value returned by the getter will therefore be the value of the related object (if in the store), or an empty object (if not). Updating the store will cause the retuern value to update automatically.
+
+```json
+{
+  "id": "1",
+  "type": "widget",
+  "attributes": {
+    "name": "sprocket"
+  },
+  "relationships": {
+    "doohickeys": {
+      "data": [
+        {
+          "type": "doohickey",
+          "id": "20"
+        }
+      ]
+    }
+  }
+}
+```
+
+This becomes:
+
+```js
+{
+  "name": "sprocket",
+  "doohickeys": {
+    "20": » get('doohickey/20')  // getter call
+    }
+  }
+  "_jv": {
+    "id": "1",
+    "type": "widget",
+    "relationships": {...}
+  }
+}
+```
+
+The attributes of the related object can then be accessed as e.g.: `record.doohickeys.20.size`
+
+## Getting Started
+
+Having created a Vue project, simply add the module to your `store.js`, passing it an [axios](https://github.com/axios/axios)-like instance:
 
 ```js
 import Vue from 'vue'
@@ -47,29 +163,45 @@ export default new Vuex.Store({
 
 ## Usage
 
-The most common way to access the API and update the store is through high-level `actions` - though `getters` (and `mutations`) can be used directly if required.
+### Features
 
 There are a number of features which are worth explaining in more detail. Many of these can be configured - see the [Configuration](#configuration) section.
 
-- _Follow relationships_ - If enabled then any `relationships` specified as `data` resources in the JSONAPI data will be added alongside the attributes in the restructured data 'root' as a `get` getter property. Querying this key will return the record from the store, if present. Additionally, helper methods will be added to `_jv` to make dealing with these easier (see [Helper functions](#helper-functions))
+- _Includes_ - If the JSONAPI record contains an `includes` section, the data in this will be added to the store alongisde the 'main' records. (If includes are not used, then you will need to use [`getRelated`](#getrelated) to fetch relationships).
 
-- _Clear on update_ - If enabled, then each new set of records is considered to be definitive for that `type`, and any other records of that `type` in the store will be removed. This option is useful for cases where you expect the API response to contain the full set of records from the server, as it avoids the need for manual cache expiry. The code will first apply the new records to the store, and then for each `type` which has had new records added, remove old ones. This is designed to be more efficient in terms of updating computed properties and UI redraws than emptying then repopulating the store.
+- _Follow relationships_ - `Relationships` specified as `data` resources in the JSONAPI data will be added alongside the attributes in the restructured data 'root' as a `get` getter property. Querying this key will return the record from the store, if present. Additionally, helper methods will be added to `_jv` to make dealing with these easier (see [Helper functions](#helper-functions))
 
-- _Included_ - If the JSONAPI record contains an `includes` section, the data in this will be added to the store alongisde the 'main' records. (If includes are not used, then you will need to use `getRelated` to fetch relationships).
-
-- _Merging_ - By default, data returned from the API overwrites records already in the store. However, this may lead to inconsistencies if using [Sparse fieldsets](https://jsonapi.org/format/#fetching-sparse-fieldsets) or otherwise obtaining only a subset of data from the API. If merging is enabled, then new data will be merged onto existing data. this does however mean that you are responsible for explicitly calling the `deleteRecord` mutation in cases where attributes ahve been removed in the API, as they will never be removed from the store, only added to.
+- _Recursive Relationships_ - `Relationships` can be recursive - e.g. `author => article => blog => author`. This can cause infinite recursion problems with anything walking the object (such as `JSON.stringify`). By default, recursion is detected and stopped when following relationships, with the recursive relationship replaced with a (restructured) resource identifier.
 
 - _Preserve JSON_ - The original JSONAPI record(s) can optionally be preserved in `_jv` if needed - for example if you need access to `meta` or other sections. To avoid duplication, the `data` section (`attributes`, `relationships` etc) is removed.
 
+- _Clean Patches_ - by default, data passed to the `patch` action is used as-is. If `cleanPatch` is enabled, then the patch object is compared to the record in the store (if it exists), and any attributes with identical values are removed. This means that the final `patch` will only contain new or modified attributes, which is safer and more efficient, as it avoids sending unnecessary or 'stale' data. Additionally, unwanted properties in `_jv` (links, meta, relationships) can be removed.
+
+- _Merging_ - By default, data returned from the API overwrites records already in the store. However, this may lead to inconsistencies if using [Sparse fieldsets](https://jsonapi.org/format/#fetching-sparse-fieldsets) or otherwise obtaining only a subset of data from the API. If merging is enabled, then new data will be merged onto existing data. this does however mean that you are responsible for explicitly calling the `deleteRecord` mutation in cases where attributes ahve been removed in the API, as they will never be removed from the store, only added to.
+
+- _Clear on update_ - If enabled, then each new set of records is considered to be definitive for that `type`, and any other records of that `type` in the store will be removed. This option is useful for cases where you expect the API response to contain the full set of records from the server, as it avoids the need for manual cache expiry. The code will first apply the new records to the store, and then for each `type` which has had new records added, remove old ones. This is designed to be more efficient in terms of updating computed properties and UI redraws than emptying then repopulating the store. (see [Configuration])
+
 - _Endpoints_ - by default this module assumes that object types and API endpoints (item and collection) all share the same name. however, some APIs use plurals or other variations on the endpoint names. You can override the endpoint name via the `axios` `url` config option or the `links.self` attribute (see [Endpoints](#endpoints))
 
-- _Clean Patches_ - by default, data passed to the `patch` action is used as-is. If `cleanPatch` is enabled, then the patch object is compared to the record in the store (if it exists), and any attributes with identical values are removed. This means that the final `patch` will only contain new or modified attributes, which is safer and more efficient, as it avoids sending unnecessary or 'stale' data. Additionally, unwanted properties in `_jv` (links, meta, relationships) can be removed.
+- _JSONPath_ - the `get` getter takes a second (optional) argument which is a JSONPath. This is used to filter the results being returned from the store. (see [`get`](#get))
+
+- _Searching_ - The API can be searched without any changes being propagated to the store. This is useful for AJAX-style queries. (see [`search`](#search))
+
+### Vuex Methods
+
+The 3 categories of Vuex methods are used as follows:
+
+- Actions - These are used to query and modify the API, returning the results. Actions are asynchronous.
+
+- Getters - These are used to directly query the store without contacting the API. Getters are synchronous.
+
+- Mutations - These are used to change the state of the store without contacting the API. (They are usually called by Actions, but can be used directly). Mutations are synchronous.
 
 ### Actions
 
-The usual way to use this module is to use `actions` wherever possible. All actions are asynchronous, and both query the API and update the store, then return data in a normalized form. Every action call's state is tracked as it progresses, and this status can be easily queried (see the `status` getter).
+The usual way to use this module is to use `actions` wherever possible. All actions are asynchronous, and both query the API and update the store, then return data in a normalized form. Every action call's state is tracked as it progresses, and this status can be easily queried (see the [`status`](#status) getter).
 
-There are 4 actions (with aliases): `get` (`fetch`), `post` (`create`), `patch` (`update`), and `delete` which correspond to RESTful methods. There is also a [getRelated](#getrelated) action which fetches a record's [related items](#related-items).
+There are 4 actions (with aliases): `get` (`fetch`), `post` (`create`), `patch` (`update`), and `delete` which correspond to RESTful methods. There is also a [getRelated](#getrelated) action which fetches a record's [relationships](#relationships).
 
 #### RESTful actions
 
@@ -80,25 +212,15 @@ _Note_ - Since the `dispatch` method can only accept a single argument, if both 
 The first argument is an object containing [restructured data](#restructured-data). Actions which take no `data` argument apart from the record (`get` and `delete`) can also accept a URL to fetch (relative to `axios` `baseURL` (if set) leading slash is optional). This means you don't need to create an 'empty' restructured data object to get or delete a record. Some examples:
 
 ```js
-// Restructured representation of a record
-const newWidget = {
-  name: 'sprocket',
-  color: 'black',
-  _jv: {
-    type: 'widget',
-    id: '1',
-  },
-}
+// To get all items in a collection, using a string path:
+this.$store.dispatch('jv/get', 'widget').then((data) => {
+  console.log(data)
+})
 
 // Request Query params (JSONAPI options, auth tokens etc)
 const params = {
   token: 'abcdef123456',
 }
-
-// To get all items in a collection, using a sring path:
-this.$store.dispatch('jv/get', 'widget').then((data) => {
-  console.log(data)
-})
 
 // Get a specific record from the 'widget' endpoint, passing parameters to axios:
 this.$store
@@ -106,6 +228,15 @@ this.$store
   .then((data) => {
     console.log(data)
   })
+
+// Restructured representation of a record
+const newWidget = {
+  name: 'sprocket',
+  color: 'black',
+  _jv: {
+    type: 'widget',
+  },
+}
 
 // Create a new widget in the API, using a restructured object, and passing parameters to axios:
 this.$store
@@ -117,7 +248,7 @@ this.$store
 
 #### search
 
-The `search` action is trhe same as the `get` action, except that it does not result in any updates to the store. This action exists for efficiency purposes - for example to do 'search-as-you-type' queries without continually updating the store with all the results.
+The `search` action is the same as the `get` action, except that it does not result in any updates to the store. This action exists for efficiency purposes - for example to do 'search-as-you-type' AJAX-style queries without continually updating the store with all the results.
 
 ```js
 const widgetSearch = (text) => {
@@ -133,7 +264,7 @@ const widgetSearch = (text) => {
 
 #### getRelated
 
-_Note_ - in many cases you may prefer to use the jsonapi server-side `include` option to get data on relationships included in your original query. (See [Related Items](#related-items)).
+_Note_ - in many cases you may prefer to use the jsonapi server-side `include` option to get data on relationships included in your original query. (See [Relationships](#relationships)).
 
 Like the RESTful actions, this takes 2 arguments - the string or object to be acted on, and an axios config object. It returns a deeply nested restructured tree - `relationship -> type -> id -> data`.
 
@@ -313,13 +444,13 @@ Mutations take normalised data as an argument.
 
 Deletes a single record from the store.
 
-```
+```js
 store.commit('deleteRecord', { _jv: { type: 'widget', id: '1' } })
 ```
 
 #### addRecords
 
-Updates records in the store. Replaces or merges with existing records, depending on the value of [mergeRecords](#Configuration)
+Updates records in the store. Replaces or merges with existing records, depending on the value of the [mergeRecords](#configuration) configuration option.
 
 #### replaceRecords
 
@@ -340,65 +471,6 @@ Sets the session status information in the store.
 #### deleteStatus
 
 Deletes a session status record from the store.
-
-### Related Items
-
-By default the `get` action and getter are both configured to follow and expand out relationships, if they are provided as `data` entries (i.e. `{type: 'widget', id: '1'}`). This behaviour is controlled with the `followRelationshipsData` config option.
-
-_Note_ - If using the `action` you may wish to also set the `include` parameter on the server query to include the relationships you are interested in. Any records returned in the `included` section of the jsonapi data will be automatically added to the store.
-
-This expansion is done by adding an attribute where the key is the relationship name, and the value is a javascript [`getter`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get) that calls the `get` vuex getter for that record. the value will therefore be the value of the related object (if in the store), or an empty object (if not). For items with a single relationship, the object is placed directly under the `relName` - for mutiple items, they are indexed by id:
-
-```js
-// Assuming the store is as follows:
-store = {
-  widget: {
-    '1': {
-      name: 'sprocket',
-      _jv: {
-        relationships: {
-          parts: {
-            data: {
-              type: 'widget',
-              id: '2',
-            },
-          },
-        },
-      },
-    },
-    '2': {
-      name: 'cog',
-    },
-  },
-}
-
-// Get widget/1, with related items
-
-// Either:
-
-// (Note the use of include to ensure `parts` is in the store)
-let item1 = await this.$store.dispatch('jv/get', 'widget/1', [{ include: 'parts' }])
-
-// OR...
-
-let item1 = this.$store.getters['jv/get']('widget/1')
-
-// This will return:
-{
-  name: 'sprocket',
-  parts: { // getter property, which will return:
-    name: 'cog'
-    _jv: { /* ... */ }
-  },
-  _jv: {
-    id: '1',
-    type: 'widget',
-  },
-}
-
-```
-
-_Note_ - since relationships can be recursive, calling methods on such objects which try to walk the entire tree will cause recursion errors (e.g. `JSON.stringify`). In order to prevent this common error, recursive relationships are replaced with just the `_jv` section, containing `type` and `id` as an indicator of the unfollowed relationship. Recursive relationships can be enabled with the configuration option [recurseRelationships](#Configuration).
 
 ## Helper Functions
 
@@ -422,7 +494,7 @@ These are particularly useful in `Vue` templates. For example to iterate over an
 <li v-for="(val, key) in widget" v-if="widget._jv.isAttr(key)">{{ key }} {{ val }}</li>
 ```
 
-## Utility functions
+## Utility Functions
 
 Some functions are potentially useful for data manipulation etc outside the normal code flow. These functions are exported as `utils`, i.e:
 
@@ -483,7 +555,7 @@ For many of these options, more information is provided in the [Usage](#usage) s
 - `followRelationshipsData` - Whether to follow and expand relationships and store them alongside attributes in the item 'root' (defaults to `true`).
 - `preserveJson` - Whether actions should return the API response json (minus `data`) in `_jv/json` (for access to `meta` etc) (defaults to `false`)
 - `actionStatusCleanAge` - What age must action status records be before they are removed (defaults to 600 seconds). Set to `0` to disable.
-- `mergeRecords`- Whether new records should be merged onto existing records in the store, or just replace them (defaults to `false`).
+- `mergeRecords` - Whether new records should be merged onto existing records in the store, or just replace them (defaults to `false`).
 - `clearOnUpdate` - Whether the store should clear old records and only keep new records when updating. Applies to the `type(s)` associated with the new records. (defaults to false).
 - `cleanPatch` - If enabled, patch object is compared to the record in the store, and only unique or modified attributes are kept in the patch. (defaults to false).
 - `cleanPatchProps` - If cleanPatch is enabled, an array of `_jv` properties that should be preserved - `links`, `meta`, and/or `relationships`. (defaults to `[]`).
@@ -528,80 +600,11 @@ this.$store.dispatch('jv/get', [{ _jv: { type: 'widget' } }, { url: customUrl(da
 
 _Note_ - If provided the `url` option is used as-is - you are responsible for setting a valid collection or item url (with `id`) as appropriate.
 
-## Restructured Data
-
-JSONAPI is an extremely useful format for clearly interacting with an API - however it is less useful for the end developer, who is generally more interested in the data contained in a record than the structure surrounding it.
-
-In this module we 'reverse' the JSONAPI data into a form where data attributes become top-level keys, and JSONAPI-specific data is moved down under another key: `_jv`.
-
-For example, the JSONAPI record:
-
-```json
-{
-  "id": "1",
-  "type": "widget",
-  "attributes": {
-    "name": "sprocket",
-    "color": "black"
-  },
-  "meta": {}
-}
-```
-
-has to be accessed as `record.attributes.color`
-
-This module would restructure this record to be:
-
-```json
-{
-  "name": "sprocket",
-  "color": "black",
-  "_jv": {
-    "id": "1",
-    "type": "widget",
-    "meta": {}
-  }
-}
-```
-
-Which is easier to work with, as lookups are now top-level, e.g. `record.name`
-
-In cases where there are multiple records being returned in an object, the id is used as the key (though this is ignored in the code, and the 'real' id is always read from `_jv`):
-
-```json
-{
-  "1": {
-    "name": "sprocket",
-    "color": "black"
-  },
-  "2": {
-    "name": "cog",
-    "color": "red"
-  }
-}
-```
-
-These are accessed as `record.1.name` or `record.2.color`, or if a list is needed, via `Object.values(record)`.
-
-The above structure is actually how records are maintained in the store, nested below the `endpoint`:
-
-```json
-{
-  "widget": {
-    "1": {},
-    "2": {}
-  },
-  "doohickey": {
-    "20": {}
-  }
-}
-```
-
 ## Development
 
 Any bugs, enhancements or questions welcome as Issues (or even PRs!)
 
-Development is currently being done with [yarn](https://yarnpkg.com/en/) - `npm` should work, but if you hit unexpected issues, please try `yarn` before filing a bug.
+Development is currently being done with [yarn](https://yarnpkg.com/en/) - NPM should work, but if you hit unexpected issues, please try yarn before filing a bug.
 
 ### Setup
 
@@ -619,11 +622,11 @@ There are several scripts set up in `package.json`:
 
 `yarn e2e` - Run the e2e tests (uses `nightwatch`)
 
-`yarn testapp` - Runs the example `testapp` used in e2e testing for interactive testing/debugging.
+`yarn testapp` - Runs the example `testapp` used in `e2e` testing to allow interactive testing/debugging in a browser.
 
-`yarn fakeapiserver` - Runs a fake JSONAPI server used by the testapp for interactive testing/debugging.
+`yarn fakeapiserver` - Runs a fake JSONAPI server used by the `testapp` for interactive testing/debugging.
 
-`yarn test` - Runs both unit and e2e tests. (Used by `travis`).
+`yarn test` - Runs both `unit` and `e2e` tests. (Used by `travis`).
 
 _Note_ - All code is pre-processed with `babel` and `eslint` when testing for backwards compatability and linting.
 
