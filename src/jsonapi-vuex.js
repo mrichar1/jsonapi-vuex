@@ -41,6 +41,12 @@ let jvConfig = {
 
 let jvtag
 
+// Shorthand for 'safe' hasOwnProperty
+// https://eslint.org/docs/rules/no-prototype-builtins
+const hasProperty = (obj, prop) => {
+  return Object.prototype.hasOwnProperty.call(obj, prop)
+}
+
 // Global sequence counter for unique action ids
 let actionSequenceCounter = 0
 
@@ -68,7 +74,7 @@ const mutations = () => {
         if (type in state) {
           const storeRecords = get(state, [type])
           for (let id of Object.keys(storeRecords)) {
-            if (!item.hasOwnProperty(id)) {
+            if (!hasProperty(item, id)) {
               Vue.delete(state[type], id)
             }
           }
@@ -137,7 +143,7 @@ const actions = (api) => {
       let rels
       if (
         typeof data === 'object' &&
-        data[jvtag].hasOwnProperty('relationships')
+        hasProperty(data[jvtag], 'relationships')
       ) {
         rels = data[jvtag]['relationships']
       } else {
@@ -272,7 +278,7 @@ const actions = (api) => {
       let action = api(apiConf)
         .then((results) => {
           // If the server handed back data, store it
-          if (results.status === 200 && results.data.hasOwnProperty('data')) {
+          if (results.status === 200 && hasProperty(results.data, 'data')) {
             // Full response
             context.commit('deleteRecord', data)
             data = jsonapiToNorm(results.data.data)
@@ -363,7 +369,7 @@ const getters = () => {
 
         if (type in state) {
           if (id) {
-            if (state[type].hasOwnProperty(id)) {
+            if (hasProperty(state[type], id)) {
               // single item
               result = state[type][id]
             } else {
@@ -439,7 +445,7 @@ const cleanPatch = (patch, state = {}, jvProps = []) => {
   const stateRecord = get(state, modPatch[jvtag]['id'])
   if (stateRecord) {
     for (let [k, v] of Object.entries(attrs)) {
-      if (!stateRecord.hasOwnProperty(k) || !isEqual(stateRecord[k], v)) {
+      if (!hasProperty(stateRecord, k) || !isEqual(stateRecord[k], v)) {
         clean[k] = v
       }
     }
@@ -485,10 +491,10 @@ const addJvHelpers = (obj) => {
   // Add Utility functions to _jv child object
   Object.assign(obj[jvtag], {
     isRel(name) {
-      return get(obj, [jvtag, 'relationships'], {}).hasOwnProperty(name)
+      return hasProperty(get(obj, [jvtag, 'relationships'], {}), name)
     },
     isAttr(name) {
-      return name !== jvtag && obj.hasOwnProperty(name) && !this.isRel(name)
+      return name !== jvtag && hasProperty(obj, name) && !this.isRel(name)
     },
   })
   // Use defineProperty as assign copies the values, not the getter function
@@ -699,12 +705,12 @@ const normToJsonapiItem = (data) => {
   const jsonapi = {}
   //Pick out expected resource members, if they exist
   for (let member of ['id', 'type', 'relationships', 'meta', 'links']) {
-    if (data[jvtag].hasOwnProperty(member)) {
+    if (hasProperty(data[jvtag], member)) {
       jsonapi[member] = data[jvtag][member]
     }
   }
   // User-generated data (e.g. post) has no helper methods
-  if (data[jvtag].hasOwnProperty('attrs')) {
+  if (hasProperty(data[jvtag], 'attrs')) {
     jsonapi['attributes'] = data[jvtag].attrs
   } else {
     jsonapi['attributes'] = Object.assign({}, data)
