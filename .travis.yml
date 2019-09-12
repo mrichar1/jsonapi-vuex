@@ -1,28 +1,21 @@
 language: node_js
-
 node_js:
 - node
-
 env:
   global:
-    - DISPLAY=:99.0
-
+  - DISPLAY=:99.0
 services:
-  - xvfb
-
-# Install the latest firefox for nightwatch e2e tests
+- xvfb
 addons:
   firefox: latest
-
 script:
-  - npm run lint
-  - npm test
-
+- npm run lint
+- npm test
 deploy:
   provider: npm
   email: m.richardson@ed.ac.uk
   api_key:
-    secure: X+3Mq/DhHS+KxW78iR+BhOS3hcv8HHj700Q8EKA2xTs3URxezm4M2Jw6Z+bCkvOImvq0xecaCsnLxyKVPAdr71brHh01P/7UO0lcEnXInMHnGMp4b1Mp24Z25x/2j3PRvGCO2WwUnRh7DO5v+k9N+hUo+56xlCHwf3TC4yg2zKZpHHnas3ed0TcbvrCp/qcmj06yuT0q/y1D7yH2xKYDJG+PLsP/SPlLdfmwwDLKx/dfB7MQ+JmuMq9/eIPfBUrag3CfenjO5+7p7Bv28wGj1ft+FbZuOO5YBpAEFXy12QkInDctYnkjkkEmlbig0HkOmDlCzHPN5yq9heTHGj2QJ7rLIBFoK7cF7GzLNc51qXLhWB93i2j0c+lypxLe3XSpCepNg2tlnvsqVVL2QzVPvSTvG7GY9aBELOncfwq9lARknq3IZNtWivH7vutXKiwHnjmgvVu02ha4uYurY/n58EK20wpbyzTmgbMqSvjhyMKbXLTOJOOXOBqfukHSxzHs05AhxJVIdJ0kbLijqUrT37+bxAAMbO5z+kc+X6Lp6y8S6jv0drVBuYjIox2zE3PTQbfNvAKPzQLq6NX1t9rsh4u1Rx+euef+8N7vM98w+l/WiLDqHkoP8f+vqyP2/sh64OkxUh3NTqXv10B4DUKqITomuj0+vDqhFl77OTUkAmw=
+    secure: vYv6EqcfqTrjQrePGE8N2yh8hzV0Pqmb2FtP4svxVlMd/l8LwlrllSvjlLGS5yPgTk9xdG+79CVKv0JbKNO9q4RojAm182fkeTb5NlfRtHlnI2hpgQk65Xqk3MrKieSRgW5YZ4DToqfJuW5sS1f/d5tk1rYmfM6QrcktrOWXamtLzyJLj8EdbPtA+8ha+t77P/JmWxvTgF5XlwRYDHhH4W6OpPvmPSY7Qgv0H2toFZdS/20KrQCPDJgAnW5Alu0yCBfjT4WVdFyTLb3x2vkjOtkpYvOfLxeDSguwQMM4rRh+7C6dRGOjyxiwDlN12X9su4rWwHId0Tovq/GCWs/u41CS6QdMIrv10ZHE4x/BTgAb3kyyVMe8CXLIOC5eU/zo2jBmYgMxUG+g+h1Rjc5JI5aXNKfY67DNcNxJc3aK7qFO1GbOT2s+k8GrkmgDczORg8TCtpXd3+0key5o4uYqEmeu7EAb4vDBu1Qgjj+O3i3AiV7ysb4WyM6oDTWLkyq3WCFG01gopoBqkzH+B5yVQHuEYr6aYefNv9mdVLyONJuPZkoRII0R2p602R6OE5XJZALQHiR2Rkb9xMydbw/wrSBTgjkLuZWT6kMOhrbDtX0dP0cWTSl2u3pEFG3uIX+avgjqjQJvcd/p4v6Ay6oRtc2TOJUAou+G7UzUjc4ouno=
   on:
     tags: true
     repo: mrichar1/jsonapi-vuex
