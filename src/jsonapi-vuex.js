@@ -1,5 +1,6 @@
 import Vue from 'vue'
 import get from 'lodash.get'
+import set from 'lodash.set'
 import isEqual from 'lodash.isequal'
 import merge from 'lodash.merge'
 import cloneDeep from 'lodash.clonedeep'
@@ -34,8 +35,8 @@ let jvConfig = {
   cleanPatch: false,
   // If cleanPatch is enabled, which _jv props (links, meta, rels) be kept?
   cleanPatchProps: [],
-  // Add a toJSON method to rels to prevent recursion errors
-  toJSON: true,
+  // Allow relationships to be recursive?
+  recurseRelationships: false,
 }
 
 let jvtag
@@ -352,7 +353,7 @@ const actions = (api) => {
 
 const getters = () => {
   return {
-    get: (state, getters) => (data, jsonpath) => {
+    get: (state, getters) => (data, jsonpath, seenState) => {
       let result
       if (!data) {
         // No data arg - return whole state object
@@ -373,7 +374,12 @@ const getters = () => {
             // whole collection, indexed by id
             result = state[type]
           }
-          result = checkAndFollowRelationships(state, getters, result)
+          result = checkAndFollowRelationships(
+            state,
+            getters,
+            result,
+            seenState
+          )
         } else {
           // no records for that type in state
           return {}
@@ -539,16 +545,16 @@ const preserveJSON = (data, json) => {
   return data
 }
 
-const checkAndFollowRelationships = (state, getters, records) => {
+const checkAndFollowRelationships = (state, getters, records, seenState) => {
   if (jvConfig.followRelationshipsData) {
     let resData = {}
     if (jvtag in records) {
       // single item
-      resData = followRelationships(state, getters, records)
+      resData = followRelationships(state, getters, records, seenState)
     } else {
       // multiple items
       for (let [key, item] of Object.entries(records)) {
-        resData[key] = followRelationships(state, getters, item)
+        resData[key] = followRelationships(state, getters, item, seenState)
       }
     }
     if (resData) {
@@ -559,7 +565,7 @@ const checkAndFollowRelationships = (state, getters, records) => {
 }
 
 // Follow relationships and expand them into _jv/rels
-const followRelationships = (state, getters, record) => {
+const followRelationships = (state, getters, record, seenState) => {
   // Copy item before modifying
   const data = cloneDeep(record)
 
@@ -584,41 +590,28 @@ const followRelationships = (state, getters, record) => {
           rootObj = data
           key = relName
         }
-
-        Object.defineProperty(rootObj, key, {
-          get() {
-            return getters.get(`${type}/${id}`)
-          },
-          enumerable: true,
-          // For deletion in `toJSON`
-          configurable: true,
-        })
-
-        if (jvConfig.toJSON) {
-          // Add toJSON method to serialise (potentially recursive) getters
-          if (!rootObj.hasOwnProperty('toJSON')) {
-            Object.defineProperty(rootObj, 'toJSON', {
-              value: function() {
-                const json = Object.assign({}, this)
-                // Store updates may be asynchronous, so test for 'real' data
-                if (this[key].hasOwnProperty(jvtag)) {
-                  const thisjv = this[key][jvtag]
-                  // Replace getter with type and id
-                  json[key] = {
-                    [jvtag]: {
-                      type: thisjv['type'],
-                      id: thisjv['id'],
-                    },
-                  }
-                } else {
-                  // No 'real' data (yet) so delete the getter to prevent recursion
-                  delete json[key]
+        if (type && id) {
+          Object.defineProperty(rootObj, key, {
+            get() {
+              // Return a getter for objects not yet seen...
+              let path = [relName]
+              // Prefix key & id with _ as _.set treats ints are indices, not keys
+              if (relName !== key) {
+                path.push(`_${key}`)
+              }
+              path.push(type, `_${id}`)
+              if (!get(seenState, path)) {
+                if (!jvConfig.recurseRelationships && type && id) {
+                  set(seenState, path, true)
                 }
-                return json
-              },
-              enumerable: false,
-            })
-          }
+                return getters.get(`${type}/${id}`, undefined, seenState)
+              } else {
+                // ... otherwise return a resource identifier object
+                return { [jvtag]: { type: type, id: id } }
+              }
+            },
+            enumerable: true,
+          })
         }
       }
     }

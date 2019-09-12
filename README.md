@@ -398,7 +398,7 @@ let item1 = this.$store.getters['jv/get']('widget/1')
 
 ```
 
-_Note_ - since relationships can be recursive, calling methods on such objects which try to walk the entire tree will cause recursion errors (e.g. `JSON.stringify`). In order to prevent this common error, a `toJSON` function is added to spot and remove any potentially recursive relationships. In these cases the getter is relpaced with just the `_jv` section, containing `type` and `id` as an indicator of the unfollowed relationship. This behaviour can be disabled - see [toJSON](#Configuration).
+_Note_ - since relationships can be recursive, calling methods on such objects which try to walk the entire tree will cause recursion errors (e.g. `JSON.stringify`). In order to prevent this common error, recursive relationships are replaced with just the `_jv` section, containing `type` and `id` as an indicator of the unfollowed relationship. Recursive relationships can be enabled with the configuration option [recurseRelationships](#Configuration).
 
 ## Helper Functions
 
@@ -487,7 +487,7 @@ For many of these options, more information is provided in the [Usage](#usage) s
 - `clearOnUpdate` - Whether the store should clear old records and only keep new records when updating. Applies to the `type(s)` associated with the new records. (defaults to false).
 - `cleanPatch` - If enabled, patch object is compared to the record in the store, and only unique or modified attributes are kept in the patch. (defaults to false).
 - `cleanPatchProps` - If cleanPatch is enabled, an array of `_jv` properties that should be preserved - `links`, `meta`, and/or `relationships`. (defaults to `[]`).
-- `toJSON` - Add a `toJSON` function to records to remove potentially recursive relationships when serialising to JSON. (defaults to true).
+- `recurseRelationships` - If `false`, replaces recursive relationships with a normalised resource identifier (i.e `{ _jv: { type: 'x', id: 'y' } }`). (defaults to `false`).
 
 ## Endpoints
 
