@@ -571,7 +571,7 @@ const checkAndFollowRelationships = (state, getters, records, seenState) => {
 }
 
 // Follow relationships and expand them into _jv/rels
-const followRelationships = (state, getters, record, seenState) => {
+const followRelationships = (state, getters, record, seenState = {}) => {
   // Copy item before modifying
   const data = cloneDeep(record)
 
