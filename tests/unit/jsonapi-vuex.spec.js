@@ -231,16 +231,38 @@ describe('jsonapi-vuex tests', function() {
         const { deleteStatus } = jm.mutations
         deleteStatus(state, 1)
         expect(state['_jv']).to.deep.equal({})
-      }),
-        it('should not error if deleting a non-existent id', function() {
-          const state = { _jv: {} }
-          const { deleteStatus } = jm.mutations
-          expect(() => deleteStatus(state, 2)).to.not.throw()
-        })
+      })
+      it('should not error if deleting a non-existent id', function() {
+        const state = { _jv: {} }
+        const { deleteStatus } = jm.mutations
+        expect(() => deleteStatus(state, 2)).to.not.throw()
+      })
     })
   }) // mutations
 
   describe('jsonapiModule helpers', function() {
+    describe('deepCopy', function() {
+      it('should deep copy an object, replacing helper methods', function() {
+        const { deepCopy } = _testing
+        let obj = { _jv: {} }
+        // Add a getter that we expect to be overwritten
+        Object.defineProperty(obj['_jv'], 'attrs', {
+          get() {
+            return 'string'
+          },
+          enumerable: true,
+        })
+        let newObj = deepCopy(obj)
+        // 'real' attrs should return an object, not a string
+        expect(newObj['_jv']['attrs']).to.be.an('object')
+      })
+      it('should return the object as-is if empty.', function() {
+        const { deepCopy } = _testing
+        let obj = {}
+        let newObj = deepCopy(obj)
+        expect(newObj).to.deep.equal({})
+      })
+    })
     describe('cleanPatch', function() {
       it('should return patch unmodified if record not in state', function() {
         const { cleanPatch } = _testing
@@ -462,31 +484,30 @@ describe('jsonapi-vuex tests', function() {
         const { followRelationships } = _testing
         let getStub = sinon.stub()
         const getters = { get: getStub }
-        let rel = followRelationships(storeRecord, getters, normWidget1, {})
+        // Mark widget/1's rel of widget/2 as already seen
+        let seen = [['widgets', 'widget', '2']]
+        const rel = followRelationships(storeRecord, getters, normWidget1, seen)
         // 'Get' the getter
         rel['widgets']
-        // The seenState Object (3rd arg to get()) shouldn't be updated
-        expect(getStub.args[0][2]).to.deep.equal({})
+        // If it didn't stop, getter will have been called, and seen will have 'grown'
+        expect(getStub).to.have.been.called
+        expect(getStub.args[0][2]).to.not.deep.equal(seen)
       })
 
       it('Should limit recursion (!recurseRelationships)', function() {
         const { jvConfig } = _testing
         jvConfig.recurseRelationships = false
         const { followRelationships } = _testing
-        const getters = { get: sinon.stub() }
-
+        let getStub = sinon.stub()
+        const getters = { get: getStub }
         // Mark widget/1's rel of widget/2 as already seen
-        let seenState = { widgets: { widget: { _2: true } } }
-        let rels = followRelationships(
-          storeRecord,
-          getters,
-          normWidget1,
-          seenState
-        )
-
+        let seen = [['widgets', 'widget', '2']]
+        const rel = followRelationships(storeRecord, getters, normWidget1, seen)
+        // No get recursion occurs
+        expect(getStub).to.not.have.been.called
         // The result should be a custom resource identifier
         // It should *only* have _jv - no attrs or rels as a result
-        expect(rels['widgets']).to.have.all.keys('_jv')
+        expect(rel['widgets']).to.have.all.keys('_jv')
       })
     })
 
