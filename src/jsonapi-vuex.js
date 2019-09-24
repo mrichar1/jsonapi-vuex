@@ -413,17 +413,19 @@ const getters = () => {
           const relations = get(parent, [jvtag, 'relationships', rel], {})
           let relationsData = {}
           let data = {}
-          if (!Array.isArray(relations.data)) {
-            data[relations.data.id] = getters.get(
-              [relations.data.type, relations.data.id].join('/')
-            )
-            Object.assign(relationsData, data)
-          } else {
-            for (let relation of relations.data) {
-              data[relation.id] = getters.get(
-                [relation.type, relation.id].join('/')
+          if (relations.data) {
+            if (!Array.isArray(relations.data)) {
+              data[relations.data.id] = getters.get(
+                [relations.data.type, relations.data.id].join('/')
               )
               Object.assign(relationsData, data)
+            } else {
+              for (let relation of relations.data) {
+                data[relation.id] = getters.get(
+                  [relation.type, relation.id].join('/')
+                )
+                Object.assign(relationsData, data)
+              }
             }
           }
           return relationsData
