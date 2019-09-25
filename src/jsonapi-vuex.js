@@ -576,7 +576,7 @@ const checkAndFollowRelationships = (state, getters, records, seen) => {
 const followRelationships = (state, getters, record, seen = []) => {
   // Make a shallow copy of the object's keys (by reference - preserve getters).
   // We can't add rels to the original object, otherwise Vue's watchers
-  // spot the potential recursion and throw an error
+  // spot the potential loop and throw an error
   let data = {}
   // Use entries() as we need to iterate the values to get the 'real' record
   for (let [key] of Object.entries(record)) {

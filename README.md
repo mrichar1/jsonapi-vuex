@@ -211,7 +211,7 @@ _Note_ - Since the `dispatch` method can only accept a single argument, if both 
 
 The first argument is an object containing [restructured data](#restructured-data). Actions which take no `data` argument apart from the record (`get` and `delete`) can also accept a URL to fetch (relative to `axios` `baseURL` (if set) leading slash is optional). This means you don't need to create an 'empty' restructured data object to get or delete a record.
 
-_Note_ - The `get` action differs that it returns the results of the action, rather than querying the store for the requested item/collection. This is because the `get` may be a partial or filtered request, returning only a subset of the item/collection. This means that if you use these results, later updates to the stores will not be reflected. If you want to query the store, then use the `get` getter once the action has returned.
+_Note_ - The `get` action differs in that it returns the results of the action, rather than querying the store for the requested item/collection. This is because the `get` may be a partial or filtered request, returning only a subset of the item/collection. This means that if you use these results, later updates to the stores will not be reflected. If you want to query the store, then use the `get` getter once the action has returned.
 
 Some examples:
 
