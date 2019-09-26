@@ -501,10 +501,8 @@ const addJvHelpers = (obj) => {
   Object.defineProperty(obj[jvtag], 'rels', {
     get() {
       const rel = {}
-      for (let [key, val] of Object.entries(obj)) {
-        if (this.isRel(key)) {
-          rel[key] = val
-        }
+      for (let key of Object.keys(get(obj, [jvtag, 'relationships'], {}))) {
+        rel[key] = obj[key]
       }
       return rel
     },
@@ -515,7 +513,7 @@ const addJvHelpers = (obj) => {
     get() {
       const att = {}
       for (let [key, val] of Object.entries(obj)) {
-        if (key !== jvtag && !this.isRel(key)) {
+        if (this.isAttr(key)) {
           att[key] = val
         }
       }
