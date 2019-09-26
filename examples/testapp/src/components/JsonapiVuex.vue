@@ -89,6 +89,8 @@
 </template>
 
 <script>
+import { utils } from '../../../../src/jsonapi-vuex'
+
 export default {
   name: 'JsonapiVuex',
   data: () => {
@@ -110,12 +112,12 @@ export default {
       return this.$store.getters['jv/get']('widget')
     },
     widget1() {
-      return this.$store.getters['jv/get']('widget/1')
+      return utils.deepCopy(this.$store.getters['jv/get']('widget/1'))
     },
   },
   created() {
     this.$store.dispatch('jv/get', 'widget')
-    this.$store.dispatch('jv/search', 'widget').then((res) => {
+    this.$store.dispatch('jv/get', 'widget').then((res) => {
       this.searchResult = res
     })
   },

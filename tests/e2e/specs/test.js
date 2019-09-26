@@ -24,8 +24,8 @@ module.exports = {
 
     // Expanded related objects
     be.element('#rel_span_relname').text.to.equal('widgets')
-    be.element('#rel_span_name').text.to.equal('spring')
-    be.element('#rel_span_color').text.to.equal('silver')
+    be.element('#rel_span_name').text.to.equal('gear')
+    be.element('#rel_span_color').text.to.equal('blue')
 
     // Values from initial API search in table
     be.element('#search_name_1').text.to.equal('sprocket')
