@@ -417,13 +417,18 @@ const getters = () => {
                 : Array.of(relations)) {
                 relType = relation['type']
                 relId = relation['id']
-                let getter = getters.get(`${relType}/${relId}`)
-                Object.defineProperty(relationshipsData[relationship], relId, {
+                let relationData = {}
+
+                Object.defineProperty(relationData, relId, {
                   get() {
-                    return getter
+                    return getters.get(`${relType}/${relId}`)
                   },
                   enumerable: true,
                 })
+                relationshipsData[relationship] = {
+                  ...relationshipsData[relationship],
+                  ...relationData,
+                }
               }
             }
           }
