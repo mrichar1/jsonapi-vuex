@@ -404,49 +404,7 @@ const getters = () => {
       if (type in state) {
         if (hasProperty(state[type], id)) {
           parent = state[type][id]
-          let relationships = get(parent, [jvtag, 'relationships'], {})
-          let relationshipsData = {}
-          for (let relName of Object.keys(relationships)) {
-            let relations = get(relationships, [relName, 'data'], {})
-            relationshipsData[relName] = {}
-            if (relations) {
-              let relType
-              let relId
-              for (let relation of Array.isArray(relations)
-                ? relations
-                : Array.of(relations)) {
-                relType = relation['type']
-                relId = relation['id']
-                let relationData = {}
-
-                Object.defineProperty(relationData, relId, {
-                  get() {
-                    let current = [relName, relType, relId]
-                    // Stop if seen contains an array which matches 'current'
-                    if (
-                      !jvConfig.recurseRelationships &&
-                      seen.some((a) => a.every((v, i) => v === current[i]))
-                    ) {
-                      return { [jvtag]: { type: relType, id: relId } }
-                    } else {
-                      // prettier-ignore
-                      return getters.get(
-                     `${relType}/${relId}`,
-                      undefined,
-                      [...seen, [relName, relType, relId]]
-                      )
-                    }
-                  },
-                  enumerable: true,
-                })
-                relationshipsData[relName] = {
-                  ...relationshipsData[relName],
-                  ...relationData,
-                }
-              }
-            }
-          }
-          return relationshipsData
+          return getRelationships(getters, parent, seen)
         }
       }
       return {}
@@ -481,6 +439,63 @@ const jsonapiModule = (api, conf = {}) => {
 }
 
 // Helper methods
+
+const getRelationships = (getters, parent, seen) => {
+  let relationships = get(parent, [jvtag, 'relationships'], {})
+  let relationshipsData = {}
+  for (let relName of Object.keys(relationships)) {
+    let relations = get(relationships, [relName, 'data'], {})
+    relationshipsData[relName] = {}
+    if (relations && Object.keys(relations).length) {
+      let isItem = !Array.isArray(relations)
+      let relationsData = {}
+
+      for (let relation of isItem ? Array.of(relations) : relations) {
+        let relType = relation['type']
+        let relId = relation['id']
+
+        if (!hasProperty(relationsData, relId)) {
+          Object.defineProperty(relationsData, relId, {
+            get() {
+              let current = [relName, relType, relId]
+              // Stop if seen contains an array which matches 'current'
+              if (
+                !jvConfig.recurseRelationships &&
+                seen.some((a) => a.every((v, i) => v === current[i]))
+              ) {
+                return { [jvtag]: { type: relType, id: relId } }
+              } else {
+                // prettier-ignore
+                return getters.get(
+                    `${relType}/${relId}`,
+                    undefined,
+                    [...seen, [relName, relType, relId]]
+                  )
+              }
+            },
+            enumerable: true,
+          })
+        }
+      }
+      if (isItem) {
+        Object.defineProperty(
+          relationshipsData,
+          relName,
+          Object.getOwnPropertyDescriptor(
+            relationsData,
+            Object.keys(relationsData)[0]
+          )
+        )
+      } else {
+        Object.defineProperties(
+          relationshipsData[relName],
+          Object.getOwnPropertyDescriptors(relationsData)
+        )
+      }
+    }
+  }
+  return relationshipsData
+}
 
 const deepCopy = (obj) => {
   // Deep copy a normalised object, then re-add helper nethods
@@ -636,9 +651,9 @@ const followRelationships = (state, getters, record, seen = []) => {
     data[key] = record[key]
   }
 
-  let [type, id] = getTypeId(data)
-  let relationships = getters.getRelated(`${type}/${id}`, seen)
-  Object.assign(data, relationships)
+  // let [type, id] = getTypeId(data)
+  let relationships = getRelationships(getters, data, seen)
+  Object.defineProperties(data, Object.getOwnPropertyDescriptors(relationships))
 
   return addJvHelpers(data)
 }
