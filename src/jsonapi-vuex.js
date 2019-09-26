@@ -1,6 +1,5 @@
 import Vue from 'vue'
 import get from 'lodash.get'
-import set from 'lodash.set'
 import isEqual from 'lodash.isequal'
 import merge from 'lodash.merge'
 import cloneDeep from 'lodash.clonedeep'
@@ -359,7 +358,7 @@ const actions = (api) => {
 
 const getters = () => {
   return {
-    get: (state, getters) => (data, jsonpath, seenState) => {
+    get: (state, getters) => (data, jsonpath, seen) => {
       let result
       if (!data) {
         // No data arg - return whole state object
@@ -380,12 +379,7 @@ const getters = () => {
             // whole collection, indexed by id
             result = state[type]
           }
-          result = checkAndFollowRelationships(
-            state,
-            getters,
-            result,
-            seenState
-          )
+          result = checkAndFollowRelationships(state, getters, result, seen)
         } else {
           // no records for that type in state
           return {}
@@ -464,10 +458,18 @@ const jsonapiModule = (api, conf = {}) => {
 
 // Helper methods
 
+const deepCopy = (obj) => {
+  // Deep copy a normalised object, then re-add helper nethods
+  const copyObj = cloneDeep(obj)
+  if (Object.entries(copyObj).length) {
+    return addJvHelpers(copyObj)
+  }
+  return obj
+}
+
 const cleanPatch = (patch, state = {}, jvProps = []) => {
   // Add helper properties (use a copy to prevent side-effects)
-  const modPatch = cloneDeep(patch)
-  addJvHelpers(modPatch)
+  let modPatch = deepCopy(patch)
   const attrs = get(modPatch, [jvtag, 'attrs'])
   let clean = { [jvtag]: {} }
   // Only try to clean the patch if it exists in the store
@@ -513,10 +515,6 @@ const updateRecords = (state, records, merging = jvConfig.mergeRecords) => {
 }
 
 const addJvHelpers = (obj) => {
-  // Do nothing if already has helpers
-  if (get(obj[jvtag]['isRel'])) {
-    return obj
-  }
   // Add Utility functions to _jv child object
   Object.assign(obj[jvtag], {
     isRel(name) {
@@ -538,6 +536,8 @@ const addJvHelpers = (obj) => {
       }
       return rel
     },
+    // Allow to be redefined
+    configurable: true,
   })
   Object.defineProperty(obj[jvtag], 'attrs', {
     get() {
@@ -549,6 +549,8 @@ const addJvHelpers = (obj) => {
       }
       return att
     },
+    // Allow to be redefined
+    configurable: true,
   })
   return obj
 }
@@ -580,16 +582,16 @@ const preserveJSON = (data, json) => {
   return data
 }
 
-const checkAndFollowRelationships = (state, getters, records, seenState) => {
+const checkAndFollowRelationships = (state, getters, records, seen) => {
   if (jvConfig.followRelationshipsData) {
     let resData = {}
     if (jvtag in records) {
       // single item
-      resData = followRelationships(state, getters, records, seenState)
+      resData = followRelationships(state, getters, records, seen)
     } else {
       // multiple items
       for (let [key, item] of Object.entries(records)) {
-        resData[key] = followRelationships(state, getters, item, seenState)
+        resData[key] = followRelationships(state, getters, item, seen)
       }
     }
     if (resData) {
@@ -600,49 +602,64 @@ const checkAndFollowRelationships = (state, getters, records, seenState) => {
 }
 
 // Follow relationships and expand them into _jv/rels
-const followRelationships = (state, getters, record, seenState = {}) => {
-  // Copy item before modifying
-  const data = cloneDeep(record)
+const followRelationships = (state, getters, record, seen = []) => {
+  // Make a shallow copy of the object's keys (by reference - preserve getters).
+  // We can't add rels to the original object, otherwise Vue's watchers
+  // spot the potential loop and throw an error
+  let data = {}
+  // Use entries() as we need to iterate the values to get the 'real' record
+  for (let [key] of Object.entries(record)) {
+    data[key] = record[key]
+  }
 
+  let [type, id] = getTypeId(data)
   const relNames = get(data, [jvtag, 'relationships'], {})
   for (let [relName, relInfo] of Object.entries(relNames)) {
     let isItem = false
+    if (!seen.length) {
+      // we're at the 'start' so add the 'root' object info
+      seen = [[relName, type, id]]
+    }
     // We can only work with data, not links since we need type & id
     if ('data' in relInfo && relInfo.data) {
       let relData = relInfo['data']
-      data[relName] = {}
       if (!Array.isArray(relData)) {
         // Convert to an array to keep things DRY
         isItem = true
         relData = [relData]
+      } else {
+        // Collections of rels are nested under the relName
+        if (!hasProperty(data, relName)) {
+          data[relName] = {}
+        }
       }
       for (let relItem of relData) {
-        let [type, id] = getTypeId({ [jvtag]: relItem })
+        let [relType, relId] = getTypeId({ [jvtag]: relItem })
         let rootObj = data[relName]
-        let key = id
+        let key = relId
         if (isItem) {
           // Store directly under relName, not under an id
           rootObj = data
           key = relName
         }
-        if (type && id) {
+
+        if (!hasProperty(rootObj, key)) {
           Object.defineProperty(rootObj, key, {
             get() {
-              // Return a getter for objects not yet seen...
-              let path = [relName]
-              // Prefix key & id with _ as _.set treats ints are indices, not keys
-              if (relName !== key) {
-                path.push(`_${key}`)
-              }
-              path.push(type, `_${id}`)
-              if (!get(seenState, path)) {
-                if (!jvConfig.recurseRelationships && type && id) {
-                  set(seenState, path, true)
-                }
-                return getters.get(`${type}/${id}`, undefined, seenState)
+              let current = [relName, relType, relId]
+              // Stop if seen contains an array which matches 'current'
+              if (
+                !jvConfig.recurseRelationships &&
+                seen.some((a) => a.every((v, i) => v === current[i]))
+              ) {
+                return { [jvtag]: { type: relType, id: relId } }
               } else {
-                // ... otherwise return a resource identifier object
-                return { [jvtag]: { type: type, id: id } }
+                // prettier-ignore
+                return getters.get(
+                  `${relType}/${relId}`,
+                  undefined,
+                  [...seen, [relName, relType, relId]]
+                )
               }
             },
             enumerable: true,
@@ -800,6 +817,7 @@ const processIncludedRecords = (context, results) => {
 const utils = {
   addJvHelpers: addJvHelpers,
   cleanPatch: cleanPatch,
+  deepCopy: deepCopy,
   getTypeId: getTypeId,
   getURL: getURL,
   jsonapiToNorm: jsonapiToNorm,
@@ -811,6 +829,7 @@ const utils = {
 const _testing = {
   actionSequence: actionSequence,
   getTypeId: getTypeId,
+  deepCopy: deepCopy,
   jsonapiToNorm: jsonapiToNorm,
   jsonapiToNormItem: jsonapiToNormItem,
   normToJsonapi: normToJsonapi,

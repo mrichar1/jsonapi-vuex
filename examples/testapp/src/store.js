@@ -17,6 +17,6 @@ const api = axios.create({
 export default new Vuex.Store({
   strict: true,
   modules: {
-    jv: jsonapiModule(api, { action_status_clean_age: 10 }),
+    jv: jsonapiModule(api, {}),
   },
 })

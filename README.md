@@ -209,7 +209,11 @@ These actions take 2 arguments: the path/object to be acted on, and an (optional
 
 _Note_ - Since the `dispatch` method can only accept a single argument, if both arguments are used, the argument must be an array.
 
-The first argument is an object containing [restructured data](#restructured-data). Actions which take no `data` argument apart from the record (`get` and `delete`) can also accept a URL to fetch (relative to `axios` `baseURL` (if set) leading slash is optional). This means you don't need to create an 'empty' restructured data object to get or delete a record. Some examples:
+The first argument is an object containing [restructured data](#restructured-data). Actions which take no `data` argument apart from the record (`get` and `delete`) can also accept a URL to fetch (relative to `axios` `baseURL` (if set) leading slash is optional). This means you don't need to create an 'empty' restructured data object to get or delete a record.
+
+_Note_ - The `get` action differs in that it returns the results of the action, rather than querying the store for the requested item/collection. This is because the `get` may be a partial or filtered request, returning only a subset of the item/collection. This means that if you use these results, later updates to the stores will not be reflected. If you want to query the store, then use the `get` getter once the action has returned.
+
+Some examples:
 
 ```js
 // To get all items in a collection, using a string path:
@@ -349,6 +353,10 @@ There are 2 getters available. `get` and `status`.
 #### get
 
 Get returns information directly from the store for previously cached records. This is useful for performance reasons, or for use in computed properties.
+
+Get returns an object with getters that point to the data in the store. This means that updates to the store will be dynamically reflected in the results object. However it also means that it is not possible to modify this object as getters aren't writeable.
+
+If you wish to modify the results object (e.g. for patching) then you should use the [`utils.deepCopy`](#utility-functions) method on the object to make a copy that is safe to modify. This deep copies the object, while preserving the [Helper Functions](#helper-functions).
 
 ```js
 computed: {
@@ -515,6 +523,14 @@ Adds the 'helper' functions/properties to `_jv` in a restructured object.
 If you wish to clean patches on a per-patch basis, then set the `cleanPatch` configuration option to false, and instead use this method on your patch record prior to passing it to the action.
 
 `cleanPatch` takes 3 arguments - the patch data, the state to be compared to, and an array of `_jv` properties to be preserved (see `cleanPatchProps` config option).
+
+### `deepCopy`
+
+Makes a deep copy of a normalised object, and adds/updates the [Helper functions](#helper-functions). This is done because walking the object will normally cause the helper functions to be called, resulting in static (and out-of-date) results.
+
+This function is designed for situations where you wish to modify the results of a `getter` call, which will throw an error if any of it's data is modified.
+
+_Note_ - Be aware that this copy will be a 'static' version of the original object - if the store is subsequently updated, the copied object will no longer reflect this.
 
 ### `getTypeId`
 
