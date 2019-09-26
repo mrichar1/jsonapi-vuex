@@ -70,12 +70,10 @@ const mutations = () => {
     clearRecords: (state, records) => {
       const newRecords = normToStore(records)
       for (let [type, item] of Object.entries(newRecords)) {
-        if (type in state) {
-          const storeRecords = get(state, [type])
-          for (let id of Object.keys(storeRecords)) {
-            if (!hasProperty(item, id)) {
-              Vue.delete(state[type], id)
-            }
+        const storeRecords = get(state, [type], {})
+        for (let id of Object.keys(storeRecords)) {
+          if (!hasProperty(item, id)) {
+            Vue.delete(state[type], id)
           }
         }
       }
@@ -150,7 +148,7 @@ const actions = (api) => {
           let record = await context.dispatch('get', args)
 
           rels = get(record, [jvtag, 'relationships'], {})
-          if (relName && rels) {
+          if (relName && hasProperty(rels, relName)) {
             // Only process requested relname
             rels = { [relName]: rels[relName] }
           }
@@ -440,9 +438,9 @@ const deepCopy = (obj) => {
 
 const cleanPatch = (patch, state = {}, jvProps = []) => {
   // Add helper properties (use a copy to prevent side-effects)
-  let modPatch = deepCopy(patch)
+  const modPatch = deepCopy(patch)
   const attrs = get(modPatch, [jvtag, 'attrs'])
-  let clean = { [jvtag]: {} }
+  const clean = { [jvtag]: {} }
   // Only try to clean the patch if it exists in the store
   const stateRecord = get(state, modPatch[jvtag]['id'])
   if (stateRecord) {
@@ -459,7 +457,10 @@ const cleanPatch = (patch, state = {}, jvProps = []) => {
   clean[jvtag]['type'] = patch[jvtag]['type']
   clean[jvtag]['id'] = patch[jvtag]['id']
   for (let prop of jvProps) {
-    clean[jvtag][prop] = get(patch, [jvtag, prop], {})
+    let propVal = get(patch, [jvtag, prop])
+    if (propVal) {
+      clean[jvtag][prop] = propVal
+    }
   }
 
   return clean
@@ -777,11 +778,9 @@ const normToStore = (record) => {
 }
 
 const processIncludedRecords = (context, results) => {
-  if (get(results, ['data', 'included'])) {
-    for (let item of results.data.included) {
-      const includedItem = jsonapiToNormItem(item)
-      context.commit('addRecords', includedItem)
-    }
+  for (let item of get(results, ['data', 'included'], [])) {
+    const includedItem = jsonapiToNormItem(item)
+    context.commit('addRecords', includedItem)
   }
 }
 

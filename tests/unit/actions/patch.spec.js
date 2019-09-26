@@ -147,14 +147,13 @@ describe('patch', function() {
     const conf = {
       followRelationshipsData: true,
       cleanPatch: true,
-      cleanPatchProps: ['links', 'meta', 'relationships'],
+      cleanPatchProps: ['links', 'relationships'],
     }
     jsonapiModule = createJsonapiModule(this.api, conf) //prettier-ignore
     await jsonapiModule.actions.patch(stubContext, widget)
     const res = JSON.parse(this.mockApi.history.patch[0].data)
     expect(res.data).to.have.property('relationships')
     expect(res.data).to.have.property('links')
-    expect(res.data).to.have.property('meta')
   })
 
   it('should not include rels/links/meta in requests (manual cleanPatch)', async function() {
@@ -179,6 +178,5 @@ describe('patch', function() {
     const res = JSON.parse(this.mockApi.history.patch[0].data)
     expect(res.data).to.have.property('relationships')
     expect(res.data).to.have.property('links')
-    expect(res.data).to.have.property('meta')
   })
 })
