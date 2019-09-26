@@ -404,25 +404,24 @@ const getters = () => {
       if (type in state) {
         if (hasProperty(state[type], id)) {
           parent = state[type][id]
-          const relations = get(parent, [jvtag, 'relationships', rel], {})
+          let relations = get(parent, [jvtag, 'relationships', rel, 'data'], {})
           let relationsData = {}
           let data = {}
-          if (relations.data) {
-            if (!Array.isArray(relations.data)) {
-              data[relations.data.id] = getters.get(
-                [relations.data.type, relations.data.id].join('/')
-              )
+          if (relations) {
+            relations = Array.from(relations)
+            let relType
+            let relId
+            for (let relation of relations) {
+              relType = relation['type']
+              relId = relation['id']
+              data[relations['id']] = getters.get(`${relType}/${relId}`)
+
               Object.assign(relationsData, data)
-            } else {
-              for (let relation of relations.data) {
-                data[relation.id] = getters.get(
-                  [relation.type, relation.id].join('/')
-                )
-                Object.assign(relationsData, data)
-              }
             }
           }
-          return relationsData
+          return Array.isArray(relations)
+            ? relationsData
+            : relationsData[Object.keys(relationsData)[0]]
         }
       }
       return {}
