@@ -2,7 +2,6 @@ import Vue from 'vue'
 import get from 'lodash.get'
 import isEqual from 'lodash.isequal'
 import merge from 'lodash.merge'
-import cloneDeep from 'lodash.clonedeep'
 // https://github.com/dchester/jsonpath/issues/89
 import jp from 'jsonpath/jsonpath.min'
 
@@ -431,11 +430,20 @@ const jsonapiModule = (api, conf = {}) => {
 
 const deepCopy = (obj) => {
   // Deep copy a normalised object, then re-add helper nethods
-  const copyObj = cloneDeep(obj)
+  const copyObj = _copy(obj)
   if (Object.entries(copyObj).length) {
     return addJvHelpers(copyObj)
   }
   return obj
+}
+
+const _copy = (data) => {
+  // Recursive object copying function (for 'simple' objects)
+  let out = Array.isArray(data) ? [] : {}
+  for (let key in data) {
+    out[key] = typeof data[key] === 'object' ? _copy(data[key]) : data[key]
+  }
+  return out
 }
 
 const cleanPatch = (patch, state = {}, jvProps = []) => {
@@ -798,6 +806,7 @@ const utils = {
 
 // Export a single object with references to 'private' functions for the test suite
 const _testing = {
+  _copy: _copy,
   actionSequence: actionSequence,
   getTypeId: getTypeId,
   deepCopy: deepCopy,
