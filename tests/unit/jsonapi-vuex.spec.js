@@ -263,6 +263,36 @@ describe('jsonapi-vuex tests', function() {
         expect(newObj).to.deep.equal({})
       })
     })
+    describe('_copy', function() {
+      it('should recursively (deep) copy simple objects', function() {
+        const { _copy } = _testing
+        // Create a simple object with a variety of content
+        const obj = {
+          undef: undefined,
+          func: function() {},
+          string: 'word',
+          number: 10,
+          false: false,
+          _jv: {
+            meta: {
+              cat: 0,
+              dog: '1',
+              obj: {},
+            },
+          },
+          array: [{}, [], undefined, 0, 'word'],
+        }
+        // Add a getter that we expect to be expanded out
+        Object.defineProperty(obj, 'getter', {
+          get() {
+            return 'string'
+          },
+          enumerable: true,
+        })
+        let newObj = _copy(obj)
+        expect(newObj).to.deep.equal(obj)
+      })
+    })
     describe('cleanPatch', function() {
       it('should return patch unmodified if record not in state', function() {
         const { cleanPatch } = _testing
