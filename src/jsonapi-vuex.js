@@ -398,7 +398,7 @@ const getters = () => {
       }
       return result
     },
-    getRelated: (state, getters) => (data) => {
+    getRelated: (state, getters) => (data, seen = []) => {
       let parent
       const [type, id] = getTypeId(data)
       if (type in state) {
@@ -406,9 +406,9 @@ const getters = () => {
           parent = state[type][id]
           let relationships = get(parent, [jvtag, 'relationships'], {})
           let relationshipsData = {}
-          for (let relationship of Object.keys(relationships)) {
-            let relations = get(relationships, [relationship, 'data'], {})
-            relationshipsData[relationship] = {}
+          for (let relName of Object.keys(relationships)) {
+            let relations = get(relationships, [relName, 'data'], {})
+            relationshipsData[relName] = {}
             if (relations) {
               let relType
               let relId
@@ -421,12 +421,26 @@ const getters = () => {
 
                 Object.defineProperty(relationData, relId, {
                   get() {
-                    return getters.get(`${relType}/${relId}`)
+                    let current = [relName, relType, relId]
+                    // Stop if seen contains an array which matches 'current'
+                    if (
+                      !jvConfig.recurseRelationships &&
+                      seen.some((a) => a.every((v, i) => v === current[i]))
+                    ) {
+                      return { [jvtag]: { type: relType, id: relId } }
+                    } else {
+                      // prettier-ignore
+                      return getters.get(
+                     `${relType}/${relId}`,
+                      undefined,
+                      [...seen, [relName, relType, relId]]
+                      )
+                    }
                   },
                   enumerable: true,
                 })
-                relationshipsData[relationship] = {
-                  ...relationshipsData[relationship],
+                relationshipsData[relName] = {
+                  ...relationshipsData[relName],
                   ...relationData,
                 }
               }
@@ -623,61 +637,9 @@ const followRelationships = (state, getters, record, seen = []) => {
   }
 
   let [type, id] = getTypeId(data)
-  const relNames = get(data, [jvtag, 'relationships'], {})
-  for (let [relName, relInfo] of Object.entries(relNames)) {
-    let isItem = false
-    if (!seen.length) {
-      // we're at the 'start' so add the 'root' object info
-      seen = [[relName, type, id]]
-    }
-    // We can only work with data, not links since we need type & id
-    if ('data' in relInfo && relInfo.data) {
-      let relData = relInfo['data']
-      if (!Array.isArray(relData)) {
-        // Convert to an array to keep things DRY
-        isItem = true
-        relData = [relData]
-      } else {
-        // Collections of rels are nested under the relName
-        if (!hasProperty(data, relName)) {
-          data[relName] = {}
-        }
-      }
-      for (let relItem of relData) {
-        let [relType, relId] = getTypeId({ [jvtag]: relItem })
-        let rootObj = data[relName]
-        let key = relId
-        if (isItem) {
-          // Store directly under relName, not under an id
-          rootObj = data
-          key = relName
-        }
+  let relationships = getters.getRelated(`${type}/${id}`, seen)
+  Object.assign(data, relationships)
 
-        if (!hasProperty(rootObj, key)) {
-          Object.defineProperty(rootObj, key, {
-            get() {
-              let current = [relName, relType, relId]
-              // Stop if seen contains an array which matches 'current'
-              if (
-                !jvConfig.recurseRelationships &&
-                seen.some((a) => a.every((v, i) => v === current[i]))
-              ) {
-                return { [jvtag]: { type: relType, id: relId } }
-              } else {
-                // prettier-ignore
-                return getters.get(
-                  `${relType}/${relId}`,
-                  undefined,
-                  [...seen, [relName, relType, relId]]
-                )
-              }
-            },
-            enumerable: true,
-          })
-        }
-      }
-    }
-  }
   return addJvHelpers(data)
 }
 
