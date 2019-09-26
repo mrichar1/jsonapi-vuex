@@ -400,28 +400,37 @@ const getters = () => {
     },
     getRelated: (state, getters) => (data) => {
       let parent
-      const [type, id, rel] = getTypeId(data)
+      const [type, id] = getTypeId(data)
       if (type in state) {
         if (hasProperty(state[type], id)) {
           parent = state[type][id]
-          let relations = get(parent, [jvtag, 'relationships', rel, 'data'], {})
-          let relationsData = {}
-          let data = {}
-          if (relations) {
-            relations = Array.from(relations)
-            let relType
-            let relId
-            for (let relation of relations) {
-              relType = relation['type']
-              relId = relation['id']
-              data[relations['id']] = getters.get(`${relType}/${relId}`)
-
-              Object.assign(relationsData, data)
+          let relationships = get(parent, [jvtag, 'relationships'], {})
+          let relationshipsData = {}
+          for (let relationship of Object.keys(relationships)) {
+            let relations = get(relationships, [relationship, 'data'], {})
+            relationshipsData[relationship] = {}
+            if (relations) {
+              let relType
+              let relId
+              for (let relation of Array.isArray(relations)
+                ? relations
+                : Array.of(relations)) {
+                relType = relation['type']
+                relId = relation['id']
+                Object.defineProperty(relationshipsData[relationship], relId, {
+                  // this works:
+                  value: getters.get(`${relType}/${relId}`),
+                  // // this does not:
+                  // get() {
+                  //   return getters.get(`${relType}/${relId}`)
+                  // },
+                  enumerable: true,
+                })
+                // console.log(JSON.parse(JSON.stringify(relationshipsData)))
+              }
             }
           }
-          return Array.isArray(relations)
-            ? relationsData
-            : relationsData[Object.keys(relationsData)[0]]
+          return relationshipsData
         }
       }
       return {}
