@@ -417,16 +417,13 @@ const getters = () => {
                 : Array.of(relations)) {
                 relType = relation['type']
                 relId = relation['id']
+                let getter = getters.get(`${relType}/${relId}`)
                 Object.defineProperty(relationshipsData[relationship], relId, {
-                  // this works:
-                  value: getters.get(`${relType}/${relId}`),
-                  // // this does not:
-                  // get() {
-                  //   return getters.get(`${relType}/${relId}`)
-                  // },
+                  get() {
+                    return getter
+                  },
                   enumerable: true,
                 })
-                // console.log(JSON.parse(JSON.stringify(relationshipsData)))
               }
             }
           }
