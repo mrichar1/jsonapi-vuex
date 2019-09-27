@@ -440,7 +440,7 @@ const jsonapiModule = (api, conf = {}) => {
 
 // Helper methods
 
-const getRelationships = (getters, parent, seen) => {
+const getRelationships = (getters, parent, seen = []) => {
   let relationships = get(parent, [jvtag, 'relationships'], {})
   let relationshipsData = {}
   for (let relName of Object.keys(relationships)) {
@@ -641,15 +641,13 @@ const checkAndFollowRelationships = (state, getters, records, seen) => {
 }
 
 // Follow relationships and expand them into _jv/rels
-const followRelationships = (state, getters, record, seen = []) => {
+const followRelationships = (state, getters, record, seen) => {
   // Make a shallow copy of the object's keys (by reference - preserve getters).
   // We can't add rels to the original object, otherwise Vue's watchers
   // spot the potential loop and throw an error
   let data = {}
-  // Use entries() as we need to iterate the values to get the 'real' record
-  for (let [key] of Object.entries(record)) {
-    data[key] = record[key]
-  }
+
+  Object.defineProperties(data, Object.getOwnPropertyDescriptors(record))
 
   let relationships = getRelationships(getters, data, seen)
   Object.defineProperties(data, Object.getOwnPropertyDescriptors(relationships))
