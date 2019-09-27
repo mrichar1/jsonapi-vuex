@@ -398,7 +398,7 @@ const getters = () => {
       }
       return result
     },
-    getRelated: (state, getters) => (data, seen = []) => {
+    getRelated: (state, getters) => (data, seen) => {
       let parent
       const [type, id] = getTypeId(data)
       if (type in state) {
@@ -444,9 +444,9 @@ const getRelationships = (getters, parent, seen) => {
   let relationships = get(parent, [jvtag, 'relationships'], {})
   let relationshipsData = {}
   for (let relName of Object.keys(relationships)) {
-    let relations = get(relationships, [relName, 'data'], {})
+    let relations = get(relationships, [relName, 'data'])
     relationshipsData[relName] = {}
-    if (relations && Object.keys(relations).length) {
+    if (relations) {
       let isItem = !Array.isArray(relations)
       let relationsData = {}
 
@@ -651,7 +651,6 @@ const followRelationships = (state, getters, record, seen = []) => {
     data[key] = record[key]
   }
 
-  // let [type, id] = getTypeId(data)
   let relationships = getRelationships(getters, data, seen)
   Object.defineProperties(data, Object.getOwnPropertyDescriptors(relationships))
 
