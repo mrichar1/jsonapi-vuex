@@ -399,13 +399,10 @@ const getters = () => {
       return result
     },
     getRelated: (state, getters) => (data, seen) => {
-      let parent
       const [type, id] = getTypeId(data)
-      if (type in state) {
-        if (hasProperty(state[type], id)) {
-          parent = state[type][id]
-          return getRelationships(getters, parent, seen)
-        }
+      let parent = get(state, [type, id])
+      if (parent) {
+        return getRelationships(getters, parent, seen)
       }
       return {}
     },
