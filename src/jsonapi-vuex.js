@@ -400,6 +400,9 @@ const getters = () => {
     },
     getRelated: (state, getters) => (data, seen) => {
       const [type, id] = getTypeId(data)
+      if (!type || !id) {
+        throw 'No type/id specified'
+      }
       let parent = get(state, [type, id])
       if (parent) {
         return getRelationships(getters, parent, seen)
