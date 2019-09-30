@@ -828,6 +828,7 @@ const _testing = {
   updateRecords: updateRecords,
   getURL: getURL,
   cleanPatch: cleanPatch,
+  getRelationships: getRelationships,
 }
 
 // Export this module
