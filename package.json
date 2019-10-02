@@ -12,6 +12,7 @@
     "babel-loader": "^8.0.4",
     "babel-plugin-istanbul": "^5.2.0",
     "babel-polyfill": "^6.26.0",
+    "better-docs": "^1.3.3",
     "chai": "^4.2.0",
     "chai-as-promised": "^7.1.1",
     "concurrently": "^4.1.2",
@@ -38,6 +39,7 @@
     "prettier": "^1.16.4",
     "sinon": "^7.4.2",
     "sinon-chai": "^3.2.0",
+    "taffydb": "^2.7.3",
     "vue": "^2.5.17",
     "vue-template-compiler": "^2.5.17",
     "vuex": "^3.0.1",
@@ -70,6 +72,7 @@
     "url": "https://github.com/mrichar1/jsonapi-vuex/issues"
   },
   "scripts": {
+    "docs": "jsdoc -c jsdoc.json",
     "test": "npm run unit -- --single-run && npm run e2e",
     "unit": "karma start",
     "lint": "eslint .",

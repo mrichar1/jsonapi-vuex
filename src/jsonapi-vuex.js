@@ -1,3 +1,6 @@
+/**
+ * @module jsonapi-vuex
+ */
 import Vue from 'vue'
 import get from 'lodash.get'
 import isEqual from 'lodash.isequal'
@@ -5,6 +8,10 @@ import merge from 'lodash.merge'
 // https://github.com/dchester/jsonpath/issues/89
 import jp from 'jsonpath/jsonpath.min'
 
+/**
+ * Custom exception for returning record errors
+ * @memberof module:jsonapi-vuex._internal
+ */
 class RecordError extends Error {
   constructor(message, value) {
     super(message)
@@ -48,6 +55,10 @@ const hasProperty = (obj, prop) => {
 // Global sequence counter for unique action ids
 let actionSequenceCounter = 0
 
+/**
+ * @namespace
+ * @memberof module:jsonapi-vuex.jsonapiModule
+ */
 const mutations = () => {
   return {
     deleteRecord: (state, record) => {
@@ -88,6 +99,11 @@ const mutations = () => {
   }
 }
 
+/**
+ * @namespace
+ * @memberof module:jsonapi-vuex.jsonapiModule
+ * @param {axios} api - an axios api instance
+ */
 const actions = (api) => {
   return {
     get: (context, args) => {
@@ -127,6 +143,14 @@ const actions = (api) => {
       action[jvtag + 'Id'] = actionId
       return action
     },
+    /**
+     * A function to get an objects related items from the API
+     *
+     * @async
+     * @memberof module:jsonapi-vuex.jsonapiModule.actions
+     * @param {object} context - Vuex context object
+     * @param {(string|list)} args - Some args
+     */
     getRelated: async (context, args) => {
       const data = unpackArgs(args)[0]
       let [type, id, relName] = getTypeId(data)
@@ -360,6 +384,10 @@ const actions = (api) => {
   }
 }
 
+/**
+ * @namespace
+ * @memberof module:jsonapi-vuex.jsonapiModule
+ */
 const getters = () => {
   return {
     get: (state, getters) => (data, jsonpath, seen) => {
@@ -425,7 +453,14 @@ const getters = () => {
   }
 }
 
-// Store Module
+/**
+ * jsonapi-vuex store module
+ * @namespace
+ * @memberof module:jsonapi-vuex
+ * @param {axios} api - an axios instance
+ * @param {object} [conf={}] - jsonapi-vuex configuation
+ * @return {object} - A Vuex store object
+ */
 const jsonapiModule = (api, conf = {}) => {
   Object.assign(jvConfig, conf)
   jvtag = jvConfig['jvtag']
@@ -442,7 +477,19 @@ const jsonapiModule = (api, conf = {}) => {
   }
 }
 
-// Helper methods
+// Helper functions
+/**
+ * Documentation for internal functions etc.
+ * These are not available when the module is imported,
+ * and are documented for module developers only.
+ * @namespace _internal
+ * @memberof module:jsonapi-vuex
+ */
+
+/**
+ * @memberof utils
+ * @param {object} obj - A 'simple' object to deep copy.
+ */
 
 const getRelationships = (getters, parent, seen = []) => {
   let relationships = get(parent, [jvtag, 'relationships'], {})
@@ -510,6 +557,11 @@ const deepCopy = (obj) => {
   return obj
 }
 
+/**
+ * @memberof module:jsonapi-vuex._internal
+ * @param {object} data - An object to be deep copied
+ * @return {object} - A deep copied object
+ */
 const _copy = (data) => {
   // Recursive object copying function (for 'simple' objects)
   let out = Array.isArray(data) ? [] : {}
@@ -758,7 +810,7 @@ const normToJsonapiItem = (data) => {
       jsonapi[member] = data[jvtag][member]
     }
   }
-  // User-generated data (e.g. post) has no helper methods
+  // User-generated data (e.g. post) has no helper functions
   if (hasProperty(data[jvtag], 'attrs')) {
     jsonapi['attributes'] = data[jvtag].attrs
   } else {
@@ -815,6 +867,11 @@ const processIncludedRecords = (context, results) => {
   }
 }
 
+/**
+ * A collection of utility functions
+ * @namespace utils
+ * @memberof module:jsonapi-vuex
+ */
 const utils = {
   addJvHelpers: addJvHelpers,
   cleanPatch: cleanPatch,
@@ -827,6 +884,10 @@ const utils = {
 }
 
 // Export a single object with references to 'private' functions for the test suite
+/**
+ * An object containing references to all internal functions for the test suite to import
+ * @memberof module:jsonapi-vuex._internal
+ */
 const _testing = {
   _copy: _copy,
   actionSequence: actionSequence,
