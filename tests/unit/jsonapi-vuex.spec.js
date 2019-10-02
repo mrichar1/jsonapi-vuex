@@ -498,7 +498,7 @@ describe('jsonapi-vuex tests', function() {
     })
 
     describe('followRelationships', function() {
-      it('Should add a getter for relationships into root for a single item', function() {
+      it('should add a property relName.<getter> to the root (single item)', function() {
         const { followRelationships } = _testing
         const getters = { get: sinon.stub() }
         let rels = followRelationships(storeRecord, getters, normWidget1)
@@ -507,37 +507,16 @@ describe('jsonapi-vuex tests', function() {
           Object.getOwnPropertyDescriptor(rels, 'widgets')
         ).to.have.property('get')
       })
-
-      it('Should not limit recursion (recurseRelationships)', function() {
-        const { jvConfig } = _testing
-        jvConfig.recurseRelationships = true
+      it('should add a property relName.id.<getter> to the root (array)', function() {
         const { followRelationships } = _testing
-        let getStub = sinon.stub()
-        const getters = { get: getStub }
-        // Mark widget/1's rel of widget/2 as already seen
-        let seen = [['widgets', 'widget', '2']]
-        const rel = followRelationships(storeRecord, getters, normWidget1, seen)
-        // 'Get' the getter
-        rel['widgets']
-        // If it didn't stop, getter will have been called, and seen will have 'grown'
-        expect(getStub).to.have.been.called
-        expect(getStub.args[0][2]).to.not.deep.equal(seen)
-      })
-
-      it('Should limit recursion (!recurseRelationships)', function() {
-        const { jvConfig } = _testing
-        jvConfig.recurseRelationships = false
-        const { followRelationships } = _testing
-        let getStub = sinon.stub()
-        const getters = { get: getStub }
-        // Mark widget/1's rel of widget/2 as already seen
-        let seen = [['widgets', 'widget', '2']]
-        const rel = followRelationships(storeRecord, getters, normWidget1, seen)
-        // No get recursion occurs
-        expect(getStub).to.not.have.been.called
-        // The result should be a custom resource identifier
-        // It should *only* have _jv - no attrs or rels as a result
-        expect(rel['widgets']).to.have.all.keys('_jv')
+        const getters = { get: sinon.stub() }
+        let rels = followRelationships(storeRecord, getters, normWidget2)
+        for (let id of Object.keys(rels['widgets'])) {
+          // Test if the the relName value is a getter
+          expect(
+            Object.getOwnPropertyDescriptor(rels['widgets'], id)
+          ).to.have.property('get')
+        }
       })
     })
 
@@ -616,6 +595,51 @@ describe('jsonapi-vuex tests', function() {
             expect(_testing.getURL(normWidget1)).to.equal('/weirdPath/1')
           })
         })
+      })
+    })
+    describe('getRelationships', function() {
+      it('should add a getter for a relationship (single item)', function() {
+        const { getRelationships } = _testing
+        const getters = { get: sinon.stub() }
+        let rels = getRelationships(getters, normWidget1)
+        // Test if the the relName value is a getter
+        expect(
+          Object.getOwnPropertyDescriptor(rels, 'widgets')
+        ).to.have.property('get')
+      })
+      it('Should add a getter for a relationship (array)', function() {
+        const { getRelationships } = _testing
+        const getters = { get: sinon.stub() }
+        let rels = getRelationships(getters, normWidget2)
+        // Test if the the relName value is a getter
+        for (let id of Object.keys(rels['widgets'])) {
+          expect(
+            Object.getOwnPropertyDescriptor(rels['widgets'], id)
+          ).to.have.property('get')
+        }
+      })
+      it('Should not limit recursion (recurseRelationships)', function() {
+        const { getRelationships, jvConfig } = _testing
+        jvConfig.recurseRelationships = true
+        const getStub = sinon.stub()
+        // Mark widget/2 (rel of widget/1) as already seen
+        let seen = [['widgets', 'widget', '2']]
+        let rels = getRelationships({ get: getStub }, normWidget1, seen)
+        // 'Get' the getter
+        rels['widgets']
+        // If it didn't stop, getter will have been called, and seen will have 'grown'
+        expect(getStub).to.have.been.called
+        expect(getStub.args[0][2]).to.not.deep.equal(seen)
+      })
+      it('Should limit recursion (!recurseRelationships)', function() {
+        const { getRelationships, jvConfig } = _testing
+        jvConfig.recurseRelationships = false
+        const getStub = sinon.stub()
+        // Mark widget/2 (rel of widget/1) as already seen
+        let seen = [['widgets', 'widget', '2']]
+        getRelationships({ get: getStub }, normWidget1, seen)
+        // No 'get' recursion occurs
+        expect(getStub).to.not.have.been.called
       })
     })
   }) // Helper methods
@@ -712,6 +736,47 @@ describe('jsonapi-vuex tests', function() {
         // Check 'sub-key' equality for each item in the collection
         for (let [key, val] of Object.entries(result)) {
           expect(val).to.have.all.keys(normRecordRels[key])
+        }
+      })
+    })
+
+    describe('getRelated', function() {
+      it('should should add a property relName.<getter> to the root (single item)', function() {
+        const { getRelated } = jm.getters
+        // stub the getter function
+        const res = getRelated(storeRecord, { get: sinon.stub() })('widget/1')
+        expect(
+          Object.getOwnPropertyDescriptor(res, 'widgets')
+        ).to.have.property('get')
+      })
+      it('should add a property relName.id.<getter> to the root (array)', function() {
+        const { getRelated } = jm.getters
+        // stub the getter function
+        const res = getRelated(storeRecord, { get: sinon.stub() })('widget/2')
+        for (let id of Object.keys(res['widgets'])) {
+          expect(
+            Object.getOwnPropertyDescriptor(res['widgets'], id)
+          ).to.have.property('get')
+        }
+      })
+      it('should return an empty object for non-existent item (string)', function() {
+        const { getRelated } = jm.getters
+        const result = getRelated({})('none/1')
+        expect(result).to.deep.equal({})
+      })
+      it('should return an empty object for non-existent item (object)', function() {
+        const { getRelated } = jm.getters
+        const result = getRelated({})({ _jv: { type: 'none', id: '1' } })
+        expect(result).to.deep.equal({})
+      })
+      it('Should throw an error if passed an object with no type/id', async function() {
+        const { getRelated } = jm.getters
+        try {
+          getRelated({})({ _jv: {} })
+          // throw anyway to break the test suite if we reach this point
+          throw 'Should have thrown an error (no id)'
+        } catch (error) {
+          expect(error).to.equal('No type/id specified')
         }
       })
     })

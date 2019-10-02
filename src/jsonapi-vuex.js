@@ -395,6 +395,17 @@ const getters = () => {
       }
       return result
     },
+    getRelated: (state, getters) => (data, seen) => {
+      const [type, id] = getTypeId(data)
+      if (!type || !id) {
+        throw 'No type/id specified'
+      }
+      let parent = get(state, [type, id])
+      if (parent) {
+        return getRelationships(getters, parent, seen)
+      }
+      return {}
+    },
     status: (state) => (id) => {
       // If id is an object (promise), extract id
       if (typeof id === 'object') {
@@ -425,6 +436,63 @@ const jsonapiModule = (api, conf = {}) => {
 }
 
 // Helper methods
+
+const getRelationships = (getters, parent, seen = []) => {
+  let relationships = get(parent, [jvtag, 'relationships'], {})
+  let relationshipsData = {}
+  for (let relName of Object.keys(relationships)) {
+    let relations = get(relationships, [relName, 'data'])
+    relationshipsData[relName] = {}
+    if (relations) {
+      let isItem = !Array.isArray(relations)
+      let relationsData = {}
+
+      for (let relation of isItem ? Array.of(relations) : relations) {
+        let relType = relation['type']
+        let relId = relation['id']
+
+        if (!hasProperty(relationsData, relId)) {
+          Object.defineProperty(relationsData, relId, {
+            get() {
+              let current = [relName, relType, relId]
+              // Stop if seen contains an array which matches 'current'
+              if (
+                !jvConfig.recurseRelationships &&
+                seen.some((a) => a.every((v, i) => v === current[i]))
+              ) {
+                return { [jvtag]: { type: relType, id: relId } }
+              } else {
+                // prettier-ignore
+                return getters.get(
+                    `${relType}/${relId}`,
+                    undefined,
+                    [...seen, [relName, relType, relId]]
+                  )
+              }
+            },
+            enumerable: true,
+          })
+        }
+      }
+      if (isItem) {
+        Object.defineProperty(
+          relationshipsData,
+          relName,
+          Object.getOwnPropertyDescriptor(
+            relationsData,
+            Object.keys(relationsData)[0]
+          )
+        )
+      } else {
+        Object.defineProperties(
+          relationshipsData[relName],
+          Object.getOwnPropertyDescriptors(relationsData)
+        )
+      }
+    }
+  }
+  return relationshipsData
+}
 
 const deepCopy = (obj) => {
   // Deep copy a normalised object, then re-add helper nethods
@@ -580,72 +648,17 @@ const checkAndFollowRelationships = (state, getters, records, seen) => {
 }
 
 // Follow relationships and expand them into _jv/rels
-const followRelationships = (state, getters, record, seen = []) => {
+const followRelationships = (state, getters, record, seen) => {
   // Make a shallow copy of the object's keys (by reference - preserve getters).
   // We can't add rels to the original object, otherwise Vue's watchers
   // spot the potential loop and throw an error
   let data = {}
-  // Use entries() as we need to iterate the values to get the 'real' record
-  for (let [key] of Object.entries(record)) {
-    data[key] = record[key]
-  }
 
-  let [type, id] = getTypeId(data)
-  const relNames = get(data, [jvtag, 'relationships'], {})
-  for (let [relName, relInfo] of Object.entries(relNames)) {
-    let isItem = false
-    if (!seen.length) {
-      // we're at the 'start' so add the 'root' object info
-      seen = [[relName, type, id]]
-    }
-    // We can only work with data, not links since we need type & id
-    if ('data' in relInfo && relInfo.data) {
-      let relData = relInfo['data']
-      if (!Array.isArray(relData)) {
-        // Convert to an array to keep things DRY
-        isItem = true
-        relData = [relData]
-      } else {
-        // Collections of rels are nested under the relName
-        if (!hasProperty(data, relName)) {
-          data[relName] = {}
-        }
-      }
-      for (let relItem of relData) {
-        let [relType, relId] = getTypeId({ [jvtag]: relItem })
-        let rootObj = data[relName]
-        let key = relId
-        if (isItem) {
-          // Store directly under relName, not under an id
-          rootObj = data
-          key = relName
-        }
+  Object.defineProperties(data, Object.getOwnPropertyDescriptors(record))
 
-        if (!hasProperty(rootObj, key)) {
-          Object.defineProperty(rootObj, key, {
-            get() {
-              let current = [relName, relType, relId]
-              // Stop if seen contains an array which matches 'current'
-              if (
-                !jvConfig.recurseRelationships &&
-                seen.some((a) => a.every((v, i) => v === current[i]))
-              ) {
-                return { [jvtag]: { type: relType, id: relId } }
-              } else {
-                // prettier-ignore
-                return getters.get(
-                  `${relType}/${relId}`,
-                  undefined,
-                  [...seen, [relName, relType, relId]]
-                )
-              }
-            },
-            enumerable: true,
-          })
-        }
-      }
-    }
-  }
+  let relationships = getRelationships(getters, data, seen)
+  Object.defineProperties(data, Object.getOwnPropertyDescriptors(relationships))
+
   return addJvHelpers(data)
 }
 
@@ -821,6 +834,7 @@ const _testing = {
   updateRecords: updateRecords,
   getURL: getURL,
   cleanPatch: cleanPatch,
+  getRelationships: getRelationships,
 }
 
 // Export this module

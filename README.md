@@ -348,7 +348,7 @@ this.$store.dispatch('jv/getRelated', customRels).then((data) => {
 
 ### Getters
 
-There are 2 getters available. `get` and `status`.
+There are 3 getters available. `get`, `getRelated` and `status`.
 
 #### get
 
@@ -399,6 +399,16 @@ this.$store.getters['jv/get']('widget', '$[?(@.color=="red")]')
 // Note that filters can create impossible conditions
 // The following will return empty, as widget 1 is not red
 this.$store.getters['jv/get']('widget/1', '$[?(@.color=="red")]')
+```
+
+#### getRelated
+
+getRelated returns the relations of the specified resource. The resource is specified by either a string, or by a normalized resource object (as in `jv/get`). The getter returns an object with each of the resource's relationships as a key. The resources inside the objects `relationships`JSON-API key are mapped to a `jv/get` getter. This means that the resources can be retrieved from the result of `getRelated` once they are loaded into the store (with the `getRelated` action). If the resources are not loaded into the store yet, only the keys of the related resources will be returned.
+
+For example, to get all widgets related to the widget with id 1:
+
+```js
+this.$store.getters['jv/getRelated']('widget/1')['widgets']
 ```
 
 #### status
