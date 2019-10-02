@@ -130,8 +130,8 @@ const actions = (api) => {
     getRelated: async (context, args) => {
       const data = unpackArgs(args)[0]
       let [type, id, relName] = getTypeId(data)
-      if (!id) {
-        throw 'No id specified'
+      if (!type || !id) {
+        throw 'No type/id specified'
       }
       const actionId = actionSequence(context)
       context.commit('setStatus', { id: actionId, status: STATUS_LOAD })

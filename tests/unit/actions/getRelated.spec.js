@@ -48,14 +48,12 @@ describe('getRelated', function() {
     stubContext = createStubContext(jsonapiModule)
   })
 
-  it('Should throw an error if passed an object with no id', async function() {
-    delete normWidget1['_jv']['id']
-    // Wrap method in an empty method to catch transpiled throw (https://www.chaijs.com/api/bdd/#methodThrow)
+  it('Should throw an error if passed an object with no type or id', async function() {
     try {
-      await jsonapiModule.actions.getRelated(stubContext, normWidget1)
+      await jsonapiModule.actions.getRelated(stubContext, { _jv: {} })
       throw 'Should have thrown an error (no id)'
     } catch (error) {
-      expect(error).to.equal('No id specified')
+      expect(error).to.equal('No type/id specified')
     }
   })
 
