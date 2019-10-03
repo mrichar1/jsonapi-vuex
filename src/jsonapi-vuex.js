@@ -23,31 +23,37 @@ const STATUS_LOAD = 'LOADING'
 const STATUS_SUCCESS = 'SUCCESS'
 const STATUS_ERROR = 'ERROR'
 
+/**
+ * @namespace
+ * @property {string} jvtag='_jv' - key to store jsonapi-vuex-related data in when destructuring (default: '_jv')
+ * @property {boolean} followRelationshipsData=true - Follow relationships 'data' entries (from store)
+ * @property {boolean} preserveJSON=false - Preserve API response json in return data
+ * @property {integer} actionStatusCleanAge=600 - Age of action status records to clean (in seconds - 0 disables)
+ * @property {boolean} mergeRecords=false - Merge or overwrite store records
+ * @property {boolean} clearOnUpdate=false - Delete old records not contained in an update (on a per-type basis).
+ * @property {boolean} cleanPatch=false - Always run 'cleanPatch' method when patching
+ * @property {string[]} cleanPatchProps='[]' - If cleanPatch is enabled, which _jv props (links, meta, rels) should be kept?
+ * @property {boolean} recurseRelationships=false - Allow relationships to be recursive?
+ */
 let jvConfig = {
-  // key to store jsonapi-vuex-related data under when destructuring
   jvtag: '_jv',
-  // Follow relationships 'data' entries (from store)
   followRelationshipsData: true,
-  // Preserve API response json in return data
   preserveJson: false,
-  // Age of action status records to clean (in seconds). (0 disables).
   actionStatusCleanAge: 600,
-  // Merge store records (or overwrite them)
   mergeRecords: false,
-  // Delete old records not contained in an update (on a per-type basis).
   clearOnUpdate: false,
-  // Always run 'cleanPatch' method when patching.
   cleanPatch: false,
-  // If cleanPatch is enabled, which _jv props (links, meta, rels) be kept?
   cleanPatchProps: [],
-  // Allow relationships to be recursive?
   recurseRelationships: false,
 }
 
 let jvtag
 
-// Shorthand for 'safe' hasOwnProperty
-// https://eslint.org/docs/rules/no-prototype-builtins
+/**
+ * Shorthand for the 'safe' `hasOwnProperty` as described here:
+ * [eslint: no-prototype-builtins](https://eslint.org/docs/rules/no-prototype-builtins])
+ * @memberof module:jsonapi-vuex._internal
+ */
 const hasProperty = (obj, prop) => {
   return Object.prototype.hasOwnProperty.call(obj, prop)
 }
@@ -61,6 +67,12 @@ let actionSequenceCounter = 0
  */
 const mutations = () => {
   return {
+    /**
+     * Delete a record from the store.
+     * @memberof module:jsonapi-vuex.jsonapiModule.mutations
+     * @param {object} state - The Vuex state object
+     * @param {(string|object)} record - The record to be deleted
+     */
     deleteRecord: (state, record) => {
       const [type, id] = getTypeId(record)
       if (!type || !id) {
@@ -68,15 +80,39 @@ const mutations = () => {
       }
       Vue.delete(state[type], id)
     },
+    /**
+     * Add record(s) to the store, according to `mergeRecords` config option
+     * @memberof module:jsonapi-vuex.jsonapiModule.mutations
+     * @param {object} state - The Vuex state object
+     * @param {(string|object)} records - The record(s) to be added
+     */
     addRecords: (state, records) => {
       updateRecords(state, records)
     },
+    /**
+     * Replace (or add) record(s) to the store
+     * @memberof module:jsonapi-vuex.jsonapiModule.mutations
+     * @param {object} state - The Vuex state object
+     * @param {(string|object)} records - The record(s) to be replaced
+     */
     replaceRecords: (state, records) => {
       updateRecords(state, records, false)
     },
+    /**
+     * Merge (or add) records to the store
+     * @memberof module:jsonapi-vuex.jsonapiModule.mutations
+     * @param {object} state - The Vuex state object
+     * @param {(string|object)} recordw - The record(s) to be merged
+     */
     mergeRecords: (state, records) => {
       updateRecords(state, records, true)
     },
+    /**
+     * Delete all records from the store of a given type
+     * @memberof module:jsonapi-vuex.jsonapiModule.mutations
+     * @param {object} state - The Vuex state object
+     * @param {(string|object)} records - The type (or a record with type property set) to be cleared
+     */
     clearRecords: (state, records) => {
       const newRecords = normToStore(records)
       for (let [type, item] of Object.entries(newRecords)) {
@@ -88,9 +124,23 @@ const mutations = () => {
         }
       }
     },
+    /**
+     * Delete all records from the store of a given type
+     * @memberof module:jsonapi-vuex.jsonapiModule.mutations
+     * @param {object} state - The Vuex state object
+     * @param {object} obj
+     * @param {integer} obj.id - The action id to set
+     * @param {constant} obj.status - The action status to set
+     */
     setStatus: (state, { id, status }) => {
       Vue.set(state[jvtag], id, { status: status, time: Date.now() })
     },
+    /**
+     * Delete all records from the store of a given type
+     * @memberof module:jsonapi-vuex.jsonapiModule.mutations
+     * @param {object} state - The Vuex state object
+     * @param {integer} id - The action id to delete
+     */
     deleteStatus: (state, id) => {
       if (id in state[jvtag]) {
         Vue.delete(state[jvtag], id)
