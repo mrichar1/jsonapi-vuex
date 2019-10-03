@@ -150,12 +150,29 @@ const mutations = () => {
 }
 
 /**
+ * Vuex actions, used via `this.$store.dispatch`, e.g.:
+ * `this.$store.dispatch("jv/get", <args>)`
+ *
+ * `args` can be either a string or an object representing the item(s) required,
+ * or it can be an array of string/object and an optional axios config object.
  * @namespace
  * @memberof module:jsonapi-vuex.jsonapiModule
  * @param {axios} api - an axios api instance
  */
 const actions = (api) => {
   return {
+    /**
+     * Get items from the API
+     *
+     * @async
+     * @memberof module:jsonapi-vuex.jsonapiModule.actions
+     * @param {object} context - Vuex context object
+     * @param {(string|object|array)} args - See {@link module:jsonapi-vuex.jsonapiModule.actions} for a summary of args
+     * @param {string}  - A URL path to an item - e.g. `endpoint/1`
+     * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
+     * @param {array}  - A 2-element array, consisting of a string/object and an optional axios config object
+     * @return {object} - Restructured representation of the requested item(s)
+     */
     get: (context, args) => {
       const [data, config] = unpackArgs(args)
       const path = getURL(data)
@@ -194,12 +211,16 @@ const actions = (api) => {
       return action
     },
     /**
-     * A function to get an objects related items from the API
+     * Get related items from the API
      *
      * @async
      * @memberof module:jsonapi-vuex.jsonapiModule.actions
      * @param {object} context - Vuex context object
-     * @param {(string|list)} args - Some args
+     * @param {(string|object|array)} args - See {@link module:jsonapi-vuex.jsonapiModule.actions} for a summary of args
+     * @param {string}  - A URL path to an item - e.g. `endpoint/1`
+     * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
+     * @param {array}  - A 2-element array, consisting of a string/object and an optional axios config object
+     * @return {object} - Restructured representation of the requested item(s)
      */
     getRelated: async (context, args) => {
       const data = unpackArgs(args)[0]
@@ -312,6 +333,17 @@ const actions = (api) => {
       action[jvtag + 'Id'] = actionId
       return action
     },
+    /**
+     * Post an item to the API
+     *
+     * @async
+     * @memberof module:jsonapi-vuex.jsonapiModule.actions
+     * @param {object} context - Vuex context object
+     * @param {(object|array)} args - See {@link module:jsonapi-vuex.jsonapiModule.actions} for a summary of args
+     * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
+     * @param {array}  - A 2-element array, consisting of a string/object and an optional axios config object
+     * @return {object} - Restructured representation of the posted item
+     */
     post: (context, args) => {
       let [data, config] = unpackArgs(args)
       const path = getURL(data, true)
@@ -342,6 +374,17 @@ const actions = (api) => {
       action[jvtag + 'Id'] = actionId
       return action
     },
+    /**
+     * Patch an item in the API
+     *
+     * @async
+     * @memberof module:jsonapi-vuex.jsonapiModule.actions
+     * @param {object} context - Vuex context object
+     * @param {(object|array)} args - See {@link module:jsonapi-vuex.jsonapiModule.actions} for a summary of args
+     * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
+     * @param {array}  - A 2-element array, consisting of a string/object and an optional axios config object
+     * @return {object} - Restructured representation of the patched item
+     */
     patch: (context, args) => {
       let [data, config] = unpackArgs(args)
       if (jvConfig.cleanPatch) {
@@ -383,6 +426,18 @@ const actions = (api) => {
       action[jvtag + 'Id'] = actionId
       return action
     },
+    /**
+     * Delete an item from the API
+     *
+     * @async
+     * @memberof module:jsonapi-vuex.jsonapiModule.actions
+     * @param {object} context - Vuex context object
+     * @param {(string|object|array)} args - See {@link module:jsonapi-vuex.jsonapiModule.actions} for a summary of args
+     * @param {string}  - A URL path to an item - e.g. `endpoint/1`
+     * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
+     * @param {array}  - A 2-element array, consisting of a string/object and an optional axios config object
+     * @return {object} - Restructured representation of the deleted item
+     */
     delete: (context, args) => {
       const [data, config] = unpackArgs(args)
       const path = getURL(data)
@@ -412,6 +467,19 @@ const actions = (api) => {
       action[jvtag + 'Id'] = actionId
       return action
     },
+    /**
+     * Get items from the API without updating the Vuex store
+     *
+     * @see module:jsonapi-vuex.jsonapiModule.actions.get
+     * @async
+     * @memberof module:jsonapi-vuex.jsonapiModule.actions
+     * @param {object} context - Vuex context object
+     * @param {(string|object|array)} args - See {@link module:jsonapi-vuex.jsonapiModule.actions} for a summary of args
+     * @param {string}  - A URL path to an item - e.g. `endpoint/1`
+     * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
+     * @param {array}  - A 2-element array, consisting of a string/object and an optional axios config object
+     * @return {object} - Restructured representation of the posted item
+     */
     search: (context, args) => {
       // Create a 'noop' context.commit to avoid store modifications
       const nocontext = {
@@ -422,12 +490,27 @@ const actions = (api) => {
       // Use a new actions 'instance' instead of 'dispatch' to allow context override
       return actions(api).get(nocontext, args)
     },
+    /**
+     * Alias for {@link module:jsonapi-vuex.jsonapiModule.actions.get}
+     * @async
+     * @memberof module:jsonapi-vuex.jsonapiModule.actions
+     */
     get fetch() {
       return this.get
     },
+    /**
+     * Alias for {@link module:jsonapi-vuex.jsonapiModule.actions.post}
+     * @async
+     * @memberof module:jsonapi-vuex.jsonapiModule.actions
+     */
     get create() {
       return this.post
     },
+    /**
+     * Alias for {@link module:jsonapi-vuex.jsonapiModule.actions.patch}
+     * @async
+     * @memberof module:jsonapi-vuex.jsonapiModule.actions
+     */
     get update() {
       return this.patch
     },
