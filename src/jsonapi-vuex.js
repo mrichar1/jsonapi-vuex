@@ -507,7 +507,12 @@ const _copy = (data) => {
   // Recursive object copying function (for 'simple' objects)
   let out = Array.isArray(data) ? [] : {}
   for (let key in data) {
-    out[key] = typeof data[key] === 'object' ? _copy(data[key]) : data[key]
+    // null is typeof 'object'
+    if (typeof data[key] === 'object' && data[key] !== null) {
+      out[key] = _copy(data[key])
+    } else {
+      out[key] = data[key]
+    }
   }
   return out
 }
