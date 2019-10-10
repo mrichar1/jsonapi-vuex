@@ -179,7 +179,8 @@ const actions = (api) => {
           }
         }
         // Extract relationships from 'data' (type/id)
-        if ('data' in relItems) {
+        // empty to-one rels (null) are special-cased
+        if (hasProperty(relItems, 'data') && relItems['data'] !== null) {
           relData = relItems['data']
           if (!Array.isArray(relData)) {
             // Treat as if always an array
@@ -193,13 +194,20 @@ const actions = (api) => {
           }
           relData = [relData]
         }
-        for (let entry of relData) {
-          // Rewrite 'data' objects to normalised form
-          if (!(typeof entry === 'string')) {
-            entry = { [jvtag]: entry }
+        if (relData) {
+          for (let entry of relData) {
+            // Rewrite 'data' objects to normalised form
+            if (!(typeof entry === 'string')) {
+              entry = { [jvtag]: entry }
+            }
+            relNames.push(relName)
+            relPromises.push(context.dispatch('get', entry))
           }
+        } else {
+          // Empty to-one rels should have a relName but no data
           relNames.push(relName)
-          relPromises.push(context.dispatch('get', entry))
+          // prettier-ignore
+          relPromises.push(new Promise((resolve) => { resolve({}) }))
         }
       }
       // 'Merge' all promise resolution/rejection
@@ -209,12 +217,11 @@ const actions = (api) => {
           results.forEach((result, i) => {
             // Get the relName from the same array position as the result item
             let relName = relNames[i]
-            let normItem = {
-              [relName]: {
-                [result[jvtag]['type']]: {
-                  [result[jvtag]['id']]: result,
-                },
-              },
+            let normItem = { [relName]: {} }
+            if (hasProperty(result, jvtag)) {
+              normItem[relName][result[jvtag]['type']] = {
+                [result[jvtag]['id']]: result,
+              }
             }
             merge(related, normItem)
           })

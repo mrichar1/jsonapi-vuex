@@ -216,6 +216,14 @@ describe('getRelated', function() {
     }
   })
 
+  it('Should handle data: null (empty to-one rels)', async function() {
+    jsonWidget1['relationships']['widgets']['data'] = null
+    delete jsonWidget1['relationships']['widgets']['links']
+    this.mockApi.onGet().replyOnce(200, { data: jsonWidget1 })
+    let res = await jsonapiModule.actions.getRelated(stubContext, 'widget/1')
+    expect(res).to.deep.equal({ widgets: {} })
+  })
+
   it('Should handle API errors (in the data)', async function() {
     this.mockApi
       .onGet()
