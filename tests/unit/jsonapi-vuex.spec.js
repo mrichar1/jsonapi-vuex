@@ -269,6 +269,7 @@ describe('jsonapi-vuex tests', function() {
         // Create a simple object with a variety of content
         const obj = {
           undef: undefined,
+          null: null,
           func: function() {},
           string: 'word',
           number: 10,
