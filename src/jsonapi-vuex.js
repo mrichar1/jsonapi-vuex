@@ -81,7 +81,7 @@ const mutations = () => {
       Vue.set(state[jvtag], id, { status: status, time: Date.now() })
     },
     deleteStatus: (state, id) => {
-      if (id in state[jvtag]) {
+      if (hasProperty(state[jvtag], id)) {
         Vue.delete(state[jvtag], id)
       }
     },
@@ -187,7 +187,7 @@ const actions = (api) => {
             relData = [relData]
           }
           // Or from 'links/related'
-        } else if ('links' in relItems) {
+        } else if (hasProperty(relItems, 'links')) {
           relData = relItems['links']['related']
           if (!(typeof relData === 'string')) {
             relData = relData['href']
@@ -370,7 +370,7 @@ const getters = () => {
       } else {
         const [type, id] = getTypeId(data)
 
-        if (type in state) {
+        if (hasProperty(state, type)) {
           if (id) {
             if (hasProperty(state[type], id)) {
               // single item
@@ -418,7 +418,7 @@ const getters = () => {
       if (typeof id === 'object') {
         id = id[jvtag + 'Id']
       }
-      if (id in state[jvtag]) {
+      if (hasProperty(state[jvtag], id)) {
         return state[jvtag][id]['status']
       }
     },
@@ -557,7 +557,7 @@ const cleanPatch = (patch, state = {}, jvProps = []) => {
 const updateRecords = (state, records, merging = jvConfig.mergeRecords) => {
   const storeRecords = normToStore(records)
   for (let [type, item] of Object.entries(storeRecords)) {
-    if (!(type in state)) {
+    if (!hasProperty(state, type)) {
       Vue.set(state, type, {})
       // If there's no type, then there are no existing records to merge
       merging = false
@@ -630,7 +630,7 @@ const actionSequence = (context) => {
 // If enabled, store the response json in the returned data
 const preserveJSON = (data, json) => {
   if (jvConfig.preserveJson && data) {
-    if (!(jvtag in data)) {
+    if (!hasProperty(data, jvtag)) {
       data[jvtag] = {}
     }
     // Store original json in _jv, then delete data section
@@ -643,7 +643,7 @@ const preserveJSON = (data, json) => {
 const checkAndFollowRelationships = (state, getters, records, seen) => {
   if (jvConfig.followRelationshipsData) {
     let resData = {}
-    if (jvtag in records) {
+    if (hasProperty(records, jvtag)) {
       // single item
       resData = followRelationships(state, getters, records, seen)
     } else {
@@ -705,7 +705,7 @@ const getTypeId = (data) => {
 const getURL = (data, post = false) => {
   let path = data
   if (typeof data === 'object') {
-    if ('links' in data[jvtag] && 'self' in data[jvtag]['links'] && !post) {
+    if (get(data, [jvtag, 'links', 'self']) && !post) {
       path = data[jvtag]['links']['self']
     } else {
       let { type, id } = data[jvtag]
@@ -738,7 +738,7 @@ const jsonapiToNorm = (data) => {
   if (Array.isArray(data)) {
     data.forEach((item) => {
       let { id } = item
-      if (!(id in norm)) {
+      if (!hasProperty(norm, id)) {
         norm[id] = {}
       }
       Object.assign(norm[id], jsonapiToNormItem(item))
@@ -771,7 +771,7 @@ const normToJsonapiItem = (data) => {
 // Denormalize one or more records to jsonapi
 const normToJsonapi = (record) => {
   const jsonapi = []
-  if (!(jvtag in record)) {
+  if (!hasProperty(record, jvtag)) {
     // Collection of id-indexed records
     for (let item of Object.values(record)) {
       jsonapi.push(normToJsonapiItem(item))
@@ -789,13 +789,13 @@ const normToJsonapi = (record) => {
 // Convert a norm record to store format
 const normToStore = (record) => {
   let store = {}
-  if (jvtag in record) {
+  if (hasProperty(record, jvtag)) {
     // Convert item to look like a collection
     record = { [record[jvtag]['id']]: record }
   }
   for (let item of Object.values(record)) {
     const { type, id } = item[jvtag]
-    if (!(type in store)) {
+    if (!hasProperty(store, type)) {
       store[type] = {}
     }
     if (jvConfig.followRelationshipsData) {
