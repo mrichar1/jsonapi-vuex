@@ -24,6 +24,7 @@
     "fake-json-api-server": "^1.6.0",
     "geckodriver": "^1.16.2",
     "husky": "^3.0.5",
+    "jsdoc": "^3.6.3",
     "karma": "^4.3.0",
     "karma-chai": "^0.1.0",
     "karma-coverage": "^2.0.1",
@@ -72,7 +73,7 @@
     "url": "https://github.com/mrichar1/jsonapi-vuex/issues"
   },
   "scripts": {
-    "docs": "jsdoc -c jsdoc.json",
+    "docs": "rm -rf docs/; jsdoc -c jsdoc.json",
     "test": "npm run unit -- --single-run && npm run e2e",
     "unit": "karma start",
     "lint": "eslint .",
