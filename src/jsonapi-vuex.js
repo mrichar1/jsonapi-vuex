@@ -24,7 +24,7 @@ const STATUS_SUCCESS = 'SUCCESS'
 const STATUS_ERROR = 'ERROR'
 
 /**
- * @namespace
+ * @namespace Configuration
  * @property {string} jvtag='_jv' - key to store jsonapi-vuex-related data in when destructuring (default: '_jv')
  * @property {boolean} followRelationshipsData=true - Follow relationships 'data' entries (from store)
  * @property {boolean} preserveJSON=false - Preserve API response json in return data
@@ -648,6 +648,18 @@ const jsonapiModule = (api, conf = {}) => {
  * @memberof module:jsonapi-vuex
  */
 
+/**
+ * Make a copy of a restructured object, adding (js) getters for its relationships
+ * That call the (vuex) get getter to fecth that record from the store
+ *
+ * Already seen objects are tracked using the 'seen' param to avoid loops.
+ *
+ * @memberof module:jsonapi-vuex._internal
+ * @param {object} getters - Vuex getters object
+ * @param {object} parent - The object whose relationships should be fetched
+ * @param {array} seen - Internal recursion state tracking
+ * @returns {object} A copy of the object with getter relationships added
+ */
 const getRelationships = (getters, parent, seen = []) => {
   let relationships = get(parent, [jvtag, 'relationships'], {})
   let relationshipsData = {}
@@ -773,6 +785,15 @@ const cleanPatch = (patch, state = {}, jvProps = []) => {
   return clean
 }
 
+/**
+ * A single function to encapsulate the different merge approaches of the record mutations.
+ * See {@link module:jsonapi-vuex.jsonapiModule.mutations} to see the mutations that use this function.
+ *
+ * @memberof module:jsonapi-vuex._internal
+ * @param {object} state - Vuex state object
+ * @param {object} records - Restructured records to be updated
+ * @param {boolean} merging - Whether or not to merge or overwrite records
+ */
 const updateRecords = (state, records, merging = jvConfig.mergeRecords) => {
   const storeRecords = normToStore(records)
   for (let [type, item] of Object.entries(storeRecords)) {
@@ -797,7 +818,7 @@ const updateRecords = (state, records, merging = jvConfig.mergeRecords) => {
  * Add helper functions and getters to a restructured object
  * @memberof module:jsonapi-vuex.utils
  * @param {object} obj - An object to assign helpers to
- * @return {object} A copy of the object weith added helper functions/getters
+ * @return {object} A copy of the object with added helper functions/getters
  */
 const addJvHelpers = (obj) => {
   Object.assign(obj[jvtag], {
@@ -837,6 +858,15 @@ const addJvHelpers = (obj) => {
   return obj
 }
 
+/**
+ * An incrementing counter, returning a new id to be used for action statuses.
+ * If `actionStatusCleanAge` is set, also sets up a timer to call deleetStatus for
+ * this id when the timeout is reached.
+ * See {@link module:jsonapi-vuex~Configuration|Configuration}
+ * @memberof module:jsonapi-vuex._internal
+ * @param {object} context - Vuex actions context object
+ * @return {integer} A new status id
+ */
 const actionSequence = (context) => {
   // Increment the global action id, set up a cleanup timeout and return it
   let id = ++actionSequenceCounter
@@ -851,7 +881,14 @@ const actionSequence = (context) => {
   return id
 }
 
-// If enabled, store the response json in the returned data
+/**
+ * If `preserveJSON` is set, add the returned JSONAPI in a get action to _jv.json
+ * See {@link module:jsonapi-vuex~Configuration|Configuration}
+ * @memberof module:jsonapi-vuex._internal
+ * @param {object} data - Restructured record
+ * @param {object} json - JSONAPI record
+ * @return {object} data record, with JSONAPI added in _jv.json
+ */
 const preserveJSON = (data, json) => {
   if (jvConfig.preserveJson && data) {
     if (!(jvtag in data)) {
@@ -864,6 +901,16 @@ const preserveJSON = (data, json) => {
   return data
 }
 
+/**
+ * If `followRelationshipData` is set, call `followRelationships` for either an item or a collection
+ * See {@link module:jsonapi-vuex~Configuration|Configuration}
+ * @memberof module:jsonapi-vuex._internal
+ * @param {object} state - Vuex state object
+ * @param {object} getters - Vuex getters object
+ * @param {object} records - Record(s) to follow relationships for.
+ * @param {array} seen - internal recursion state-tracking
+ * @return {object} records with relationships followed
+ */
 const checkAndFollowRelationships = (state, getters, records, seen) => {
   if (jvConfig.followRelationshipsData) {
     let resData = {}
@@ -883,11 +930,19 @@ const checkAndFollowRelationships = (state, getters, records, seen) => {
   return records
 }
 
-// Follow relationships and expand them into _jv/rels
+/**
+ * A thin wrapper around `getRelationships, making a copy of the object.
+ * We can't add rels to the original object, otherwise Vue's watchers
+ * spot the potential for loops (which we are guarding against) and throw an error
+ *
+ * @memberof module:jsonapi-vuex._internal
+ * @param {object} state - Vuex state object
+ * @param {object} getters - Vuex getters object
+ * @param {object} record - Record to get relationships for.
+ * @param {array} seen - internal recursion state-tracking
+ * @return {object} records with relationships followed and helper functions added (see {@link module:jsonapi-vuex.utils.addJvHelpers})
+ */
 const followRelationships = (state, getters, record, seen) => {
-  // Make a shallow copy of the object's keys (by reference - preserve getters).
-  // We can't add rels to the original object, otherwise Vue's watchers
-  // spot the potential loop and throw an error
   let data = {}
 
   Object.defineProperties(data, Object.getOwnPropertyDescriptors(record))
@@ -898,7 +953,14 @@ const followRelationships = (state, getters, record, seen) => {
   return addJvHelpers(data)
 }
 
-// Make sure args is always an array of data and config
+/**
+ * Transform args to always be an array (data and config options).
+ * See {@link module:jsonapi-vuex.jsonapiModule.actions} for an explanation of why this function is needed.
+ *
+ * @memberof module:jsonapi-vuex._internal
+ * @param {(string|array)} args - Array of data and configuration info
+ * @return {array} Array of data and config options
+ */
 const unpackArgs = (args) => {
   if (Array.isArray(args)) {
     return args
@@ -953,7 +1015,12 @@ const getURL = (data, post = false) => {
   return path
 }
 
-// Normalize a single jsonapi item
+/**
+ * Restructure a single jsonapi item. Used internally by {@link module:jsonapi-vuex.utils.jsonapiToNorm}
+ * @memberof module:jsonapi-vuex._internal
+ * @param {object} data - JSONAPI record
+ * @return {object} Restructured data
+ */
 const jsonapiToNormItem = (data) => {
   if (!data) {
     return {}
@@ -988,7 +1055,12 @@ const jsonapiToNorm = (data) => {
   return norm
 }
 
-// Denormalize an item to jsonapi
+/**
+ * Convert a single restructured item to JSONAPI. Used internally by {@link module:jsonapi-vuex.utils.normToJsonapi}
+ * @memberof module:jsonapi-vuex._internal
+ * @param {object} data - Restructured data
+ * @return {object}  JSONAPI record
+ */
 const normToJsonapiItem = (data) => {
   const jsonapi = {}
   //Pick out expected resource members, if they exist
@@ -1057,6 +1129,13 @@ const normToStore = (record) => {
   return store
 }
 
+/**
+ * Restructure all records in 'included' (using {@link module:jsonapi-vuex._internal.jsonapiToNormItem})
+ * and add to the store.
+ * @memberof module:jsonapi-vuex._internal
+ * @param {object} context - Vuex actions context object
+ * @param {object} results - JSONAPI record
+ */
 const processIncludedRecords = (context, results) => {
   for (let item of get(results, ['data', 'included'], [])) {
     const includedItem = jsonapiToNormItem(item)
@@ -1107,5 +1186,4 @@ const _testing = {
   getRelationships: getRelationships,
 }
 
-// Export this module
 export { jsonapiModule, utils, _testing }
