@@ -718,12 +718,12 @@ const getRelationships = (getters, parent, seen = []) => {
 }
 
 /**
+ * Deep copy a normalised object, then re-add helper nethods
  * @memberof module:jsonapi-vuex.utils
  * @param {object} obj - An object to be deep copied
  * @return {object} A deep copied object, with Helper functions added
  */
 const deepCopy = (obj) => {
-  // Deep copy a normalised object, then re-add helper nethods
   const copyObj = _copy(obj)
   if (Object.entries(copyObj).length) {
     return addJvHelpers(copyObj)
@@ -751,8 +751,13 @@ const _copy = (data) => {
 }
 
 /**
+ * A function that cleans up a patch object, so that it doesn't introeuce unexpected chanegs when sent to the API
+ * It removes any attributes which are unchanged from the store, to minimise accidental reversions.
+ * It also strips out any of links, relationships and meta from `_jv` - See {@link module:jsonapi-vuex~Configuration|Configuration}
  * @memberof module:jsonapi-vuex.utils
  * @param {object} patch - A restructured object to be cleaned
+ * @param {object} state={} - Vuex state object (for patch comparison)
+ * @param {array} jvProps='[]' - _jv Properties to be kept
  * @return {object} A cleaned copy of the patch object
  */
 const cleanPatch = (patch, state = {}, jvProps = []) => {
