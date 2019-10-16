@@ -820,6 +820,12 @@ const updateRecords = (state, records, merging = jvConfig.mergeRecords) => {
 }
 
 /**
+ * Helper methods added to `_jv` by {@link module:jsonapi-vuex.utils.addJvHelpers}
+ * @namespace helpers
+ * @memberof module:jsonapi-vuex.jsonapiModule
+ */
+
+/**
  * Add helper functions and getters to a restructured object
  * @memberof module:jsonapi-vuex.utils
  * @param {object} obj - An object to assign helpers to
@@ -827,15 +833,28 @@ const updateRecords = (state, records, merging = jvConfig.mergeRecords) => {
  */
 const addJvHelpers = (obj) => {
   Object.assign(obj[jvtag], {
+    /**
+     * @memberof module:jsonapi-vuex.jsonapiModule.helpers
+     * @param {string} name - Name of a (potential) relationship
+     * returns {boolean} true if the name given is a relationship of this object
+     */
     isRel(name) {
       return hasProperty(get(obj, [jvtag, 'relationships'], {}), name)
     },
+    /**
+     * @memberof module:jsonapi-vuex.jsonapiModule.helpers
+     * @param {string} name - Name of a (potential) attribute
+     * returns {boolean} true if the name given is an attribute of this object
+     */
     isAttr(name) {
       return name !== jvtag && hasProperty(obj, name) && !this.isRel(name)
     },
   })
-  // Use defineProperty as assign copies the values, not the getter function
-  // https://github.com/mrichar1/jsonapi-vuex/pull/40#issuecomment-474560508
+  /**
+   * @memberof module:jsonapi-vuex.jsonapiModule.helpers
+   * @name rels
+   * @property {object} - An object containing all relationships for this object
+   */
   Object.defineProperty(obj[jvtag], 'rels', {
     get() {
       const rel = {}
@@ -847,6 +866,11 @@ const addJvHelpers = (obj) => {
     // Allow to be redefined
     configurable: true,
   })
+  /**
+   * @memberof module:jsonapi-vuex.jsonapiModule.helpers
+   * @name attrs
+   * @property {object} - An object containing all attributes for this object
+   */
   Object.defineProperty(obj[jvtag], 'attrs', {
     get() {
       const att = {}
