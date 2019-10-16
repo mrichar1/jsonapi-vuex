@@ -125,7 +125,7 @@ const mutations = () => {
       }
     },
     /**
-     * Delete all records from the store of a given type
+     * Record the status id of an action in the store
      * @memberof module:jsonapi-vuex.jsonapiModule.mutations
      * @param {object} state - The Vuex state object
      * @param {object} obj
@@ -136,7 +136,7 @@ const mutations = () => {
       Vue.set(state[jvtag], id, { status: status, time: Date.now() })
     },
     /**
-     * Delete all records from the store of a given type
+     * Delete the status id of an action from the store
      * @memberof module:jsonapi-vuex.jsonapiModule.mutations
      * @param {object} state - The Vuex state object
      * @param {integer} id - The action id to delete
@@ -151,7 +151,7 @@ const mutations = () => {
 
 /**
  * Vuex actions, used via `this.$store.dispatch`, e.g.:
- * `this.$store.dispatch("jv/get", <args>)`
+ * `this.$store.dispatch('jv/get', <args>)`
  *
  * `args` can be either a string or an object representing the item(s) required,
  * or it can be an array of string/object and an optional axios config object.
@@ -171,7 +171,7 @@ const actions = (api) => {
      * @param {string}  - A URL path to an item - e.g. `endpoint/1`
      * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
      * @param {array}  - A 2-element array, consisting of a string/object and an optional axios config object
-     * @return {object} - Restructured representation of the requested item(s)
+     * @return {object} Restructured representation of the requested item(s)
      */
     get: (context, args) => {
       const [data, config] = unpackArgs(args)
@@ -220,7 +220,7 @@ const actions = (api) => {
      * @param {string}  - A URL path to an item - e.g. `endpoint/1`
      * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
      * @param {array}  - A 2-element array, consisting of a string/object and an optional axios config object
-     * @return {object} - Restructured representation of the requested item(s)
+     * @return {object} Restructured representation of the requested item(s)
      */
     getRelated: async (context, args) => {
       const data = unpackArgs(args)[0]
@@ -342,7 +342,7 @@ const actions = (api) => {
      * @param {(object|array)} args - See {@link module:jsonapi-vuex.jsonapiModule.actions} for a summary of args
      * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
      * @param {array}  - A 2-element array, consisting of a string/object and an optional axios config object
-     * @return {object} - Restructured representation of the posted item
+     * @return {object} Restructured representation of the posted item
      */
     post: (context, args) => {
       let [data, config] = unpackArgs(args)
@@ -383,7 +383,7 @@ const actions = (api) => {
      * @param {(object|array)} args - See {@link module:jsonapi-vuex.jsonapiModule.actions} for a summary of args
      * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
      * @param {array}  - A 2-element array, consisting of a string/object and an optional axios config object
-     * @return {object} - Restructured representation of the patched item
+     * @return {object} Restructured representation of the patched item
      */
     patch: (context, args) => {
       let [data, config] = unpackArgs(args)
@@ -436,7 +436,7 @@ const actions = (api) => {
      * @param {string}  - A URL path to an item - e.g. `endpoint/1`
      * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
      * @param {array}  - A 2-element array, consisting of a string/object and an optional axios config object
-     * @return {object} - Restructured representation of the deleted item
+     * @return {object} Restructured representation of the deleted item
      */
     delete: (context, args) => {
       const [data, config] = unpackArgs(args)
@@ -478,7 +478,7 @@ const actions = (api) => {
      * @param {string}  - A URL path to an item - e.g. `endpoint/1`
      * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
      * @param {array}  - A 2-element array, consisting of a string/object and an optional axios config object
-     * @return {object} - Restructured representation of the posted item
+     * @return {object} Restructured representation of the posted item
      */
     search: (context, args) => {
       // Create a 'noop' context.commit to avoid store modifications
@@ -592,7 +592,7 @@ const getters = () => {
  * @memberof module:jsonapi-vuex
  * @param {axios} api - an axios instance
  * @param {object} [conf={}] - jsonapi-vuex configuation
- * @return {object} - A Vuex store object
+ * @return {object} A Vuex store object
  */
 const jsonapiModule = (api, conf = {}) => {
   Object.assign(jvConfig, conf)
@@ -693,7 +693,7 @@ const deepCopy = (obj) => {
 /**
  * @memberof module:jsonapi-vuex._internal
  * @param {object} data - An object to be deep copied
- * @return {object} - A deep copied object
+ * @return {object} A deep copied object
  */
 const _copy = (data) => {
   // Recursive object copying function (for 'simple' objects)
