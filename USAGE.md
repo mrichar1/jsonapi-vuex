@@ -199,6 +199,8 @@ The 3 categories of Vuex methods are used as follows:
 
 ### Actions
 
+[Actions API Reference](module-jsonapi-vuex.jsonapiModule.actions.html)
+
 The usual way to use this module is to use `actions` wherever possible. All actions are asynchronous, and both query the API and update the store, then return data in a normalized form. Every action call's state is tracked as it progresses, and this status can be easily queried (see the [`status`](#status) getter).
 
 There are 4 actions (with aliases): `get` (`fetch`), `post` (`create`), `patch` (`update`), and `delete` which correspond to RESTful methods. There is also a [getRelated](#getrelated) action which fetches a record's [relationships](#relationships).
@@ -348,6 +350,8 @@ this.$store.dispatch('jv/getRelated', customRels).then((data) => {
 
 ### Getters
 
+[Getters API Reference](module-jsonapi-vuex.jsonapiModule.getters.html)
+
 There are 3 getters available. `get`, `getRelated` and `status`.
 
 #### get
@@ -452,6 +456,8 @@ For example, you might want to disable an attribute while an action is happening
 
 ## Mutations
 
+[Mutations API Reference](module-jsonapi-vuex.jsonapiModule.mutations.html)
+
 There are several mutations which can be used to directly modify the store.
 
 **Note** - in most cases mutations are called from actions as a result of querying the API, and it is not necessary to call mutations directly.
@@ -514,6 +520,8 @@ These are particularly useful in `Vue` templates. For example to iterate over an
 
 ## Utility Functions
 
+[Utility Functions API Reference](module-jsonapi-vuex.utils.html)
+
 Some functions are potentially useful for data manipulation etc outside the normal code flow. These functions are exported as `utils`, i.e:
 
 ```
@@ -565,6 +573,8 @@ Convert a restructured object to a JSONAPI object.
 Convert a restructured object to it's `store` form.
 
 ## Configuration
+
+[Configuration API Reference](module-jsonapi-vuex-jvConfig.html)
 
 A config object can be passed to `jsonapiModule` when instantiating. It will override the default options:
 
