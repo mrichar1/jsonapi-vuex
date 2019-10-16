@@ -7,6 +7,9 @@
     "template": "node_modules/better-docs/",
     "tutorials": "tutorials/"
   },
+  "markdown": {
+    "idInHeadings": true
+  },
   "plugins": ["plugins/markdown"],
   "source": {
     "include": ["./src"],
