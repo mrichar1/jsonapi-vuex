@@ -648,11 +648,6 @@ const jsonapiModule = (api, conf = {}) => {
  * @memberof module:jsonapi-vuex
  */
 
-/**
- * @memberof utils
- * @param {object} obj - A 'simple' object to deep copy.
- */
-
 const getRelationships = (getters, parent, seen = []) => {
   let relationships = get(parent, [jvtag, 'relationships'], {})
   let relationshipsData = {}
