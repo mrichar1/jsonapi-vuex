@@ -710,6 +710,11 @@ const getRelationships = (getters, parent, seen = []) => {
   return relationshipsData
 }
 
+/**
+ * @memberof module:jsonapi-vuex.utils
+ * @param {object} obj - An object to be deep copied
+ * @return {object} A deep copied object, with Helper functions added
+ */
 const deepCopy = (obj) => {
   // Deep copy a normalised object, then re-add helper nethods
   const copyObj = _copy(obj)
@@ -738,6 +743,11 @@ const _copy = (data) => {
   return out
 }
 
+/**
+ * @memberof module:jsonapi-vuex.utils
+ * @param {object} patch - A restructured object to be cleaned
+ * @return {object} A cleaned copy of the patch object
+ */
 const cleanPatch = (patch, state = {}, jvProps = []) => {
   // Add helper properties (use a copy to prevent side-effects)
   const modPatch = deepCopy(patch)
@@ -788,8 +798,13 @@ const updateRecords = (state, records, merging = jvConfig.mergeRecords) => {
   }
 }
 
+/**
+ * Add helper functions and getters to a restructured object
+ * @memberof module:jsonapi-vuex.utils
+ * @param {object} obj - An object to assign helpers to
+ * @return {object} A copy of the object weith added helper functions/getters
+ */
 const addJvHelpers = (obj) => {
-  // Add Utility functions to _jv child object
   Object.assign(obj[jvtag], {
     isRel(name) {
       return hasProperty(get(obj, [jvtag, 'relationships'], {}), name)
@@ -896,7 +911,12 @@ const unpackArgs = (args) => {
   return [args, {}]
 }
 
-// Get type, id, rels from a restructured object
+/**
+ * Get the type, id and relationships from a restructured object
+ * @memberof module:jsonapi-vuex.utils
+ * @param {object} data - A restructured object
+ * @return {array} An array (optionally) containing type, id and rels
+ */
 const getTypeId = (data) => {
   let type, id, rel
   if (typeof data === 'string') {
@@ -915,7 +935,12 @@ const getTypeId = (data) => {
   ].filter(Boolean)
 }
 
-// Return path, or construct one if restructured data
+/**
+ * Return the URL path (links.self) or construct from type/id
+ * @memberof module:jsonapi-vuex.utils
+ * @param {object} data - A restructured object
+ * @return {string} The record's URL path
+ */
 const getURL = (data, post = false) => {
   let path = data
   if (typeof data === 'object') {
@@ -946,7 +971,12 @@ const jsonapiToNormItem = (data) => {
   return norm
 }
 
-// Normalize one or more jsonapi items
+/**
+ * Convert JSONAPI record(s) to restructured data
+ * @memberof module:jsonapi-vuex.utils
+ * @param {object} data - JSONAPI record
+ * @return {object} Restructured data
+ */
 const jsonapiToNorm = (data) => {
   const norm = {}
   if (Array.isArray(data)) {
@@ -982,7 +1012,12 @@ const normToJsonapiItem = (data) => {
   return jsonapi
 }
 
-// Denormalize one or more records to jsonapi
+/**
+ * Convert one or more restructured records to jsonapi
+ * @memberof module:jsonapi-vuex.utils
+ * @param {object} record - A restructured record to be convert to JSONAPI
+ * @return {object} JSONAPI record
+ */
 const normToJsonapi = (record) => {
   const jsonapi = []
   if (!(jvtag in record)) {
@@ -1000,7 +1035,12 @@ const normToJsonapi = (record) => {
   }
 }
 
-// Convert a norm record to store format
+/**
+ * Convert one or more restructured records to nested (type & id) 'store' object
+ * @memberof module:jsonapi-vuex.utils
+ * @param {object} record - A restructured record to be convert to JSONAPI
+ * @return {object} Structured 'store' object
+ */
 const normToStore = (record) => {
   let store = {}
   if (jvtag in record) {
