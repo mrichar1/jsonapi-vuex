@@ -2,7 +2,7 @@
   "opts": {
     "encoding": "utf8",
     "destination": "docs/",
-    "readme": "README.md",
+    "readme": "USAGE.md",
     "recurse": true,
     "template": "node_modules/better-docs/",
     "tutorials": "tutorials/"
