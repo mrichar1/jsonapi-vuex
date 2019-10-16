@@ -518,11 +518,24 @@ const actions = (api) => {
 }
 
 /**
+ * Vuex getters, used via `this.$store.getters`, e.g.:
+ * `this.$store.getters['jv/get'](<args>)
+ *
  * @namespace
  * @memberof module:jsonapi-vuex.jsonapiModule
  */
 const getters = () => {
   return {
+    /**
+     * Get record(s) from the store
+     *
+     * @memberof module:jsonapi-vuex.jsonapiModule.getters
+     * @param {(string|object)} data
+     * @param {string}  - A URL path to an item - e.g. `endpoint/1`
+     * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
+     * @param {string} jsonpath - a JSONPath string to filter the record(s) which are being retrieved. See [JSONPath Syntax](https://github.com/dchester/jsonpath#jsonpath-syntax)
+     * @return {object} Restructured representation of the record(s)
+     */
     get: (state, getters) => (data, jsonpath, seen) => {
       let result
       if (!data) {
@@ -563,6 +576,15 @@ const getters = () => {
       }
       return result
     },
+    /**
+     * Get the related record(s) of a record from the store
+     *
+     * @memberof module:jsonapi-vuex.jsonapiModule.getters
+     * @param {(string|object)} data
+     * @param {string}  - A URL path to an item - e.g. `endpoint/1`
+     * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
+     * @return {object} Restructured representation of the record(s)
+     */
     getRelated: (state, getters) => (data, seen) => {
       const [type, id] = getTypeId(data)
       if (!type || !id) {
@@ -574,6 +596,13 @@ const getters = () => {
       }
       return {}
     },
+    /**
+     * Get the status of an action
+     *
+     * @memberof module:jsonapi-vuex.jsonapiModule.getters
+     * @param {integer} id - A status action id
+     * @return {string} A string representing the state of the action (LOADING|SUCCESS|ERROR)
+     */
     status: (state) => (id) => {
       // If id is an object (promise), extract id
       if (typeof id === 'object') {
