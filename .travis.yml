@@ -7,6 +7,7 @@ env:
 services:
 - xvfb
 addons:
+  chrome: stable
   firefox: latest
 script:
 - npm run lint
