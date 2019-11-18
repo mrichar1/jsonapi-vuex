@@ -254,6 +254,25 @@ this.$store
   .then((data) => {
     console.log(data)
   })
+
+// Update a widget in the API
+const widgetColor = {
+  widget: {
+    1: {
+      color: 'red',
+    },
+  },
+}
+
+this.$store.dispatch('jv/patch', [widgetColor, { params: params }])
+
+// Fetch, then update a widget in the API
+this.$store
+  .dispatch('jv/get', ['widget/1', { params: params }])
+  .then((widget1) => {
+    widget1['color'] = 'red'
+    this.$store.dispatch('jv/patch', [widget1, { params: params }])
+  })
 ```
 
 #### search
