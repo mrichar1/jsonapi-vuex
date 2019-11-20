@@ -304,7 +304,7 @@ describe('jsonapi-vuex tests', function() {
       it('should pick modified/new attributes from a record (no _jv)', function() {
         const { cleanPatch } = _testing
 
-        const res = cleanPatch(normWidget1Patch, normRecord)
+        const res = cleanPatch(normWidget1Patch, { widget: normRecord })
         expect(res).to.not.have.property('bar')
         expect(res['foo']).to.equal('update')
       })
@@ -317,7 +317,7 @@ describe('jsonapi-vuex tests', function() {
         patch['widgets'] = {}
         addJvHelpers(patch)
 
-        const res = cleanPatch(patch, normRecord)
+        const res = cleanPatch(patch, { widget: normRecord })
         expect(res).to.not.have.property('bar')
         expect(res['foo']).to.equal('update')
         expect(res).to.not.have.property('widgets')

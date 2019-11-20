@@ -766,7 +766,10 @@ const cleanPatch = (patch, state = {}, jvProps = []) => {
   const attrs = get(modPatch, [jvtag, 'attrs'])
   const clean = { [jvtag]: {} }
   // Only try to clean the patch if it exists in the store
-  const stateRecord = get(state, modPatch[jvtag]['id'])
+  const stateRecord = get(state, [
+    modPatch[jvtag]['type'],
+    modPatch[jvtag]['id'],
+  ])
   if (stateRecord) {
     for (let [k, v] of Object.entries(attrs)) {
       if (!hasProperty(stateRecord, k) || !isEqual(stateRecord[k], v)) {
