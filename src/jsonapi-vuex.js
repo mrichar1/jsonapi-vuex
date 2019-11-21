@@ -1068,7 +1068,7 @@ const jsonapiToNormItem = (data) => {
 /**
  * Convert JSONAPI record(s) to restructured data
  * @memberof module:jsonapi-vuex.utils
- * @param {object} data - JSONAPI record
+ * @param {object} data - The `data` object from a JSONAPI record
  * @return {object} Restructured data
  */
 const jsonapiToNorm = (data) => {
