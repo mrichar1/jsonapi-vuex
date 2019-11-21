@@ -597,7 +597,7 @@ Convert a restructured object to it's `store` form.
 
 ## Configuration
 
-[Configuration API Reference](https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex-jvConfig.html)
+[Configuration API Reference](https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex-Configuration.html)
 
 A config object can be passed to `jsonapiModule` when instantiating. It will override the default options:
 
