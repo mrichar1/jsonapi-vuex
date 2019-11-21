@@ -203,7 +203,7 @@ The 3 categories of Vuex methods are used as follows:
 
 ### Actions
 
-[Actions API Reference](module-jsonapi-vuex.jsonapiModule.actions.html)
+[Actions API Reference](https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex.jsonapiModule.actions.html)
 
 The usual way to use this module is to use `actions` wherever possible. All actions are asynchronous, and both query the API and update the store, then return data in a normalized form. Every action call's state is tracked as it progresses, and this status can be easily queried (see the [`status`](#status) getter).
 
@@ -373,7 +373,7 @@ this.$store.dispatch('jv/getRelated', customRels).then((data) => {
 
 ### Getters
 
-[Getters API Reference](module-jsonapi-vuex.jsonapiModule.getters.html)
+[Getters API Reference](https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex.jsonapiModule.getters.html)
 
 There are 3 getters available. `get`, `getRelated` and `status`.
 
@@ -479,7 +479,7 @@ For example, you might want to disable an attribute while an action is happening
 
 ## Mutations
 
-[Mutations API Reference](module-jsonapi-vuex.jsonapiModule.mutations.html)
+[Mutations API Reference](https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex.jsonapiModule.mutations.html)
 
 There are several mutations which can be used to directly modify the store.
 
@@ -543,7 +543,7 @@ These are particularly useful in `Vue` templates. For example to iterate over an
 
 ## Utility Functions
 
-[Utility Functions API Reference](module-jsonapi-vuex.utils.html)
+[Utility Functions API Reference](https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex.utils.html)
 
 Some functions are potentially useful for data manipulation etc outside the normal code flow. These functions are exported as `utils`, i.e:
 
@@ -597,7 +597,7 @@ Convert a restructured object to it's `store` form.
 
 ## Configuration
 
-[Configuration API Reference](module-jsonapi-vuex-jvConfig.html)
+[Configuration API Reference](https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex-jvConfig.html)
 
 A config object can be passed to `jsonapiModule` when instantiating. It will override the default options:
 
