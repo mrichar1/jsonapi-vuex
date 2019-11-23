@@ -211,13 +211,17 @@ There are 4 actions (with aliases): `get` (`fetch`), `post` (`create`), `patch` 
 
 #### RESTful actions
 
-These actions take 2 arguments: the path/object to be acted on, and an (optional) [`axios` config object](https://github.com/axios/axios#request-config). The first argument is an object containing [restructured data](#restructured-data).
+Actions are dispatched via `this.$store.dispatch`. As this project is used as a module, the first parameter to `dispatch` is of the form `module/action`, e.g. `jv/get`. The second parameter to `dispatch` is passed on to the action.
 
-_Note_ - Since the `dispatch` method can only accept a single argument, if both arguments are used, the argument must be an array.
+Actions take 2 arguments:
 
-The first argument is an object containing [restructured data](#restructured-data). Actions which take no `data` argument apart from the record (`get` and `delete`) can also accept a URL to fetch (relative to `axios` `baseURL` (if set) leading slash is optional). This means you don't need to create an 'empty' restructured data object to get or delete a record.
+The first argument is an object containing [restructured data](#restructured-data). Actions which take no `data` argument apart from the record (`get` and `delete`) can also accept a URL to fetch, relative to the value of `axios` `baseURL` (if set). The leading slash is optional. This means you don't need to create an 'empty' restructured data object to get or delete a record.
 
-_Note_ - The `get` action differs in that it returns the results of the action, rather than querying the store for the requested item/collection. This is because the `get` may be a partial or filtered request, returning only a subset of the item/collection. This means that if you use these results, later updates to the stores will not be reflected. If you want to query the store, then use the `get` getter once the action has returned.
+The second argument is an (optional) [`axios` config object](https://github.com/axios/axios#request-config). This is used to configure `axios`, most commonly used for adding like headers, URL parameters etc.
+
+_Note_ - The way Vuex is designed, `dispatch` can only accept 2 parameters. If passing 2 arguments to the action (i.e adding axios config), the arguments must be passed in an array.
+
+_Note_ - The return value of the `get` action differs in that it returns the results of the action, rather than querying the store for the requested item/collection. This is because the `get` may be a partial or filtered request, returning only a subset of the item/collection. This means that if you use these results, later updates to the stores will not be reflected. If you want to query the store, then use the `get` getter once the action has returned.
 
 Some examples:
 
