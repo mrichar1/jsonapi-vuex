@@ -84,7 +84,7 @@ const mutations = () => {
      * Add record(s) to the store, according to `mergeRecords` config option
      * @memberof module:jsonapi-vuex.jsonapiModule.mutations
      * @param {object} state - The Vuex state object
-     * @param {(string|object)} records - The record(s) to be added
+     * @param {object} records - The record(s) to be added
      */
     addRecords: (state, records) => {
       updateRecords(state, records)
@@ -93,7 +93,7 @@ const mutations = () => {
      * Replace (or add) record(s) to the store
      * @memberof module:jsonapi-vuex.jsonapiModule.mutations
      * @param {object} state - The Vuex state object
-     * @param {(string|object)} records - The record(s) to be replaced
+     * @param {object} records - The record(s) to be replaced
      */
     replaceRecords: (state, records) => {
       updateRecords(state, records, false)
@@ -102,16 +102,16 @@ const mutations = () => {
      * Merge (or add) records to the store
      * @memberof module:jsonapi-vuex.jsonapiModule.mutations
      * @param {object} state - The Vuex state object
-     * @param {(string|object)} recordw - The record(s) to be merged
+     * @param {object} records - The record(s) to be merged
      */
     mergeRecords: (state, records) => {
       updateRecords(state, records, true)
     },
     /**
-     * Delete all records from the store of a given type
+     * Delete all records from the store for a given type
      * @memberof module:jsonapi-vuex.jsonapiModule.mutations
      * @param {object} state - The Vuex state object
-     * @param {(string|object)} records - The type (or a record with type property set) to be cleared
+     * @param {object} records - A record with type set.
      */
     clearRecords: (state, records) => {
       const newRecords = normToStore(records)

@@ -496,7 +496,7 @@ Mutations take normalised data as an argument.
 Deletes a single record from the store.
 
 ```js
-store.commit('deleteRecord', { _jv: { type: 'widget', id: '1' } })
+store.commit('jv/deleteRecord', { _jv: { type: 'widget', id: '1' } })
 ```
 
 #### addRecords
