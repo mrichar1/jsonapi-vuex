@@ -835,24 +835,27 @@ const updateRecords = (state, records, merging = jvConfig.mergeRecords) => {
  * @return {object} A copy of the object with added helper functions/getters
  */
 const addJvHelpers = (obj) => {
-  Object.assign(obj[jvtag], {
-    /**
-     * @memberof module:jsonapi-vuex.jsonapiModule.helpers
-     * @param {string} name - Name of a (potential) relationship
-     * returns {boolean} true if the name given is a relationship of this object
-     */
-    isRel(name) {
-      return hasProperty(get(obj, [jvtag, 'relationships'], {}), name)
-    },
-    /**
-     * @memberof module:jsonapi-vuex.jsonapiModule.helpers
-     * @param {string} name - Name of a (potential) attribute
-     * returns {boolean} true if the name given is an attribute of this object
-     */
-    isAttr(name) {
-      return name !== jvtag && hasProperty(obj, name) && !this.isRel(name)
-    },
-  })
+  if (obj[jvtag] && !obj[jvtag].isRel && !obj[jvtag].isAttr) {
+    Object.assign(obj[jvtag], {
+      /**
+       * @memberof module:jsonapi-vuex.jsonapiModule.helpers
+       * @param {string} name - Name of a (potential) relationship
+       * returns {boolean} true if the name given is a relationship of this object
+       */
+      isRel(name) {
+        return hasProperty(get(obj, [jvtag, 'relationships'], {}), name)
+      },
+      /**
+       * @memberof module:jsonapi-vuex.jsonapiModule.helpers
+       * @param {string} name - Name of a (potential) attribute
+       * returns {boolean} true if the name given is an attribute of this object
+       */
+      isAttr(name) {
+        return name !== jvtag && hasProperty(obj, name) && !this.isRel(name)
+      },
+    })
+  }
+
   /**
    * @memberof module:jsonapi-vuex.jsonapiModule.helpers
    * @name rels
