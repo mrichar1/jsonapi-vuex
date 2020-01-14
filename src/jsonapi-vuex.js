@@ -835,7 +835,7 @@ const updateRecords = (state, records, merging = jvConfig.mergeRecords) => {
  * @return {object} A copy of the object with added helper functions/getters
  */
 const addJvHelpers = (obj) => {
-  if (obj[jvtag] && !obj[jvtag].isRel && !obj[jvtag].isAttr) {
+  if (obj[jvtag] && !hasProperty(obj[jvtag], isRel) && !hasProperty(obj[jvtag], isAttr)) {
     Object.assign(obj[jvtag], {
       /**
        * @memberof module:jsonapi-vuex.jsonapiModule.helpers
