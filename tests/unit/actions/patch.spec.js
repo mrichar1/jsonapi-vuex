@@ -11,7 +11,6 @@ import {
   normFormatUpdate as createNormWidget1Update,
   normFormatWithRels as createNormWidget1WithRels,
 } from '../fixtures/widget1'
-import { createResponseMeta } from '../fixtures/serverResponse'
 
 describe('patch', function() {
   let jsonWidget1,
@@ -109,15 +108,13 @@ describe('patch', function() {
   })
 
   it('should preserve json in _jv in returned data', async function() {
-    let meta = createResponseMeta()
     let jm = createJsonapiModule(this.api, { preserveJson: true })
-    // Mock server data to include a meta section
-    this.mockApi.onAny().reply(200, { data: jsonWidget1, ...meta })
+    this.mockApi.onAny().reply(200, { data: jsonWidget1 })
 
     let res = await jm.actions.patch(stubContext, normWidget1Patch)
 
-    // json should now be nested in _jv/json
-    expect(res['_jv']['json']).to.deep.equal(meta)
+    // json should now be nested in _jv
+    expect(res['_jv']).to.have.keys('json')
   })
 
   it('should handle API errors', async function() {

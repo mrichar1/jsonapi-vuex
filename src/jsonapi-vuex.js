@@ -933,9 +933,8 @@ const preserveJSON = (data, json) => {
     if (!hasProperty(data, jvtag)) {
       data[jvtag] = {}
     }
-    // Store original json in _jv, then delete data section
+    // Store original json in _jv
     data[jvtag]['json'] = json
-    delete data[jvtag]['json']['data']
   }
   return data
 }
