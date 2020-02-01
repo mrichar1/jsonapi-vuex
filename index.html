@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="utf-8">
+    <title>JSDoc: Home</title>
+
+    <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="./build/entry.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link href="https://fonts.googleapis.com/css?family=Muli:100,400,700|Oswald:300|Inconsolata,700" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+    <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+</head>
+
+<body>
+    <div id="stickyNavbarOverlay"></div>
+    <div class="top-navbar">
+        <div class="container">
+            <nav class="navbar" role="navigation" aria-label="main navigation">
+                <div class="navbar-brand">
+                     
+                        <img src="docs/logo.png" alt="logo">
+                    
+                     
+                        <h1 class="navbar-item">jsonapi-vuex documentation</h1>
+                    
+                    <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                        <span aria-hidden="true"></span>
+                    </a>
+                </div>
+                 
+                <div class="navbar-menu">
+                    <div class="navbar-end">
+                    
+                        <div class="navbar-item">
+                            <a href="https://github.com/mrichar1/jsonapi-vuex" target="_blank">
+                                Github
+                            </a>
+                        </div>
+                    
+                    </div>
+                </div>
+                
+            </nav>
+        </div>
+    </div>
+    <div class="container">
+        <div class="columns">
+            <div class="column is-3" id="sidebarNav">
+                <div class="sidebar">
+                    <nav>
+                        <h2><a href="index.html">Home</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-jsonapi-vuex.html">jsonapi-vuex</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-jsonapi-vuex._internal.html">_internal</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.html">jsonapiModule</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.actions.html">actions</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.getters.html">getters</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.helpers.html">helpers</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.mutations.html">mutations</a></li><li><a href="module-jsonapi-vuex.utils.html">utils</a></li><li><a href="module-jsonapi-vuex-Configuration.html">Configuration</a></li></ul><h3>Classes</h3><ul><li><a href="module-jsonapi-vuex._internal.RecordError.html">RecordError</a></li></ul></div>
+                    </nav>
+                </div>
+            </div>
+            <div class="column is-9-desktop">
+                <div class="content" id="main-content-wrapper">
+                    <header class="page-title">
+                        <p>Title</p>
+                        <h1>Home</h1>
+                    </header>
+                    
+                    
+
+
+
+    
+
+
+    <h3> </h3>
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
+
+    <section>
+        <article><h1 id="jsonapi-vuex">jsonapi-vuex</h1>
+<p><a href="https://travis-ci.com/mrichar1/jsonapi-vuex"><img src="https://travis-ci.com/mrichar1/jsonapi-vuex.svg?branch=master" alt="Build Status"></a> <a href="https://bundlephobia.com/result?p=jsonapi-vuex"><img src="https://img.shields.io/bundlephobia/min/jsonapi-vuex.svg" alt="npm bundle size"></a> <a href="https://lgtm.com/projects/g/mrichar1/jsonapi-vuex/context:javascript"><img src="https://img.shields.io/lgtm/grade/javascript/g/mrichar1/jsonapi-vuex.svg?logo=lgtm&amp;logoWidth=18" alt="Language grade: JavaScript"></a></p>
+<p>A module to access <a href="https://jsonapi.org">JSONAPI</a> data from an API, using a <a href="https://vuex.vuejs.org/">Vuex</a> store, restructured to make life easier.</p>
+<h2 id="documentation">Documentation</h2>
+<p>Documentation, including JSDoc-generated API reference, is available at: <a href="https://mrichar1.github.io/jsonapi-vuex/">JSONAPI-Vuex Documentation</a></p>
+<h2 id="contents">Contents</h2>
+<ul>
+<li><a href="#restructured-data">Restructured Data</a></li>
+<li><a href="#getting-started">Getting Started</a></li>
+<li><a href="#usage">Usage</a>
+<ul>
+<li><a href="#features">Features</a></li>
+<li><a href="#actions">Actions</a></li>
+<li><a href="#getters">Getters</a></li>
+<li><a href="#mutations">Mutations</a></li>
+<li><a href="#helper-functions">Helper Functions</a></li>
+<li><a href="#utility-functions">Utility Functions</a></li>
+<li><a href="#configuration">Configuration</a></li>
+<li><a href="#endpoints">Endpoints</a></li>
+</ul>
+</li>
+<li><a href="#development">Development</a></li>
+</ul>
+<h2 id="restructured-data">Restructured Data</h2>
+<h3 id="attributes">Attributes</h3>
+<p>JSONAPI is an extremely useful format for clearly interacting with an API - however it is less useful for the end developer, who is generally more interested in the data contained in a record than the structure surrounding it.</p>
+<p>In this module we 'reverse' the JSONAPI data into a form where data attributes become top-level keys, and JSONAPI-specific data is moved down under another key: <code>_jv</code>.</p>
+<p>For example, the JSONAPI record:</p>
+<pre class="prettyprint source lang-json"><code>{
+  &quot;id&quot;: &quot;1&quot;,
+  &quot;type&quot;: &quot;widget&quot;,
+  &quot;attributes&quot;: {
+    &quot;name&quot;: &quot;sprocket&quot;,
+    &quot;color&quot;: &quot;black&quot;
+  },
+  &quot;meta&quot;: {}
+}
+</code></pre>
+<p>This would be accessed as <code>record.attributes.color</code></p>
+<p>This module would restructure this record to be:</p>
+<pre class="prettyprint source lang-json"><code>{
+  &quot;name&quot;: &quot;sprocket&quot;,
+  &quot;color&quot;: &quot;black&quot;,
+  &quot;_jv&quot;: {
+    &quot;id&quot;: &quot;1&quot;,
+    &quot;type&quot;: &quot;widget&quot;,
+    &quot;meta&quot;: {}
+  }
+}
+</code></pre>
+<p>This would now be accessed as <code>record.color</code></p>
+<p>In cases where there are multiple records being returned in an object, the id is used as the key (though this is ignored in the code, and the 'real' id is always read from <code>_jv</code>):</p>
+<pre class="prettyprint source lang-json"><code>{
+  &quot;1&quot;: {
+    &quot;name&quot;: &quot;sprocket&quot;,
+    &quot;color&quot;: &quot;black&quot;
+  },
+  &quot;2&quot;: {
+    &quot;name&quot;: &quot;cog&quot;,
+    &quot;color&quot;: &quot;red&quot;
+  }
+}
+</code></pre>
+<p>These are accessed as <code>record.1.name</code> or <code>record.2.color</code>, or if a list is needed, via <code>Object.values(record)</code>.</p>
+<p>The above structure is actually how records are maintained in the store, nested below the <code>endpoint</code>:</p>
+<pre class="prettyprint source lang-json"><code>{
+  &quot;widget&quot;: {
+    &quot;1&quot;: {...},
+    &quot;2&quot;: {...}
+  },
+  &quot;doohickey&quot;: {
+    &quot;20&quot;: {...}
+  }
+}
+</code></pre>
+<h3 id="relationships">Relationships</h3>
+<p>Relationships in JSONAPI are structured as either a <code>data</code> key containing one or more resource identifier objects under the relationship name, (or <code>links</code> which point to the related object in the API). For <code>data</code> entries, these are added to the 'root' of the object, where the key is the relationship name, and the value is a javascript <a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/get"><code>getter</code></a> that calls the <code>get</code> vuex getter for that record. This allows related data to be handled as if it was an attribute. (The object is structured using the same 'id-as-key' system for multiple entries as for records as described above).</p>
+<p>The value returned by the getter will therefore be the value of the related object (if in the store), or an empty object (if not). Updating the store will cause the retuern value to update automatically.</p>
+<pre class="prettyprint source lang-json"><code>{
+  &quot;id&quot;: &quot;1&quot;,
+  &quot;type&quot;: &quot;widget&quot;,
+  &quot;attributes&quot;: {
+    &quot;name&quot;: &quot;sprocket&quot;
+  },
+  &quot;relationships&quot;: {
+    &quot;doohickeys&quot;: {
+      &quot;data&quot;: [
+        {
+          &quot;type&quot;: &quot;doohickey&quot;,
+          &quot;id&quot;: &quot;20&quot;
+        }
+      ]
+    }
+  }
+}
+</code></pre>
+<p>This becomes:</p>
+<pre class="prettyprint source lang-js"><code>{
+  &quot;name&quot;: &quot;sprocket&quot;,
+  &quot;doohickeys&quot;: {
+    &quot;20&quot;: » get('doohickey/20')  // getter call
+    }
+  }
+  &quot;_jv&quot;: {
+    &quot;id&quot;: &quot;1&quot;,
+    &quot;type&quot;: &quot;widget&quot;,
+    &quot;relationships&quot;: {...}
+  }
+}
+</code></pre>
+<p>The attributes of the related object can then be accessed as e.g.: <code>record.doohickeys.20.size</code></p>
+<h2 id="getting-started">Getting Started</h2>
+<p>Having created a Vue project, simply add the module to your <code>store.js</code>, passing it an <a href="https://github.com/axios/axios">axios</a>-like instance:</p>
+<pre class="prettyprint source lang-js"><code>import Vue from 'vue'
+import Vuex from 'vuex'
+import axios from 'axios'
+import { jsonapiModule } from 'jsonapi-vuex'
+
+Vue.use(Vuex)
+
+const api = axios.create({
+  baseURL: 'https://api.example.com/1/api/',
+  headers: {
+    'Content-Type': 'application/vnd.api+json',
+  },
+})
+
+export default new Vuex.Store({
+  modules: {
+    jv: jsonapiModule(api),
+  },
+})
+</code></pre>
+<h2 id="usage">Usage</h2>
+<h3 id="features">Features</h3>
+<p>There are a number of features which are worth explaining in more detail. Many of these can be configured - see the <a href="#configuration">Configuration</a> section.</p>
+<ul>
+<li>
+<p><em>Includes</em> - If the JSONAPI record contains an <code>includes</code> section, the data in this will be added to the store alongisde the 'main' records. (If includes are not used, then you will need to use <a href="#getrelated"><code>getRelated</code></a> to fetch relationships).</p>
+</li>
+<li>
+<p><em>Follow relationships</em> - <code>Relationships</code> specified as <code>data</code> resources in the JSONAPI data will be added alongside the attributes in the restructured data 'root' as a <code>get</code> getter property. Querying this key will return the record from the store, if present. Additionally, helper methods will be added to <code>_jv</code> to make dealing with these easier (see <a href="#helper-functions">Helper functions</a>)</p>
+</li>
+<li>
+<p><em>Recursive Relationships</em> - <code>Relationships</code> can be recursive - e.g. <code>author =&gt; article =&gt; blog =&gt; author</code>. This can cause infinite recursion problems with anything walking the object (such as <code>JSON.stringify</code>). By default, recursion is detected and stopped when following relationships, with the recursive relationship replaced with a (restructured) resource identifier.</p>
+</li>
+<li>
+<p><em>Preserve JSON</em> - The original JSONAPI record(s) can optionally be preserved in <code>_jv</code> if needed - for example if you need access to <code>meta</code> or other sections. To avoid duplication, the <code>data</code> section (<code>attributes</code>, <code>relationships</code> etc) is removed.</p>
+</li>
+<li>
+<p><em>Clean Patches</em> - by default, data passed to the <code>patch</code> action is used as-is. If <code>cleanPatch</code> is enabled, then the patch object is compared to the record in the store (if it exists), and any attributes with identical values are removed. This means that the final <code>patch</code> will only contain new or modified attributes, which is safer and more efficient, as it avoids sending unnecessary or 'stale' data. Additionally, unwanted properties in <code>_jv</code> (links, meta, relationships) can be removed.</p>
+</li>
+<li>
+<p><em>Merging</em> - By default, data returned from the API overwrites records already in the store. However, this may lead to inconsistencies if using <a href="https://jsonapi.org/format/#fetching-sparse-fieldsets">Sparse fieldsets</a> or otherwise obtaining only a subset of data from the API. If merging is enabled, then new data will be merged onto existing data. this does however mean that you are responsible for explicitly calling the <code>deleteRecord</code> mutation in cases where attributes ahve been removed in the API, as they will never be removed from the store, only added to.</p>
+</li>
+<li>
+<p><em>Clear on update</em> - If enabled, then each new set of records is considered to be definitive for that <code>type</code>, and any other records of that <code>type</code> in the store will be removed. This option is useful for cases where you expect the API response to contain the full set of records from the server, as it avoids the need for manual cache expiry. The code will first apply the new records to the store, and then for each <code>type</code> which has had new records added, remove old ones. This is designed to be more efficient in terms of updating computed properties and UI redraws than emptying then repopulating the store. (see [Configuration])</p>
+</li>
+<li>
+<p><em>Endpoints</em> - by default this module assumes that object types and API endpoints (item and collection) all share the same name. however, some APIs use plurals or other variations on the endpoint names. You can override the endpoint name via the <code>axios</code> <code>url</code> config option or the <code>links.self</code> attribute (see <a href="#endpoints">Endpoints</a>)</p>
+</li>
+<li>
+<p><em>JSONPath</em> - the <code>get</code> getter takes a second (optional) argument which is a JSONPath. This is used to filter the results being returned from the store. (see <a href="#get"><code>get</code></a>)</p>
+</li>
+<li>
+<p><em>Searching</em> - The API can be searched without any changes being propagated to the store. This is useful for AJAX-style queries. (see <a href="#search"><code>search</code></a>)</p>
+</li>
+</ul>
+<h3 id="vuex-methods">Vuex Methods</h3>
+<p>The 3 categories of Vuex methods are used as follows:</p>
+<ul>
+<li>
+<p>Actions - These are used to query and modify the API, returning the results. Actions are asynchronous.</p>
+</li>
+<li>
+<p>Getters - These are used to directly query the store without contacting the API. Getters are synchronous.</p>
+</li>
+<li>
+<p>Mutations - These are used to change the state of the store without contacting the API. (They are usually called by Actions, but can be used directly). Mutations are synchronous.</p>
+</li>
+</ul>
+<h3 id="actions">Actions</h3>
+<p><a href="https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex.jsonapiModule.actions.html">Actions API Reference</a></p>
+<p>The usual way to use this module is to use <code>actions</code> wherever possible. All actions are asynchronous, and both query the API and update the store, then return data in a normalized form. Every action call's state is tracked as it progresses, and this status can be easily queried (see the <a href="#status"><code>status</code></a> getter).</p>
+<p>There are 4 actions (with aliases): <code>get</code> (<code>fetch</code>), <code>post</code> (<code>create</code>), <code>patch</code> (<code>update</code>), and <code>delete</code> which correspond to RESTful methods. There is also a <a href="#getrelated">getRelated</a> action which fetches a record's <a href="#relationships">relationships</a>.</p>
+<h4 id="restful-actions">RESTful actions</h4>
+<p>Actions are dispatched via <code>this.$store.dispatch</code>. As this project is used as a module, the first parameter to <code>dispatch</code> is of the form <code>module/action</code>, e.g. <code>jv/get</code>. The second parameter to <code>dispatch</code> is passed on to the action.</p>
+<p>Actions take 2 arguments:</p>
+<p>The first argument is an object containing <a href="#restructured-data">restructured data</a>. Actions which take no <code>data</code> argument apart from the record (<code>get</code> and <code>delete</code>) can also accept a URL to fetch, relative to the value of <code>axios</code> <code>baseURL</code> (if set). The leading slash is optional. This means you don't need to create an 'empty' restructured data object to get or delete a record.</p>
+<p>The second argument is an (optional) <a href="https://github.com/axios/axios#request-config"><code>axios</code> config object</a>. This is used to configure <code>axios</code>, most commonly used for adding like headers, URL parameters etc.</p>
+<p><em>Note</em> - The way Vuex is designed, <code>dispatch</code> can only accept 2 parameters. If passing 2 arguments to the action (i.e adding axios config), the arguments must be passed in an array.</p>
+<p><em>Note</em> - The return value of the <code>get</code> action differs in that it returns the results of the action, rather than querying the store for the requested item/collection. This is because the <code>get</code> may be a partial or filtered request, returning only a subset of the item/collection. This means that if you use these results, later updates to the stores will not be reflected. If you want to query the store, then use the <code>get</code> getter once the action has returned.</p>
+<p>Some examples:</p>
+<pre class="prettyprint source lang-js"><code>// To get all items in a collection, using a string path:
+this.$store.dispatch('jv/get', 'widget').then((data) => {
+  console.log(data)
+})
+
+// Request Query params (JSONAPI options, auth tokens etc)
+const params = {
+  token: 'abcdef123456',
+}
+
+// Get a specific record from the 'widget' endpoint, passing parameters to axios:
+this.$store
+  .dispatch('jv/get', ['widget/1', { params: params }])
+  .then((data) => {
+    console.log(data)
+  })
+
+// Restructured representation of a record
+const newWidget = {
+  name: 'sprocket',
+  color: 'black',
+  _jv: {
+    type: 'widget',
+  },
+}
+
+// Create a new widget in the API, using a restructured object, and passing parameters to axios:
+this.$store
+  .dispatch('jv/post', [newWidget, { params: params }])
+  .then((data) => {
+    console.log(data)
+  })
+
+// Update a widget in the API
+const widgetColor = {
+  widget: {
+    1: {
+      color: 'red',
+    },
+  },
+}
+
+this.$store.dispatch('jv/patch', [widgetColor, { params: params }])
+
+// Fetch, then update a widget in the API
+this.$store
+  .dispatch('jv/get', ['widget/1', { params: params }])
+  .then((widget1) => {
+    widget1['color'] = 'red'
+    this.$store.dispatch('jv/patch', [widget1, { params: params }])
+  })
+</code></pre>
+<h4 id="search">search</h4>
+<p>The <code>search</code> action is the same as the <code>get</code> action, except that it does not result in any updates to the store. This action exists for efficiency purposes - for example to do 'search-as-you-type' AJAX-style queries without continually updating the store with all the results.</p>
+<pre class="prettyprint source lang-js"><code>const widgetSearch = (text) => {
+  const params = { 'filter[text_contains]': text }
+
+  this.$store
+    .dispatch('jv/search', 'widget', { params: params })
+    .then((data) => {
+      return data
+    })
+}
+</code></pre>
+<h4 id="getrelated">getRelated</h4>
+<p><em>Note</em> - in many cases you may prefer to use the jsonapi server-side <code>include</code> option to get data on relationships included in your original query. (See <a href="#relationships">Relationships</a>).</p>
+<p>Like the RESTful actions, this takes 2 arguments - the string or object to be acted on, and an axios config object. It returns a deeply nested restructured tree - <code>relationship -&gt; type -&gt; id -&gt; data</code>.</p>
+<p><em>Note</em> - <a href="#getrelated">getRelated</a> only works on specific items, not collections.</p>
+<p>By default this action will fetch the record specified from the API, then work out it's relationships and also fetch those.</p>
+<p>If the argument is a string, it can optionally take a 3rd argument, e.g. <code>type/id/relationship</code> to cause only the named relationship to be followed.</p>
+<p>If the argument is an object, then if the object contains a <code>_jv/relationships</code> section, then only these relationships will are followed. If the relationships section contains keys (i.e relationship <code>names</code>) but no values (i.e. <a href="https://jsonapi.org/format/#fetching-relationships">resource linkage</a>) then these will be fetched from the API.</p>
+<pre class="prettyprint source lang-js"><code>// Assuming the API holds the following data
+jsonapi = {
+  data: {
+    type: 'widget',
+    id: '1',
+  },
+  relationships: {
+    widgets: {
+      data: {
+        type: 'widget',
+        id: '2',
+      },
+    },
+    doohickeys: {
+      data: {
+        type: 'doohickey',
+        id: '10',
+      },
+    },
+  },
+}
+
+// Get all of widget 1's related items (widgets and doohickeys)
+this.$store.dispatch('jv/getRelated', 'widget/1').then((data) => {
+  console.log(data)
+})
+
+// Get only the items in the 'widgets' relationship
+this.$store.dispatch('jv/getRelated', 'widget/1/widgets').then((data) => {
+  console.log(data)
+})
+
+// Equivalent, using object instead of string argument
+const customRels = {
+  _jv: {
+    type: 'widget',
+    id: '1',
+    relationships: {
+      widgets: {
+        data: {
+          type: 'widget',
+          id: '2',
+        },
+      },
+    },
+  },
+}
+
+// Equivalent, but 'doohickeys' resource linkage will be fetched from the server
+// i.e. { data: { type: 'doohickey', id: '10' }}
+const customRelsNoData = {
+  _jv: {
+    type: 'widget',
+    id: '1',
+    relationships: {
+      doohickeys: undefined,
+    },
+  },
+}
+
+this.$store.dispatch('jv/getRelated', customRels).then((data) => {
+  console.log(data)
+})
+</code></pre>
+<h3 id="getters">Getters</h3>
+<p><a href="https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex.jsonapiModule.getters.html">Getters API Reference</a></p>
+<p>There are 3 getters available. <code>get</code>, <code>getRelated</code> and <code>status</code>.</p>
+<h4 id="get">get</h4>
+<p>Get returns information directly from the store for previously cached records. This is useful for performance reasons, or for use in computed properties.</p>
+<p>Get returns an object with getters that point to the data in the store. This means that updates to the store will be dynamically reflected in the results object. However it also means that it is not possible to modify this object as getters aren't writeable.</p>
+<p>If you wish to modify the results object (e.g. for patching) then you should use the <a href="#utility-functions"><code>utils.deepCopy</code></a> method on the object to make a copy that is safe to modify. This deep copies the object, while preserving the <a href="#helper-functions">Helper Functions</a>.</p>
+<pre class="prettyprint source lang-js"><code>computed: {
+  ...mapGetters({
+    // Map 'jv/get' as a computed property 'get'
+    get: 'jv/get',
+  }),
+  // Create a computed property that calls the getter with normalized data
+  getWidget: function() {
+    return this.$store.getters['jv/get']({ _jv: { type: 'Widget' } })
+  },
+},
+</code></pre>
+<p>Like actions, <code>get</code> takes an object or string indicating the desired resources. This can be an empty string, type, or type and id, to return the whole store, a collection, or an item.</p>
+<p><code>get</code> takes an optional 2nd argument - a <code>jsonpath</code> string to filter the record(s) which are being retrieved. See the project page for <a href="https://github.com/dchester/jsonpath#jsonpath-syntax">JSONPath Syntax</a></p>
+<pre class="prettyprint source lang-js"><code>// Assuming the store is as follows:
+store = {
+  widget: {
+    '1': {
+      name: 'sprocket',
+      color: 'black',
+    },
+    '2': {
+      name: 'cog',
+      color: 'red',
+    },
+  },
+}
+
+// Get all records (of any type) with id = 10 (useful if your API has globally unique UUIDs)
+this.$store.getters['jv/get']('', '$.*.10')
+
+// Get all widgets that are red:
+this.$store.getters['jv/get']('widget', '$[?(@.color==&quot;red&quot;)]')
+
+// Note that filters can create impossible conditions
+// The following will return empty, as widget 1 is not red
+this.$store.getters['jv/get']('widget/1', '$[?(@.color==&quot;red&quot;)]')
+</code></pre>
+<h4 id="getrelated-2">getRelated</h4>
+<p>getRelated returns the relations of the specified resource. The resource is specified by either a string, or by a normalized resource object (as in <code>jv/get</code>). The getter returns an object with each of the resource's relationships as a key. The resources inside the objects <code>relationships</code>JSON-API key are mapped to a <code>jv/get</code> getter. This means that the resources can be retrieved from the result of <code>getRelated</code> once they are loaded into the store (with the <code>getRelated</code> action). If the resources are not loaded into the store yet, only the keys of the related resources will be returned.</p>
+<p>For example, to get all widgets related to the widget with id 1:</p>
+<pre class="prettyprint source lang-js"><code>this.$store.getters['jv/getRelated']('widget/1')['widgets']
+</code></pre>
+<h4 id="status">status</h4>
+<p>Every action is given a unique id, and this is both returned as a property of the promise, and preserved in <code>state</code> under the <code>jvtag</code> (as defined in config).</p>
+<p>The <code>status</code> getter accepts either an id, or a promise returned by an action, and returns the stored state of the action. This can be one of:</p>
+<ul>
+<li>LOADING</li>
+<li>SUCCESS</li>
+<li>ERROR</li>
+</ul>
+<p>For example, to determine the state of an action:</p>
+<pre class="prettyprint source lang-js"><code>// Get a promise from calling an action
+let action = this.$store.dispatch('jv/get', 'widget')
+
+// Check the status of the action (and assuming it hasn't yet completed)
+let status = this.$store.getters['jv/status'](action)
+
+console.log(status) // LOADING
+
+// Continue to handle the action results in the usual way
+action.then((data) => {
+  // The action has returned
+  console.log(status) // SUCCESS
+
+  // Continue as usual
+  console.log(data)
+})
+</code></pre>
+<p>The <code>status</code> getter is primarily designed to use useful for handling UI changes based on actions.</p>
+<p>For example, you might want to disable an attribute while an action is happening by 'watching' <code>status</code>:</p>
+<pre class="prettyprint source"><code>&lt;input type=&quot;text&quot; :disabled=&quot;status === 'LOADING'&quot;>
+</code></pre>
+<h2 id="mutations">Mutations</h2>
+<p><a href="https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex.jsonapiModule.mutations.html">Mutations API Reference</a></p>
+<p>There are several mutations which can be used to directly modify the store.</p>
+<p><strong>Note</strong> - in most cases mutations are called from actions as a result of querying the API, and it is not necessary to call mutations directly.</p>
+<p>Mutations take normalised data as an argument.</p>
+<h4 id="deleterecord">deleteRecord</h4>
+<p>Deletes a single record from the store.</p>
+<pre class="prettyprint source lang-js"><code>store.commit('jv/deleteRecord', { _jv: { type: 'widget', id: '1' } })
+</code></pre>
+<h4 id="addrecords">addRecords</h4>
+<p>Updates records in the store. Replaces or merges with existing records, depending on the value of the <a href="#configuration">mergeRecords</a> configuration option.</p>
+<h4 id="replacerecords">replaceRecords</h4>
+<p>As <code>addRecords</code>, but explicitly replaces existing records.</p>
+<h4 id="mergerecords">mergeRecords</h4>
+<p>As <code>addRecords</code>, but explicitly merges onto existing records.</p>
+<h4 id="clearrecords">clearRecords</h4>
+<p>Will remove all records from the store (of a given type) which aren't contained in given response. (See <a href="#usage">clearOnUpdate</a>).</p>
+<h4 id="setstatus">setStatus</h4>
+<p>Sets the session status information in the store.</p>
+<h4 id="deletestatus">deleteStatus</h4>
+<p>Deletes a session status record from the store.</p>
+<h2 id="helper-functions">Helper Functions</h2>
+<p>Distinguishing between the <code>attributes</code> and <code>relationships</code> in the 'root' is simplified by a number of 'helper' functions which are provided in the <code>_jv</code> (<code>jvtag</code>) object:</p>
+<ul>
+<li>
+<p><code>attrs</code> - a getter property which returns an object containing all attributes.</p>
+</li>
+<li>
+<p><code>rels</code> - a getter property which returns an object containing all relationships.</p>
+</li>
+<li>
+<p><code>isAttr</code> - a function which returns True/False for a given name.</p>
+</li>
+<li>
+<p><code>isRel</code> - a function which returns True/False for a given name.</p>
+</li>
+</ul>
+<p>These are particularly useful in <code>Vue</code> templates. For example to iterate over an item, picking out just the attributes:</p>
+<pre class="prettyprint source"><code>&lt;li v-for=&quot;(val, key) in widget._jv.attrs&quot;>{{ key }} {{ val }}&lt;/li>
+
+&lt;!-- Or -->
+
+&lt;li v-for=&quot;(val, key) in widget&quot; v-if=&quot;widget._jv.isAttr(key)&quot;>{{ key }} {{ val }}&lt;/li>
+</code></pre>
+<h2 id="utility-functions">Utility Functions</h2>
+<p><a href="https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex.utils.html">Utility Functions API Reference</a></p>
+<p>Some functions are potentially useful for data manipulation etc outside the normal code flow. These functions are exported as <code>utils</code>, i.e:</p>
+<pre class="prettyprint source"><code>import { utils } from `jsonapi-vuex`
+</code></pre>
+<p>The current utility functions are:</p>
+<h3 id="addjvhelpers"><code>addJvHelpers</code></h3>
+<p>Adds the 'helper' functions/properties to <code>_jv</code> in a restructured object.</p>
+<p><code>addJvHelpers</code> takes a restructured object as it's argument, and returns (and modifies in-place) the obejct to include the helper methods (see <a href="#helper-functions">Helper functions</a>)</p>
+<h3 id="cleanpatch"><code>cleanPatch</code></h3>
+<p>If you wish to clean patches on a per-patch basis, then set the <code>cleanPatch</code> configuration option to false, and instead use this method on your patch record prior to passing it to the action.</p>
+<p><code>cleanPatch</code> takes 3 arguments - the patch data, the state to be compared to, and an array of <code>_jv</code> properties to be preserved (see <code>cleanPatchProps</code> config option).</p>
+<h3 id="deepcopy"><code>deepCopy</code></h3>
+<p>Makes a deep copy of a normalised object, and adds/updates the <a href="#helper-functions">Helper functions</a>. This is done because walking the object will normally cause the helper functions to be called, resulting in static (and out-of-date) results.</p>
+<p>This function is designed for situations where you wish to modify the results of a <code>getter</code> call, which will throw an error if any of it's data is modified.</p>
+<p><em>Note</em> - Be aware that this copy will be a 'static' version of the original object - if the store is subsequently updated, the copied object will no longer reflect this.</p>
+<h3 id="gettypeid"><code>getTypeId</code></h3>
+<p>Returns an array containing the type, id and rels for a given restructured object (if defined).</p>
+<h3 id="geturl"><code>getUrl</code></h3>
+<p>Returns the <code>self.links</code> url, or constructs a path from the type and id.</p>
+<p><code>getUrl</code> takes 2 arguments, the restructured object, and optionall <code>post</code> (defaults to <code>false</code>). If <code>post</code> is true, then the constructed path will not contain an <code>id</code>.</p>
+<h3 id="jsonapitonorm"><code>jsonapiToNorm</code></h3>
+<p>Convert a JSONAPI object to a restructured object.</p>
+<h3 id="normtojsonapi"><code>normtoJsonapi</code></h3>
+<p>Convert a restructured object to a JSONAPI object.</p>
+<h3 id="normtostore"><code>normToStore</code></h3>
+<p>Convert a restructured object to it's <code>store</code> form.</p>
+<h2 id="configuration">Configuration</h2>
+<p><a href="https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex-Configuration.html">Configuration API Reference</a></p>
+<p>A config object can be passed to <code>jsonapiModule</code> when instantiating. It will override the default options:</p>
+<pre class="prettyprint source lang-js"><code>const config = { jvtag: '_splat' }
+jm = jsonapiModule(api, config)
+</code></pre>
+<h3 id="config-options">Config Options</h3>
+<p>For many of these options, more information is provided in the <a href="#usage">Usage</a> section.</p>
+<ul>
+<li><code>jvtag</code> - The tag in restructured objects to hold object metadata (defaults to <code>_jv</code>)</li>
+<li><code>followRelationshipsData</code> - Whether to follow and expand relationships and store them alongside attributes in the item 'root' (defaults to <code>true</code>).</li>
+<li><code>preserveJson</code> - Whether actions should return the API response json (minus <code>data</code>) in <code>_jv/json</code> (for access to <code>meta</code> etc) (defaults to <code>false</code>)</li>
+<li><code>actionStatusCleanAge</code> - What age must action status records be before they are removed (defaults to 600 seconds). Set to <code>0</code> to disable.</li>
+<li><code>mergeRecords</code> - Whether new records should be merged onto existing records in the store, or just replace them (defaults to <code>false</code>).</li>
+<li><code>clearOnUpdate</code> - Whether the store should clear old records and only keep new records when updating. Applies to the <code>type(s)</code> associated with the new records. (defaults to false).</li>
+<li><code>cleanPatch</code> - If enabled, patch object is compared to the record in the store, and only unique or modified attributes are kept in the patch. (defaults to false).</li>
+<li><code>cleanPatchProps</code> - If cleanPatch is enabled, an array of <code>_jv</code> properties that should be preserved - <code>links</code>, <code>meta</code>, and/or <code>relationships</code>. (defaults to <code>[]</code>).</li>
+<li><code>recurseRelationships</code> - If <code>false</code>, replaces recursive relationships with a normalised resource identifier (i.e <code>{ _jv: { type: 'x', id: 'y' } }</code>). (defaults to <code>false</code>).</li>
+</ul>
+<h2 id="endpoints">Endpoints</h2>
+<p>By default <code>jsonapi-vuex</code> assumes that object type and API endpoint are the same. For example, <code>type: person</code> would have endpoint URLs of <code>/person</code> and <code>/person/1</code> for collections and single items.</p>
+<p>When performing request on an already known single item (like an update), <code>jsonapi-vuex</code> will use the <code>links.self</code> attribute of an item to determine the API endpoint, if it is present.</p>
+<p>However many APIs vary how endpoints are named - for example plurals (e.g. <code>type:person</code>, <code>/person/1</code> and <code>/people</code>), or cases where the endpoint doesn't match the type (e.g. <code>type: person</code> <code>/author</code> and <code>/author/1</code>) or even a combination (e.g. <code>type: person</code> <code>/author/1</code> and <code>/authors</code>)</p>
+<p>To solve this it is possible to override the endpoint for a request by explicitly setting the <code>axios</code> <code>url</code> configuration option:</p>
+<pre class="prettyprint source"><code>data = { _jv: { type: 'person' } }
+
+// Default behaviour - will always treat type = itemEP = collectionEP
+this.$store.dispatch('jv/get', data)
+// GETs /person
+
+// Explicitly override the endpoint url
+this.$store.dispatch('jv/get', [data, { url: '/people' }])
+
+this.$store.dispatch('jv/get', [data, { url: '/author/1' }])
+
+// Override using a dynamic function
+const customUrl = (data) => {
+  if (data.hasOwnProperty('id')) {
+    // single item (singular)
+    return `person/${data.id}`
+  } else {
+    // collection (plural)
+    return '/people'
+  }
+}
+
+this.$store.dispatch('jv/get', [{ _jv: { type: 'widget' } }, { url: customUrl(data) }])
+
+</code></pre>
+<p><em>Note</em> - If provided the <code>url</code> option is used as-is - you are responsible for setting a valid collection or item url (with <code>id</code>) as appropriate.</p>
+<h2 id="development">Development</h2>
+<p>Any bugs, enhancements or questions welcome as Issues (or even PRs!)</p>
+<p>Development is currently being done with <a href="https://yarnpkg.com/en/">yarn</a> - NPM should work, but if you hit unexpected issues, please try yarn before filing a bug.</p>
+<h3 id="setup">Setup</h3>
+<p>Having cloned this repository, simply run:</p>
+<p><code>yarn</code></p>
+<p>This should pull in all dependencies and development dependencies.</p>
+<h3 id="testing">Testing</h3>
+<p>There are several scripts set up in <code>package.json</code>:</p>
+<p><code>yarn unit</code> - Run the unit tests (uses <code>karma</code>, <code>mocha</code>, <code>chai</code>, <code>sinon</code>)</p>
+<p><code>yarn e2e</code> - Run the e2e tests (uses <code>nightwatch</code>)</p>
+<p><code>yarn testapp</code> - Runs the example <code>testapp</code> used in <code>e2e</code> testing to allow interactive testing/debugging in a browser.</p>
+<p><code>yarn fakeapiserver</code> - Runs a fake JSONAPI server used by the <code>testapp</code> for interactive testing/debugging.</p>
+<p><code>yarn test</code> - Runs both <code>unit</code> and <code>e2e</code> tests. (Used by <code>travis</code>).</p>
+<p><em>Note</em> - All code is pre-processed with <code>babel</code> and <code>eslint</code> when testing for backwards compatability and linting.</p>
+<h3 id="coding-standards">Coding Standards</h3>
+<p>Please follow these guidelines when writing and submitting code:</p>
+<ul>
+<li>
+<p><strong>eslint</strong> - This is run over both the main code and the test suite during tests. See <code>.eslint.rc.js</code> for changes to the default rules.</p>
+</li>
+<li>
+<p><strong>&gt;= ES6</strong> - Please try to use ES6 and newer methods (matching the policy that <code>Vue</code> has).</p>
+</li>
+<li>
+<p><strong>Tests</strong> - This project aspires to test-driven development. Please submit unit tests (and ideally e2e tests) with all PRs (unless there's a good reason not to).</p>
+</li>
+<li>
+<p><strong>Versioning</strong> - Semantic versioning should be used, see https://semver.org for details.</p>
+</li>
+<li>
+<p><strong>Continuous Integration</strong> - The project uses [travis(https://travis-ci.com) to run tests against all submissions - PRs that are not passing will not be accepted (without good reason).</p>
+</li>
+<li>
+<p><strong>Specific Commits</strong> - Please make all commits/PRs as atomic and specific as possible.</p>
+</li>
+</ul></article>
+    </section>
+
+
+
+
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+<footer class="footer">
+    <div class="content has-text-centered">
+        <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Sat Feb 01 2020 10:24:24 GMT+0000 (Coordinated Universal Time)</p>
+        <p class="sidebar-created-by">
+            <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by 
+            <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+        </p>
+    </div>
+</footer>
+
+
+<script src="scripts/app.min.js"></script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
