@@ -48,7 +48,7 @@
     "webpack": "^4.41.5"
   },
   "name": "jsonapi-vuex",
-  "version": "3.3.0",
+  "version": "3.4.0",
   "description": "Access restructured JSONAPI data from a Vuex Store.",
   "keywords": [
     "vue",
@@ -83,7 +83,7 @@
     "fakeapiserver": "node examples/fake-json-api-server.js"
   },
   "dependencies": {
-    "jsonpath": "^1.0.0",
+    "jsonpath-plus": "^3.0.0",
     "lodash.get": "^4.4.2",
     "lodash.isequal": "^4.5.0",
     "lodash.merge": "^4.6.2",
