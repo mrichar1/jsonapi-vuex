@@ -5,8 +5,7 @@ import Vue from 'vue'
 import get from 'lodash.get'
 import isEqual from 'lodash.isequal'
 import merge from 'lodash.merge'
-// https://github.com/dchester/jsonpath/issues/89
-import jp from 'jsonpath/jsonpath.min'
+import { JSONPath } from 'jsonpath-plus'
 
 /**
  * Custom exception for returning record errors
@@ -566,7 +565,7 @@ const getters = () => {
 
       // Filter by jsonpath
       if (jsonpath) {
-        const filtered = jp.query(result, jsonpath)
+        const filtered = JSONPath({ path: jsonpath, json: result })
         if (Array.isArray(filtered)) {
           result = {}
           for (let item of filtered) {
