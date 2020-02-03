@@ -7,14 +7,8 @@ import {
   normFormat as createNormWidget1,
   storeFormat as createStoreWidget1,
 } from '../fixtures/widget1'
-import {
-  jsonFormat as createJsonWidget2,
-  storeFormat as createStoreWidget2,
-} from '../fixtures/widget2'
-import {
-  jsonFormat as createJsonWidget3,
-  normFormat as createNormWidget3,
-} from '../fixtures/widget3'
+import { jsonFormat as createJsonWidget2, storeFormat as createStoreWidget2 } from '../fixtures/widget2'
+import { jsonFormat as createJsonWidget3, normFormat as createNormWidget3 } from '../fixtures/widget3'
 
 describe('getRelated', function() {
   let jsonWidget1,
@@ -197,10 +191,7 @@ describe('getRelated', function() {
       .onGet()
       .replyOnce(200, { data: jsonWidget1 })
 
-    let res = await jsonapiModule.actions.getRelated(
-      stubContext,
-      'widget/3/widgets'
-    )
+    let res = await jsonapiModule.actions.getRelated(stubContext, 'widget/3/widgets')
 
     expect(res).to.deep.equal({ widgets: storeWidget1 })
   })

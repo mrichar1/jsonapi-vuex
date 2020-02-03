@@ -1,20 +1,11 @@
 import { expect } from 'chai'
 
-import { _testing } from '../../../src/jsonapi-vuex'
+import { config } from '../../../src/jsonapi-vuex'
 import createStubContext from '../stubs/context'
 import createJsonapiModule from '../utils/createJsonapiModule'
-import {
-  jsonFormat as createJsonWidget1,
-  normFormat as createNormWidget1,
-} from '../fixtures/widget1'
-import {
-  jsonFormat as createJsonWidget2,
-  normFormat as createNormWidget2,
-} from '../fixtures/widget2'
-import {
-  jsonFormat as createJsonMachine1,
-  normFormat as createNormMachine1,
-} from '../fixtures/machine1'
+import { jsonFormat as createJsonWidget1, normFormat as createNormWidget1 } from '../fixtures/widget1'
+import { jsonFormat as createJsonWidget2, normFormat as createNormWidget2 } from '../fixtures/widget2'
+import { jsonFormat as createJsonMachine1, normFormat as createNormMachine1 } from '../fixtures/machine1'
 import {
   jsonFormat as createJsonRecord,
   normFormatWithRels as createNormRecordRels,
@@ -58,9 +49,7 @@ describe('get', function() {
 
     await jsonapiModule.actions.get(stubContext, normWidget1)
 
-    expect(this.mockApi.history.get[0].url).to.equal(
-      normWidget1['_jv']['links']['self']
-    )
+    expect(this.mockApi.history.get[0].url).to.equal(normWidget1['_jv']['links']['self'])
   })
 
   it('should make an api call to GET a collection', async function() {
@@ -70,19 +59,14 @@ describe('get', function() {
 
     await jsonapiModule.actions.get(stubContext, normWidget1)
 
-    expect(this.mockApi.history.get[0].url).to.equal(
-      `${normWidget1['_jv']['type']}`
-    )
+    expect(this.mockApi.history.get[0].url).to.equal(`${normWidget1['_jv']['type']}`)
   })
 
   it('should accept axios config as the 2nd arg in a list', async function() {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
     const params = { filter: 'color' }
 
-    await jsonapiModule.actions.get(stubContext, [
-      normWidget1,
-      { params: params },
-    ])
+    await jsonapiModule.actions.get(stubContext, [normWidget1, { params: params }])
     expect(this.mockApi.history.get[0].params).to.deep.equal(params)
   })
 
@@ -99,10 +83,7 @@ describe('get', function() {
 
     await jsonapiModule.actions.get(stubContext, normWidget1)
 
-    expect(stubContext.commit).to.have.been.calledWith(
-      'addRecords',
-      normWidget1
-    )
+    expect(stubContext.commit).to.have.been.calledWith('addRecords', normWidget1)
   })
 
   it('should add record(s) (string) in the store', async function() {
@@ -111,10 +92,7 @@ describe('get', function() {
     // Leading slash is incorrect syntax, but we should handle it so test with it in
     await jsonapiModule.actions.get(stubContext, 'widget/1')
 
-    expect(stubContext.commit).to.have.been.calledWith(
-      'addRecords',
-      normWidget1
-    )
+    expect(stubContext.commit).to.have.been.calledWith('addRecords', normWidget1)
   })
 
   it('should return normalized data', async function() {
@@ -136,14 +114,8 @@ describe('get', function() {
     // for a real API call, would need axios include params here
     await jsonapiModule.actions.get(stubContext, normWidget1)
 
-    expect(stubContext.commit).to.have.been.calledWith(
-      'addRecords',
-      normWidget2
-    )
-    expect(stubContext.commit).to.have.been.calledWith(
-      'addRecords',
-      normMachine1
-    )
+    expect(stubContext.commit).to.have.been.calledWith('addRecords', normWidget2)
+    expect(stubContext.commit).to.have.been.calledWith('addRecords', normMachine1)
   })
 
   it('should return normalized data with expanded rels (single item)', async function() {
@@ -214,15 +186,10 @@ describe('get', function() {
   it('should call clearRecords if clearOnUpdate is set', async function() {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
 
-    let { jvConfig } = _testing
-    jvConfig['clearOnUpdate'] = true
+    config.clearOnUpdate = true
 
     await jsonapiModule.actions.get(stubContext, normWidget1)
-
-    expect(stubContext.commit).to.have.been.calledWith(
-      'clearRecords',
-      normWidget1
-    )
+    expect(stubContext.commit).to.have.been.calledWith('clearRecords', normWidget1)
   })
 
   it('should handle API errors', async function() {

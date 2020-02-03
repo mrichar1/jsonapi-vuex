@@ -2,10 +2,7 @@ import { expect } from 'chai'
 
 import createStubContext from '../stubs/context'
 import createJsonapiModule from '../utils/createJsonapiModule'
-import {
-  jsonFormat as createJsonWidget1,
-  normFormat as createNormWidget1,
-} from '../fixtures/widget1'
+import { jsonFormat as createJsonWidget1, normFormat as createNormWidget1 } from '../fixtures/widget1'
 import {
   jsonFormat as createJsonRecord,
   normFormatWithRels as createNormRecordRels,
@@ -41,9 +38,7 @@ describe('search', function() {
 
     await jsonapiModule.actions.search(stubContext, normWidget1)
 
-    expect(this.mockApi.history.get[0].url).to.equal(
-      normWidget1['_jv']['links']['self']
-    )
+    expect(this.mockApi.history.get[0].url).to.equal(normWidget1['_jv']['links']['self'])
   })
 
   it('should make an api call to GET a collection', async function() {
@@ -53,19 +48,14 @@ describe('search', function() {
 
     await jsonapiModule.actions.search(stubContext, normWidget1)
 
-    expect(this.mockApi.history.get[0].url).to.equal(
-      `${normWidget1['_jv']['type']}`
-    )
+    expect(this.mockApi.history.get[0].url).to.equal(`${normWidget1['_jv']['type']}`)
   })
 
   it('should accept axios config as the 2nd arg in a list', async function() {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
     const params = { filter: 'color' }
 
-    await jsonapiModule.actions.search(stubContext, [
-      normWidget1,
-      { params: params },
-    ])
+    await jsonapiModule.actions.search(stubContext, [normWidget1, { params: params }])
     expect(this.mockApi.history.get[0].params).to.deep.equal(params)
   })
 
