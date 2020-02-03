@@ -303,7 +303,7 @@ Like the RESTful actions, this takes 2 arguments - the string or object to be ac
 
 _Note_ - [getRelated](#getrelated) only works on specific items, not collections.
 
-By default this action will fetch the record specified from the API, then work out it's relationships and also fetch those.
+By default this action will fetch the record specified from the API, then work out its relationships and also fetch those.
 
 If the argument is a string, it can optionally take a 3rd argument, e.g. `type/id/relationship` to cause only the named relationship to be followed.
 
@@ -514,7 +514,7 @@ The current utility functions are:
 
 Adds the 'helper' functions/properties to `_jv` in a restructured object.
 
-`addJvHelpers` takes a restructured object as it's argument, and returns (and modifies in-place) the obejct to include the helper methods (see [Helper functions](#helper-functions))
+`addJvHelpers` takes a restructured object as its argument, and returns (and modifies in-place) the obejct to include the helper methods (see [Helper functions](#helper-functions))
 
 ### `cleanPatch`
 
@@ -526,7 +526,7 @@ If you wish to clean patches on a per-patch basis, then set the `cleanPatch` con
 
 Makes a deep copy of a normalised object, and adds/updates the [Helper functions](#helper-functions). This is done because walking the object will normally cause the helper functions to be called, resulting in static (and out-of-date) results.
 
-This function is designed for situations where you wish to modify the results of a `getter` call, which will throw an error if any of it's data is modified.
+This function is designed for situations where you wish to modify the results of a `getter` call, which will throw an error if any of its data is modified.
 
 _Note_ - Be aware that this copy will be a 'static' version of the original object - if the store is subsequently updated, the copied object will no longer reflect this.
 
@@ -538,7 +538,7 @@ Returns an array containing the type, id and rels for a given restructured objec
 
 Returns the `self.links` url, or constructs a path from the type and id.
 
-`getUrl` takes 2 arguments, the restructured object, and optionall `post` (defaults to `false`). If `post` is true, then the constructed path will not contain an `id`.
+`getUrl` takes 2 arguments, the restructured object, and optional `post` boolean (defaults to `false`). If `post` is true, then the constructed path will not contain an `id`.
 
 ### `jsonapiToNorm`
 
@@ -550,7 +550,7 @@ Convert a restructured object to a JSONAPI object.
 
 ### `normToStore`
 
-Convert a restructured object to it's `store` form.
+Convert a restructured object to its `store` form.
 
 ## Configuration
 
