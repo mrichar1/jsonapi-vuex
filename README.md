@@ -205,7 +205,7 @@ The 3 categories of Vuex methods are used as follows:
 
 [Actions API Reference](https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex.jsonapiModule.actions.html)
 
-The usual way to use this module is to use `actions` wherever possible. All actions are asynchronous, and both query the API and update the store, then return data in a normalized form. Every action call's state is tracked as it progresses, and this status can be easily queried (see the [`status`](#status) getter).
+The usual way to use this module is to use `actions` wherever possible. All actions are asynchronous, and both query the API and update the store, then return data in a normalized form.
 
 There are 4 actions (with aliases): `get` (`fetch`), `post` (`create`), `patch` (`update`), and `delete` which correspond to RESTful methods. There is also a [getRelated](#getrelated) action which fetches a record's [relationships](#relationships).
 
@@ -379,7 +379,7 @@ this.$store.dispatch('jv/getRelated', customRels).then((data) => {
 
 [Getters API Reference](https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex.jsonapiModule.getters.html)
 
-There are 3 getters available. `get`, `getRelated` and `status`.
+There are 2 getters available: `get` and `getRelated`.
 
 #### get
 
@@ -442,45 +442,6 @@ For example, to get all widgets related to the widget with id 1:
 this.$store.getters['jv/getRelated']('widget/1')['widgets']
 ```
 
-#### status
-
-Every action is given a unique id, and this is both returned as a property of the promise, and preserved in `state` under the `jvtag` (as defined in config).
-
-The `status` getter accepts either an id, or a promise returned by an action, and returns the stored state of the action. This can be one of:
-
-- LOADING
-- SUCCESS
-- ERROR
-
-For example, to determine the state of an action:
-
-```js
-// Get a promise from calling an action
-let action = this.$store.dispatch('jv/get', 'widget')
-
-// Check the status of the action (and assuming it hasn't yet completed)
-let status = this.$store.getters['jv/status'](action)
-
-console.log(status) // LOADING
-
-// Continue to handle the action results in the usual way
-action.then((data) => {
-  // The action has returned
-  console.log(status) // SUCCESS
-
-  // Continue as usual
-  console.log(data)
-})
-```
-
-The `status` getter is primarily designed to use useful for handling UI changes based on actions.
-
-For example, you might want to disable an attribute while an action is happening by 'watching' `status`:
-
-```
-<input type="text" :disabled="status === 'LOADING'">
-```
-
 ## Mutations
 
 [Mutations API Reference](https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex.jsonapiModule.mutations.html)
@@ -514,14 +475,6 @@ As `addRecords`, but explicitly merges onto existing records.
 #### clearRecords
 
 Will remove all records from the store (of a given type) which aren't contained in given response. (See [clearOnUpdate](#usage)).
-
-#### setStatus
-
-Sets the session status information in the store.
-
-#### deleteStatus
-
-Deletes a session status record from the store.
 
 ## Helper Functions
 
@@ -617,7 +570,6 @@ For many of these options, more information is provided in the [Usage](#usage) s
 - `jvtag` - The tag in restructured objects to hold object metadata (defaults to `_jv`)
 - `followRelationshipsData` - Whether to follow and expand relationships and store them alongside attributes in the item 'root' (defaults to `true`).
 - `preserveJson` - Whether actions should return the API response json (minus `data`) in `_jv/json` (for access to `meta` etc) (defaults to `false`)
-- `actionStatusCleanAge` - What age must action status records be before they are removed (defaults to 600 seconds). Set to `0` to disable.
 - `mergeRecords` - Whether new records should be merged onto existing records in the store, or just replace them (defaults to `false`).
 - `clearOnUpdate` - Whether the store should clear old records and only keep new records when updating. Applies to the `type(s)` associated with the new records. (defaults to false).
 - `cleanPatch` - If enabled, patch object is compared to the record in the store, and only unique or modified attributes are kept in the patch. (defaults to false).
