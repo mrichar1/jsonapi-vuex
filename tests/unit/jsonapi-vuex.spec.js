@@ -29,7 +29,6 @@ chai.use(chaiAsPromised)
 
 // 'global' variables (redefined in beforeEach)
 let jm,
-  clock,
   stubContext,
   jsonWidget1,
   jsonWidget2,
@@ -58,9 +57,6 @@ before(function() {
 })
 
 beforeEach(function() {
-  // Set up fake timers
-  clock = sinon.useFakeTimers()
-
   // Remove mock handlers
   mockApi.reset()
 
@@ -109,10 +105,7 @@ beforeEach(function() {
   storeRecord = createStoreRecord()
 })
 
-afterEach(function() {
-  // Undo fake timers
-  clock = sinon.restore()
-})
+afterEach(function() {})
 
 describe('jsonapi-vuex tests', function() {
   it('should export jsonapiModule', function() {
@@ -206,36 +199,6 @@ describe('jsonapi-vuex tests', function() {
         clearRecords(state, normRecord)
         // '4' not in storeRecord, so should no longer be present in state
         expect(state['widget']).to.not.have.property('4')
-      })
-    })
-
-    describe('setStatus', function() {
-      it('should set the status for a specific id', function() {
-        const state = { _jv: {} }
-        const { setStatus } = jm.mutations
-        setStatus(state, { id: 2, status: 'splat' })
-        expect(state['_jv'][2]).to.have.keys(['status', 'time'])
-      })
-    })
-
-    describe('deleteStatus', function() {
-      it('should delete the status for a specific id', function() {
-        const state = {
-          _jv: {
-            1: {
-              status: 'SUCCESS',
-              time: 0,
-            },
-          },
-        }
-        const { deleteStatus } = jm.mutations
-        deleteStatus(state, 1)
-        expect(state['_jv']).to.deep.equal({})
-      })
-      it('should not error if deleting a non-existent id', function() {
-        const state = { _jv: {} }
-        const { deleteStatus } = jm.mutations
-        expect(() => deleteStatus(state, 2)).to.not.throw()
       })
     })
   }) // mutations
@@ -518,22 +481,6 @@ describe('jsonapi-vuex tests', function() {
             Object.getOwnPropertyDescriptor(rels['widgets'], id)
           ).to.have.property('get')
         }
-      })
-    })
-
-    describe('actionSequence', function() {
-      it('Should return incrementing numbers', function() {
-        // Set fake context for timeout callback
-        let context = { commit: () => {} }
-        let { actionSequence } = _testing
-        expect(actionSequence(context)).to.be.below(actionSequence(context))
-      })
-      it('Should call deleteStatus after timeout', function() {
-        let { actionSequence, jvConfig } = _testing
-        jvConfig['actionStatusCleanAge'] = 10
-        actionSequence(stubContext)
-        clock.tick(11000)
-        expect(stubContext.commit).to.have.been.calledWith('deleteStatus')
       })
     })
 

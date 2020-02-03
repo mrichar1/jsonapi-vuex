@@ -18,16 +18,11 @@ class RecordError extends Error {
   }
 }
 
-const STATUS_LOAD = 'LOADING'
-const STATUS_SUCCESS = 'SUCCESS'
-const STATUS_ERROR = 'ERROR'
-
 /**
  * @namespace Configuration
  * @property {string} jvtag='_jv' - key to store jsonapi-vuex-related data in when destructuring (default: '_jv')
  * @property {boolean} followRelationshipsData=true - Follow relationships 'data' entries (from store)
  * @property {boolean} preserveJSON=false - Preserve API response json in return data
- * @property {integer} actionStatusCleanAge=600 - Age of action status records to clean (in seconds - 0 disables)
  * @property {boolean} mergeRecords=false - Merge or overwrite store records
  * @property {boolean} clearOnUpdate=false - Delete old records not contained in an update (on a per-type basis).
  * @property {boolean} cleanPatch=false - Always run 'cleanPatch' method when patching
@@ -38,7 +33,6 @@ let jvConfig = {
   jvtag: '_jv',
   followRelationshipsData: true,
   preserveJson: false,
-  actionStatusCleanAge: 600,
   mergeRecords: false,
   clearOnUpdate: false,
   cleanPatch: false,
@@ -56,9 +50,6 @@ let jvtag
 const hasProperty = (obj, prop) => {
   return Object.prototype.hasOwnProperty.call(obj, prop)
 }
-
-// Global sequence counter for unique action ids
-let actionSequenceCounter = 0
 
 /**
  * @namespace
@@ -123,28 +114,6 @@ const mutations = () => {
         }
       }
     },
-    /**
-     * Record the status id of an action in the store
-     * @memberof module:jsonapi-vuex.jsonapiModule.mutations
-     * @param {object} state - The Vuex state object
-     * @param {object} obj
-     * @param {integer} obj.id - The action id to set
-     * @param {constant} obj.status - The action status to set
-     */
-    setStatus: (state, { id, status }) => {
-      Vue.set(state[jvtag], id, { status: status, time: Date.now() })
-    },
-    /**
-     * Delete the status id of an action from the store
-     * @memberof module:jsonapi-vuex.jsonapiModule.mutations
-     * @param {object} state - The Vuex state object
-     * @param {integer} id - The action id to delete
-     */
-    deleteStatus: (state, id) => {
-      if (hasProperty(state[jvtag], id)) {
-        Vue.delete(state[jvtag], id)
-      }
-    },
   }
 }
 
@@ -179,35 +148,22 @@ const actions = (api) => {
       // https://github.com/axios/axios/issues/362
       config['data'] = config['data'] || {}
       merge(apiConf, config)
-      const actionId = actionSequence(context)
-      context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
-      let action = api(apiConf)
-        .then((results) => {
-          processIncludedRecords(context, results)
+      return api(apiConf).then((results) => {
+        processIncludedRecords(context, results)
 
-          let resData = jsonapiToNorm(results.data.data)
-          context.commit('addRecords', resData)
-          if (jvConfig.clearOnUpdate) {
-            context.commit('clearRecords', resData)
-          }
-          resData = checkAndFollowRelationships(
-            context.state,
-            context.getters,
-            resData
-          )
-          resData = preserveJSON(resData, results.data)
-          context.commit('setStatus', {
-            id: actionId,
-            status: STATUS_SUCCESS,
-          })
-          return resData
-        })
-        .catch((error) => {
-          context.commit('setStatus', { id: actionId, status: STATUS_ERROR })
-          throw error
-        })
-      action[jvtag + 'Id'] = actionId
-      return action
+        let resData = jsonapiToNorm(results.data.data)
+        context.commit('addRecords', resData)
+        if (jvConfig.clearOnUpdate) {
+          context.commit('clearRecords', resData)
+        }
+        resData = checkAndFollowRelationships(
+          context.state,
+          context.getters,
+          resData
+        )
+        resData = preserveJSON(resData, results.data)
+        return resData
+      })
     },
     /**
      * Get related items from the API
@@ -227,8 +183,6 @@ const actions = (api) => {
       if (!type || !id) {
         throw 'No type/id specified'
       }
-      const actionId = actionSequence(context)
-      context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
 
       let rels
       if (
@@ -237,18 +191,12 @@ const actions = (api) => {
       ) {
         rels = data[jvtag]['relationships']
       } else {
-        try {
-          let record = await context.dispatch('get', args)
+        let record = await context.dispatch('get', args)
 
-          rels = get(record, [jvtag, 'relationships'], {})
-          if (relName && hasProperty(rels, relName)) {
-            // Only process requested relname
-            rels = { [relName]: rels[relName] }
-          }
-        } catch (error) {
-          // Log and re-throw if 'get' action fails
-          context.commit('setStatus', { id: actionId, status: STATUS_ERROR })
-          throw error
+        rels = get(record, [jvtag, 'relationships'], {})
+        if (relName && hasProperty(rels, relName)) {
+          // Only process requested relname
+          rels = { [relName]: rels[relName] }
         }
       }
 
@@ -305,32 +253,21 @@ const actions = (api) => {
         }
       }
       // 'Merge' all promise resolution/rejection
-      let action = Promise.all(relPromises)
-        .then((results) => {
-          let related = {}
-          results.forEach((result, i) => {
-            // Get the relName from the same array position as the result item
-            let relName = relNames[i]
-            let normItem = { [relName]: {} }
-            if (hasProperty(result, jvtag)) {
-              normItem[relName][result[jvtag]['type']] = {
-                [result[jvtag]['id']]: result,
-              }
+      return Promise.all(relPromises).then((results) => {
+        let related = {}
+        results.forEach((result, i) => {
+          // Get the relName from the same array position as the result item
+          let relName = relNames[i]
+          let normItem = { [relName]: {} }
+          if (hasProperty(result, jvtag)) {
+            normItem[relName][result[jvtag]['type']] = {
+              [result[jvtag]['id']]: result,
             }
-            merge(related, normItem)
-          })
-          context.commit('setStatus', {
-            id: actionId,
-            status: STATUS_SUCCESS,
-          })
-          return related
+          }
+          merge(related, normItem)
         })
-        .catch((error) => {
-          context.commit('setStatus', { id: actionId, status: STATUS_ERROR })
-          throw error
-        })
-      action[jvtag + 'Id'] = actionId
-      return action
+        return related
+      })
     },
     /**
      * Post an item to the API
@@ -348,30 +285,17 @@ const actions = (api) => {
       const path = getURL(data, true)
       const apiConf = { method: 'post', url: path, data: normToJsonapi(data) }
       merge(apiConf, config)
-      const actionId = actionSequence(context)
-      context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
-      let action = api(apiConf)
-        .then((results) => {
-          processIncludedRecords(context, results)
+      return api(apiConf).then((results) => {
+        processIncludedRecords(context, results)
 
-          // If the server handed back data, store it (to get id)
-          // spec says 201, but some servers (wrongly) return 200
-          if (results.status === 200 || results.status === 201) {
-            data = jsonapiToNorm(results.data.data)
-          }
-          context.commit('addRecords', data)
-          context.commit('setStatus', {
-            id: actionId,
-            status: STATUS_SUCCESS,
-          })
-          return preserveJSON(context.getters.get(data), results.data)
-        })
-        .catch((error) => {
-          context.commit('setStatus', { id: actionId, status: STATUS_ERROR })
-          throw error
-        })
-      action[jvtag + 'Id'] = actionId
-      return action
+        // If the server handed back data, store it (to get id)
+        // spec says 201, but some servers (wrongly) return 200
+        if (results.status === 200 || results.status === 201) {
+          data = jsonapiToNorm(results.data.data)
+        }
+        context.commit('addRecords', data)
+        return preserveJSON(context.getters.get(data), results.data)
+      })
     },
     /**
      * Patch an item in the API
@@ -390,40 +314,26 @@ const actions = (api) => {
         data = cleanPatch(data, context.state, jvConfig.cleanPatchProps)
       }
       const path = getURL(data)
-      const actionId = actionSequence(context)
       const apiConf = { method: 'patch', url: path, data: normToJsonapi(data) }
       merge(apiConf, config)
-      context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
-      let action = api(apiConf)
-        .then((results) => {
-          // If the server handed back data, store it
-          if (results.status === 200 && hasProperty(results.data, 'data')) {
-            // Full response
-            context.commit('deleteRecord', data)
-            data = jsonapiToNorm(results.data.data)
-            context.commit('addRecords', data)
-          } else {
-            // 200 (meta-only), or 204 (no resource) response
-            // Update the store record from the patch
-            context.commit('mergeRecords', data)
-          }
+      return api(apiConf).then((results) => {
+        // If the server handed back data, store it
+        if (results.status === 200 && hasProperty(results.data, 'data')) {
+          // Full response
+          context.commit('deleteRecord', data)
+          data = jsonapiToNorm(results.data.data)
+          context.commit('addRecords', data)
+        } else {
+          // 200 (meta-only), or 204 (no resource) response
+          // Update the store record from the patch
+          context.commit('mergeRecords', data)
+        }
 
-          // NOTE: We deliberately process included records after any `deleteRecord` mutations
-          // to avoid deleting any included records that we just added.
-          processIncludedRecords(context, results)
-
-          context.commit('setStatus', {
-            id: actionId,
-            status: STATUS_SUCCESS,
-          })
-          return preserveJSON(context.getters.get(data), results.data)
-        })
-        .catch((error) => {
-          context.commit('setStatus', { id: actionId, status: STATUS_ERROR })
-          throw error
-        })
-      action[jvtag + 'Id'] = actionId
-      return action
+        // NOTE: We deliberately process included records after any `deleteRecord` mutations
+        // to avoid deleting any included records that we just added.
+        processIncludedRecords(context, results)
+        return preserveJSON(context.getters.get(data), results.data)
+      })
     },
     /**
      * Delete an item from the API
@@ -442,29 +352,16 @@ const actions = (api) => {
       const path = getURL(data)
       const apiConf = { method: 'delete', url: path }
       merge(apiConf, config)
-      const actionId = actionSequence(context)
-      context.commit('setStatus', { id: actionId, status: STATUS_LOAD })
-      let action = api(apiConf)
-        .then((results) => {
-          processIncludedRecords(context, results)
+      return api(apiConf).then((results) => {
+        processIncludedRecords(context, results)
 
-          context.commit('deleteRecord', data)
-          context.commit('setStatus', {
-            id: actionId,
-            status: STATUS_SUCCESS,
-          })
-          if (results.data) {
-            return preserveJSON(jsonapiToNorm(results.data.data), results.data)
-          } else {
-            return data
-          }
-        })
-        .catch((error) => {
-          context.commit('setStatus', { id: actionId, status: STATUS_ERROR })
-          throw error
-        })
-      action[jvtag + 'Id'] = actionId
-      return action
+        context.commit('deleteRecord', data)
+        if (results.data) {
+          return preserveJSON(jsonapiToNorm(results.data.data), results.data)
+        } else {
+          return data
+        }
+      })
     },
     /**
      * Get items from the API without updating the Vuex store
@@ -897,29 +794,6 @@ const addJvHelpers = (obj) => {
 }
 
 /**
- * An incrementing counter, returning a new id to be used for action statuses.
- * If `actionStatusCleanAge` is set, also sets up a timer to call deleetStatus for
- * this id when the timeout is reached.
- * See {@link module:jsonapi-vuex~Configuration|Configuration}
- * @memberof module:jsonapi-vuex._internal
- * @param {object} context - Vuex actions context object
- * @return {integer} A new status id
- */
-const actionSequence = (context) => {
-  // Increment the global action id, set up a cleanup timeout and return it
-  let id = ++actionSequenceCounter
-  if (jvConfig.actionStatusCleanAge > 0) {
-    setTimeout(
-      context.commit,
-      jvConfig.actionStatusCleanAge * 1000,
-      'deleteStatus',
-      id
-    )
-  }
-  return id
-}
-
-/**
  * If `preserveJSON` is set, add the returned JSONAPI in a get action to _jv.json
  * See {@link module:jsonapi-vuex~Configuration|Configuration}
  * @memberof module:jsonapi-vuex._internal
@@ -1203,7 +1077,6 @@ const utils = {
  */
 const _testing = {
   _copy: _copy,
-  actionSequence: actionSequence,
   getTypeId: getTypeId,
   deepCopy: deepCopy,
   jsonapiToNorm: jsonapiToNorm,
