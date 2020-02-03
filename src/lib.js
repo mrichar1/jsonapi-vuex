@@ -148,7 +148,7 @@ const Utils = class {
   }
 
   /**
-   * A function that cleans up a patch object, so that it doesn't introeuce unexpected chanegs when sent to the API
+   * A function that cleans up a patch object, so that it doesn't introduce unexpected changes when sent to the API.
    * It removes any attributes which are unchanged from the store, to minimise accidental reversions.
    * It also strips out any of links, relationships and meta from `_jv` - See {@link module:jsonapi-vuex~Configuration|Configuration}
    * @memberof module:jsonapi-vuex.utils
