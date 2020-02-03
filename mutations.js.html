@@ -1,9 +1,11 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     
     <meta charset="utf-8">
-    <title>JSDoc: jsonapiModule</title>
+    <title>JSDoc: mutations.js</title>
 
     <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -65,283 +67,92 @@
             <div class="column is-9-desktop">
                 <div class="content" id="main-content-wrapper">
                     <header class="page-title">
-                        <p>Namespace</p>
-                        <h1>jsonapiModule</h1>
+                        <p>Source</p>
+                        <h1>mutations.js</h1>
                     </header>
                     
                     
 
 
 
-
-<section>
-
-<header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="module-jsonapi-vuex.html">jsonapi-vuex</a>.</span>jsonapiModule<span class="signature">(api, conf<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {object}</span></h2>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-            
-
-
-    
-
-    
-    
-    <div class="description">
-        <p>jsonapi-vuex store module</p>
-    </div>
-    
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>api</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">axios</span>
-
-
-  
-  </td>
-
-  
-      <td class="attributes">
-      
-
-      
-
-      
-      </td>
-  
-
-  
-      <td class="default">
-      
-      </td>
-  
-
-  <td class="description last"><p>an axios instance</p></td>
-</tr>
-
-
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>conf</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">object</span>
-
-
-  
-  </td>
-
-  
-      <td class="attributes">
-      
-          &lt;optional><br>
-      
-
-      
-
-      
-      </td>
-  
-
-  
-      <td class="default">
-      
-          {}
-      
-      </td>
-  
-
-  <td class="description last"><p>jsonapi-vuex configuation</p></td>
-</tr>
-
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="jsonapi-vuex.js.html" class="button">View Source</a>
-            <span>
-                <a href="jsonapi-vuex.js.html">jsonapi-vuex.js</a>, <a href="jsonapi-vuex.js.html#line21">line 21</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <div class='columns method-parameter'>
-        <div class="column is-2"><label>Returns:</label></div>
-        <div class="column is-10">
-            
-                    
-
-<div class="columns">
-    
-    <div class='param-desc column is-7'><p>A Vuex store object</p></div>
-    
-    
-    <div class='column is-5 has-text-left'>
-        <label>Type: </label>
-        
-<span class="param-type">object</span>
-
-
-    </div>
-    
-</div>
-
-                
-        </div>
-    </div>
-
-
-
-
-
-        
-    
-    </div>
-    
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Namespaces</h3>
-
-        <dl>
-            <dt><a href="module-jsonapi-vuex.jsonapiModule.getters.html">getters</a></dt>
-            <dd></dd>
-        
-            <dt><a href="module-jsonapi-vuex.jsonapiModule.mutations.html">mutations</a></dt>
-            <dd></dd>
-        </dl>
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * Vuex mutations, used via `this.$store.commit()`
+ *
+ * @namespace mutations
+ * @memberof module:jsonapi-vuex.jsonapiModule
+ */
+
+import Vue from 'vue'
+import get from 'lodash.get'
+import { utils } from './jsonapi-vuex'
+
+export default () => {
+  return {
+    /**
+     * Delete a record from the store.
+     * @memberof module:jsonapi-vuex.jsonapiModule.mutations
+     * @param {object} state - The Vuex state object
+     * @param {(string|object)} record - The record to be deleted
+     */
+    deleteRecord: (state, record) => {
+      const [type, id] = utils.getTypeId(record)
+      if (!type || !id) {
+        throw `deleteRecord: Missing type or id: ${record}`
+      }
+      Vue.delete(state[type], id)
+    },
+    /**
+     * Add record(s) to the store, according to `mergeRecords` config option
+     * @memberof module:jsonapi-vuex.jsonapiModule.mutations
+     * @param {object} state - The Vuex state object
+     * @param {object} records - The record(s) to be added
+     */
+    addRecords: (state, records) => {
+      utils.updateRecords(state, records)
+    },
+    /**
+     * Replace (or add) record(s) to the store
+     * @memberof module:jsonapi-vuex.jsonapiModule.mutations
+     * @param {object} state - The Vuex state object
+     * @param {object} records - The record(s) to be replaced
+     */
+    replaceRecords: (state, records) => {
+      utils.updateRecords(state, records, false)
+    },
+    /**
+     * Merge (or add) records to the store
+     * @memberof module:jsonapi-vuex.jsonapiModule.mutations
+     * @param {object} state - The Vuex state object
+     * @param {object} records - The record(s) to be merged
+     */
+    mergeRecords: (state, records) => {
+      utils.updateRecords(state, records, true)
+    },
+    /**
+     * Delete all records from the store for a given type
+     * @memberof module:jsonapi-vuex.jsonapiModule.mutations
+     * @param {object} state - The Vuex state object
+     * @param {object} records - A record with type set.
+     */
+    clearRecords: (state, records) => {
+      const newRecords = utils.normToStore(records)
+      for (let [type, item] of Object.entries(newRecords)) {
+        const storeRecords = get(state, [type], {})
+        for (let id of Object.keys(storeRecords)) {
+          if (!utils.hasProperty(item, id)) {
+            Vue.delete(state[type], id)
+          }
+        }
+      }
+    },
+  }
+}
+</code></pre>
+        </article>
+    </section>
 
 
 

@@ -1,9 +1,11 @@
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     
     <meta charset="utf-8">
-    <title>JSDoc: jsonapiModule</title>
+    <title>JSDoc: config.js</title>
 
     <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -65,283 +67,45 @@
             <div class="column is-9-desktop">
                 <div class="content" id="main-content-wrapper">
                     <header class="page-title">
-                        <p>Namespace</p>
-                        <h1>jsonapiModule</h1>
+                        <p>Source</p>
+                        <h1>config.js</h1>
                     </header>
                     
                     
 
 
 
-
-<section>
-
-<header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="module-jsonapi-vuex.html">jsonapi-vuex</a>.</span>jsonapiModule<span class="signature">(api, conf<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {object}</span></h2>
-        
-    
-</header>
-
-<article>
-    <div class="container-overview">
-    
-        
-            
-
-
-    
-
-    
-    
-    <div class="description">
-        <p>jsonapi-vuex store module</p>
-    </div>
-    
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Attributes</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>api</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">axios</span>
-
-
-  
-  </td>
-
-  
-      <td class="attributes">
-      
-
-      
-
-      
-      </td>
-  
-
-  
-      <td class="default">
-      
-      </td>
-  
-
-  <td class="description last"><p>an axios instance</p></td>
-</tr>
-
-
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>conf</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">object</span>
-
-
-  
-  </td>
-
-  
-      <td class="attributes">
-      
-          &lt;optional><br>
-      
-
-      
-
-      
-      </td>
-  
-
-  
-      <td class="default">
-      
-          {}
-      
-      </td>
-  
-
-  <td class="description last"><p>jsonapi-vuex configuation</p></td>
-</tr>
-
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="jsonapi-vuex.js.html" class="button">View Source</a>
-            <span>
-                <a href="jsonapi-vuex.js.html">jsonapi-vuex.js</a>, <a href="jsonapi-vuex.js.html#line21">line 21</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <div class='columns method-parameter'>
-        <div class="column is-2"><label>Returns:</label></div>
-        <div class="column is-10">
-            
-                    
-
-<div class="columns">
-    
-    <div class='param-desc column is-7'><p>A Vuex store object</p></div>
-    
-    
-    <div class='column is-5 has-text-left'>
-        <label>Type: </label>
-        
-<span class="param-type">object</span>
-
-
-    </div>
-    
-</div>
-
-                
-        </div>
-    </div>
-
-
-
-
-
-        
-    
-    </div>
-    
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Namespaces</h3>
-
-        <dl>
-            <dt><a href="module-jsonapi-vuex.jsonapiModule.getters.html">getters</a></dt>
-            <dd></dd>
-        
-            <dt><a href="module-jsonapi-vuex.jsonapiModule.mutations.html">mutations</a></dt>
-            <dd></dd>
-        </dl>
-    
-
-    
-
-    
-
-    
-
-    
-</article>
-
-</section>
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>/**
+ * The default configuration is provided here. This is overridden by passing
+ * a 'conf' object to {@link module:jsonapi-vuex.jsonapiModule}
+ *
+ * @namespace Configuration
+ * @property {string} jvtag='_jv' - key to store jsonapi-vuex-related data in when destructuring (default: '_jv')
+ * @property {boolean} followRelationshipsData=true - Follow relationships 'data' entries (from store)
+ * @property {boolean} preserveJSON=false - Preserve API response json in return data
+ * @property {boolean} mergeRecords=false - Merge or overwrite store records
+ * @property {boolean} clearOnUpdate=false - Delete old records not contained in an update (on a per-type basis).
+ * @property {boolean} cleanPatch=false - Always run 'cleanPatch' method when patching
+ * @property {string[]} cleanPatchProps='[]' - If cleanPatch is enabled, which _jv props (links, meta, rels) should be kept?
+ * @property {boolean} recurseRelationships=false - Allow relationships to be recursive?
+ */
+
+export default {
+  jvtag: '_jv',
+  followRelationshipsData: true,
+  preserveJson: false,
+  mergeRecords: false,
+  clearOnUpdate: false,
+  cleanPatch: false,
+  cleanPatchProps: [],
+  recurseRelationships: false,
+}
+</code></pre>
+        </article>
+    </section>
 
 
 

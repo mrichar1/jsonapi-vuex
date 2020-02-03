@@ -58,7 +58,7 @@
             <div class="column is-3" id="sidebarNav">
                 <div class="sidebar">
                     <nav>
-                        <h2><a href="index.html">Home</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-jsonapi-vuex.html">jsonapi-vuex</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-jsonapi-vuex._internal.html">_internal</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.html">jsonapiModule</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.actions.html">actions</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.getters.html">getters</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.helpers.html">helpers</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.mutations.html">mutations</a></li><li><a href="module-jsonapi-vuex.utils.html">utils</a></li><li><a href="module-jsonapi-vuex-Configuration.html">Configuration</a></li></ul></div>
+                        <h2><a href="index.html">Home</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-jsonapi-vuex.html">jsonapi-vuex</a></li></ul><h3>Namespaces</h3><ul><li><a href="Configuration.html">Configuration</a></li><li><a href="module-jsonapi-vuex._internal.html">_internal</a></li><li><a href="module-jsonapi-vuex.helpers.html">helpers</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.html">jsonapiModule</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.getters.html">getters</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.mutations.html">mutations</a></li><li><a href="module-jsonapi-vuex.utils.html">utils</a></li></ul></div>
                     </nav>
                 </div>
             </div>
@@ -354,7 +354,7 @@ this.$store
 <p><em>Note</em> - in many cases you may prefer to use the jsonapi server-side <code>include</code> option to get data on relationships included in your original query. (See <a href="#relationships">Relationships</a>).</p>
 <p>Like the RESTful actions, this takes 2 arguments - the string or object to be acted on, and an axios config object. It returns a deeply nested restructured tree - <code>relationship -&gt; type -&gt; id -&gt; data</code>.</p>
 <p><em>Note</em> - <a href="#getrelated">getRelated</a> only works on specific items, not collections.</p>
-<p>By default this action will fetch the record specified from the API, then work out it's relationships and also fetch those.</p>
+<p>By default this action will fetch the record specified from the API, then work out its relationships and also fetch those.</p>
 <p>If the argument is a string, it can optionally take a 3rd argument, e.g. <code>type/id/relationship</code> to cause only the named relationship to be followed.</p>
 <p>If the argument is an object, then if the object contains a <code>_jv/relationships</code> section, then only these relationships will are followed. If the relationships section contains keys (i.e relationship <code>names</code>) but no values (i.e. <a href="https://jsonapi.org/format/#fetching-relationships">resource linkage</a>) then these will be fetched from the API.</p>
 <pre class="prettyprint source lang-js"><code>// Assuming the API holds the following data
@@ -518,25 +518,25 @@ this.$store.getters['jv/get']('widget/1', '$[?(@.color==&quot;red&quot;)]')
 <p>The current utility functions are:</p>
 <h3 id="addjvhelpers"><code>addJvHelpers</code></h3>
 <p>Adds the 'helper' functions/properties to <code>_jv</code> in a restructured object.</p>
-<p><code>addJvHelpers</code> takes a restructured object as it's argument, and returns (and modifies in-place) the obejct to include the helper methods (see <a href="#helper-functions">Helper functions</a>)</p>
+<p><code>addJvHelpers</code> takes a restructured object as its argument, and returns (and modifies in-place) the obejct to include the helper methods (see <a href="#helper-functions">Helper functions</a>)</p>
 <h3 id="cleanpatch"><code>cleanPatch</code></h3>
 <p>If you wish to clean patches on a per-patch basis, then set the <code>cleanPatch</code> configuration option to false, and instead use this method on your patch record prior to passing it to the action.</p>
 <p><code>cleanPatch</code> takes 3 arguments - the patch data, the state to be compared to, and an array of <code>_jv</code> properties to be preserved (see <code>cleanPatchProps</code> config option).</p>
 <h3 id="deepcopy"><code>deepCopy</code></h3>
 <p>Makes a deep copy of a normalised object, and adds/updates the <a href="#helper-functions">Helper functions</a>. This is done because walking the object will normally cause the helper functions to be called, resulting in static (and out-of-date) results.</p>
-<p>This function is designed for situations where you wish to modify the results of a <code>getter</code> call, which will throw an error if any of it's data is modified.</p>
+<p>This function is designed for situations where you wish to modify the results of a <code>getter</code> call, which will throw an error if any of its data is modified.</p>
 <p><em>Note</em> - Be aware that this copy will be a 'static' version of the original object - if the store is subsequently updated, the copied object will no longer reflect this.</p>
 <h3 id="gettypeid"><code>getTypeId</code></h3>
 <p>Returns an array containing the type, id and rels for a given restructured object (if defined).</p>
 <h3 id="geturl"><code>getUrl</code></h3>
 <p>Returns the <code>self.links</code> url, or constructs a path from the type and id.</p>
-<p><code>getUrl</code> takes 2 arguments, the restructured object, and optionall <code>post</code> (defaults to <code>false</code>). If <code>post</code> is true, then the constructed path will not contain an <code>id</code>.</p>
+<p><code>getUrl</code> takes 2 arguments, the restructured object, and optional <code>post</code> boolean (defaults to <code>false</code>). If <code>post</code> is true, then the constructed path will not contain an <code>id</code>.</p>
 <h3 id="jsonapitonorm"><code>jsonapiToNorm</code></h3>
 <p>Convert a JSONAPI object to a restructured object.</p>
 <h3 id="normtojsonapi"><code>normtoJsonapi</code></h3>
 <p>Convert a restructured object to a JSONAPI object.</p>
 <h3 id="normtostore"><code>normToStore</code></h3>
-<p>Convert a restructured object to it's <code>store</code> form.</p>
+<p>Convert a restructured object to its <code>store</code> form.</p>
 <h2 id="configuration">Configuration</h2>
 <p><a href="https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex-Configuration.html">Configuration API Reference</a></p>
 <p>A config object can be passed to <code>jsonapiModule</code> when instantiating. It will override the default options:</p>
@@ -638,7 +638,7 @@ this.$store.dispatch('jv/get', [{ _jv: { type: 'widget' } }, { url: customUrl(da
 
 <footer class="footer">
     <div class="content has-text-centered">
-        <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Mon Feb 03 2020 10:09:12 GMT+0000 (Coordinated Universal Time)</p>
+        <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Mon Feb 03 2020 20:48:50 GMT+0000 (Coordinated Universal Time)</p>
         <p class="sidebar-created-by">
             <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by 
             <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>

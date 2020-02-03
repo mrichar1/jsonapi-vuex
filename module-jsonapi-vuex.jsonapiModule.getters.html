@@ -58,7 +58,7 @@
             <div class="column is-3" id="sidebarNav">
                 <div class="sidebar">
                     <nav>
-                        <h2><a href="index.html">Home</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-jsonapi-vuex.html">jsonapi-vuex</a></li></ul><h3>Namespaces</h3><ul><li><a href="module-jsonapi-vuex._internal.html">_internal</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.html">jsonapiModule</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.actions.html">actions</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.getters.html">getters</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.helpers.html">helpers</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.mutations.html">mutations</a></li><li><a href="module-jsonapi-vuex.utils.html">utils</a></li><li><a href="module-jsonapi-vuex-Configuration.html">Configuration</a></li></ul></div>
+                        <h2><a href="index.html">Home</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-jsonapi-vuex.html">jsonapi-vuex</a></li></ul><h3>Namespaces</h3><ul><li><a href="Configuration.html">Configuration</a></li><li><a href="module-jsonapi-vuex._internal.html">_internal</a></li><li><a href="module-jsonapi-vuex.helpers.html">helpers</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.html">jsonapiModule</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.getters.html">getters</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.mutations.html">mutations</a></li><li><a href="module-jsonapi-vuex.utils.html">utils</a></li></ul></div>
                     </nav>
                 </div>
             </div>
@@ -78,8 +78,8 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>
-            <span class="ancestors"><a href="module-jsonapi-vuex.html">jsonapi-vuex</a><a href="module-jsonapi-vuex.jsonapiModule.html">.jsonapiModule</a>.</span>getters<span class="signature">()</span><span class="type-signature"></span></h2>
+        <h2>
+            <span class="ancestors"><a href="module-jsonapi-vuex.html">jsonapi-vuex</a><a href="module-jsonapi-vuex.jsonapiModule.html">.jsonapiModule</a>.</span>getters</h2>
         
     
 </header>
@@ -88,29 +88,11 @@
     <div class="container-overview">
     
         
-            
+            <div class="description"><p>Vuex getters, used via <code>this.$store.getters</code>, e.g.:
+<code>this.$store.getters['jv/get'](&lt;args&gt;)</code></p></div>
+        
 
-
-    
-
-    
-    
-    <div class="description">
-        <p>Vuex getters, used via <code>this.$store.getters</code>, e.g.:
-`this.$store.getters<a href="args">'jv/get'</a></p>
-    </div>
-    
-
-
-
-
-
-
-
-
-
-
-
+        
 
 
 <dl class="details">
@@ -146,33 +128,13 @@
 
     
         <p class="tag-source">
-            <a href="jsonapi-vuex.js.html" class="button">View Source</a>
+            <a href="getters.js.html" class="button">View Source</a>
             <span>
-                <a href="jsonapi-vuex.js.html">jsonapi-vuex.js</a>, <a href="jsonapi-vuex.js.html#line423">line 423</a>
+                <a href="getters.js.html">getters.js</a>, <a href="getters.js.html#line1">line 1</a>
             </span>
         </p>
     
 </dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
         
@@ -397,9 +359,9 @@
 
     
         <p class="tag-source">
-            <a href="jsonapi-vuex.js.html" class="button">View Source</a>
+            <a href="getters.js.html" class="button">View Source</a>
             <span>
-                <a href="jsonapi-vuex.js.html">jsonapi-vuex.js</a>, <a href="jsonapi-vuex.js.html#line435">line 435</a>
+                <a href="getters.js.html">getters.js</a>, <a href="getters.js.html#line29">line 29</a>
             </span>
         </p>
     
@@ -626,9 +588,9 @@
 
     
         <p class="tag-source">
-            <a href="jsonapi-vuex.js.html" class="button">View Source</a>
+            <a href="getters.js.html" class="button">View Source</a>
             <span>
-                <a href="jsonapi-vuex.js.html">jsonapi-vuex.js</a>, <a href="jsonapi-vuex.js.html#line484">line 484</a>
+                <a href="getters.js.html">getters.js</a>, <a href="getters.js.html#line78">line 78</a>
             </span>
         </p>
     
@@ -681,182 +643,6 @@
 
 </div>
             
-                <div class="member">
-
-
-    
-    <h4 class="name" id=".status">
-        <a class="href-link" href="#.status">#</a>
-        
-            
-                <span class='tag'>static</span>
-            
-        
-        <span class="code-name">
-            
-                status<span class="signature">(id)</span><span class="type-signature"> &rarr; {string}</span>
-            
-        </span>
-    </h4>
-    
-
-    
-    
-    <div class="description">
-        <p>Get the status of an action</p>
-    </div>
-    
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>id</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">integer</span>
-
-
-  
-  </td>
-
-  
-
-  
-
-  <td class="description last"><p>A status action id</p></td>
-</tr>
-
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="jsonapi-vuex.js.html" class="button">View Source</a>
-            <span>
-                <a href="jsonapi-vuex.js.html">jsonapi-vuex.js</a>, <a href="jsonapi-vuex.js.html#line502">line 502</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <div class='columns method-parameter'>
-        <div class="column is-2"><label>Returns:</label></div>
-        <div class="column is-10">
-            
-                    
-
-<div class="columns">
-    
-    <div class='param-desc column is-7'><p>A string representing the state of the action (LOADING|SUCCESS|ERROR)</p></div>
-    
-    
-    <div class='column is-5 has-text-left'>
-        <label>Type: </label>
-        
-<span class="param-type">string</span>
-
-
-    </div>
-    
-</div>
-
-                
-        </div>
-    </div>
-
-
-
-
-</div>
-            
             </div>
         </div>
     
@@ -879,7 +665,7 @@
 
 <footer class="footer">
     <div class="content has-text-centered">
-        <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Mon Feb 03 2020 10:09:12 GMT+0000 (Coordinated Universal Time)</p>
+        <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Mon Feb 03 2020 20:48:50 GMT+0000 (Coordinated Universal Time)</p>
         <p class="sidebar-created-by">
             <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by 
             <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
