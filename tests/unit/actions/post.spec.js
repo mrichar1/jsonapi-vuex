@@ -2,10 +2,7 @@ import { expect } from 'chai'
 
 import createStubContext from '../stubs/context'
 import createJsonapiModule from '../utils/createJsonapiModule'
-import {
-  jsonFormat as createJsonWidget1,
-  normFormat as createNormWidget1,
-} from '../fixtures/widget1'
+import { jsonFormat as createJsonWidget1, normFormat as createNormWidget1 } from '../fixtures/widget1'
 
 describe('post', function() {
   let jsonWidget1, normWidget1, jsonapiModule, stubContext
@@ -23,19 +20,14 @@ describe('post', function() {
 
     await jsonapiModule.actions.post(stubContext, normWidget1)
 
-    expect(this.mockApi.history.post[0].url).to.equal(
-      `${normWidget1['_jv']['type']}`
-    )
+    expect(this.mockApi.history.post[0].url).to.equal(`${normWidget1['_jv']['type']}`)
   })
 
   it('should accept axios config as the 2nd arg in a list', async function() {
     this.mockApi.onAny().reply(201, { data: jsonWidget1 })
     const params = { filter: 'color' }
 
-    await jsonapiModule.actions.post(stubContext, [
-      normWidget1,
-      { params: params },
-    ])
+    await jsonapiModule.actions.post(stubContext, [normWidget1, { params: params }])
 
     expect(this.mockApi.history.post[0].params).to.deep.equal(params)
   })
@@ -53,10 +45,7 @@ describe('post', function() {
 
     await jsonapiModule.actions.post(stubContext, normWidget1)
 
-    expect(stubContext.commit).to.have.been.calledWith(
-      'addRecords',
-      normWidget1
-    )
+    expect(stubContext.commit).to.have.been.calledWith('addRecords', normWidget1)
   })
 
   it('should add record(s) in the store (no server response)', async function() {
@@ -64,10 +53,7 @@ describe('post', function() {
 
     await jsonapiModule.actions.post(stubContext, normWidget1)
 
-    expect(stubContext.commit).to.have.been.calledWith(
-      'addRecords',
-      normWidget1
-    )
+    expect(stubContext.commit).to.have.been.calledWith('addRecords', normWidget1)
   })
 
   it("should return data via the 'get' getter", async function() {

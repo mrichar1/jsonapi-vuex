@@ -1,4 +1,5 @@
-import { jsonapiModule, _testing } from '../../../src/jsonapi-vuex.js'
+import { jsonapiModule } from '../../../src/jsonapi-vuex'
+import config from '../../../src/config'
 
 // Turn off the following to simplify test data in most cases
 const customConfig = {
@@ -9,7 +10,7 @@ const customConfig = {
   toJSON: false,
 }
 // Get a copy of the default config as tests may modify it.
-const config = Object.assign({}, _testing.jvConfig, customConfig)
+const conf = Object.assign({}, config, customConfig)
 
 export default function(api, options = {}) {
   if (!api) {
@@ -17,7 +18,7 @@ export default function(api, options = {}) {
   }
 
   return jsonapiModule(api, {
-    ...config,
+    ...conf,
     ...options,
   })
 }

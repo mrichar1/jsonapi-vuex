@@ -2,10 +2,7 @@ import { expect } from 'chai'
 
 import createStubContext from '../stubs/context'
 import createJsonapiModule from '../utils/createJsonapiModule'
-import {
-  jsonFormat as createJsonWidget1,
-  normFormat as createNormWidget1,
-} from '../fixtures/widget1'
+import { jsonFormat as createJsonWidget1, normFormat as createNormWidget1 } from '../fixtures/widget1'
 
 describe('delete', function() {
   let jsonWidget1, normWidget1, jsonapiModule, stubContext
@@ -23,19 +20,14 @@ describe('delete', function() {
 
     await jsonapiModule.actions.delete(stubContext, normWidget1)
 
-    expect(this.mockApi.history.delete[0].url).to.equal(
-      normWidget1['_jv']['links']['self']
-    )
+    expect(this.mockApi.history.delete[0].url).to.equal(normWidget1['_jv']['links']['self'])
   })
 
   it('should accept axios config as the 2nd arg in a list', async function() {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
     const params = { filter: 'color' }
 
-    await jsonapiModule.actions.delete(stubContext, [
-      normWidget1,
-      { params: params },
-    ])
+    await jsonapiModule.actions.delete(stubContext, [normWidget1, { params: params }])
 
     expect(this.mockApi.history.delete[0].params).to.deep.equal(params)
   })
@@ -53,10 +45,7 @@ describe('delete', function() {
 
     await jsonapiModule.actions.delete(stubContext, normWidget1)
 
-    expect(stubContext.commit).to.have.been.calledWith(
-      'deleteRecord',
-      normWidget1
-    )
+    expect(stubContext.commit).to.have.been.calledWith('deleteRecord', normWidget1)
   })
 
   it('should delete a record (string) from the store', async function() {
@@ -65,10 +54,7 @@ describe('delete', function() {
     // Leading slash is incorrect syntax, but we should handle it so test with it in
     await jsonapiModule.actions.delete(stubContext, 'widget/1')
 
-    expect(stubContext.commit).to.have.been.calledWith(
-      'deleteRecord',
-      'widget/1'
-    )
+    expect(stubContext.commit).to.have.been.calledWith('deleteRecord', 'widget/1')
   })
 
   it('should return deleted object if passed back by server', async function() {

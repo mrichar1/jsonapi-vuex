@@ -1,6 +1,6 @@
 import { expect } from 'chai'
 
-import { _testing } from '../../../src/jsonapi-vuex'
+import { utils } from '../../../src/jsonapi-vuex'
 import createStubContext from '../stubs/context'
 import createJsonapiModule from '../utils/createJsonapiModule'
 import {
@@ -13,13 +13,7 @@ import {
 } from '../fixtures/widget1'
 
 describe('patch', function() {
-  let jsonWidget1,
-    jsonWidget1Patch,
-    normWidget1,
-    normWidget1Patch,
-    normWidget1Update,
-    jsonapiModule,
-    stubContext
+  let jsonWidget1, jsonWidget1Patch, normWidget1, normWidget1Patch, normWidget1Update, jsonapiModule, stubContext
 
   beforeEach(function() {
     jsonWidget1 = createJsonWidget1()
@@ -46,10 +40,7 @@ describe('patch', function() {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
     const params = { filter: 'color' }
 
-    await jsonapiModule.actions.patch(stubContext, [
-      normWidget1Patch,
-      { params: params },
-    ])
+    await jsonapiModule.actions.patch(stubContext, [normWidget1Patch, { params: params }])
 
     expect(this.mockApi.history.patch[0].params).to.deep.equal(params)
   })
@@ -67,14 +58,8 @@ describe('patch', function() {
 
     await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
 
-    expect(stubContext.commit).to.have.been.calledWith(
-      'deleteRecord',
-      normWidget1Patch
-    )
-    expect(stubContext.commit).to.have.been.calledWith(
-      'addRecords',
-      normWidget1Update
-    )
+    expect(stubContext.commit).to.have.been.calledWith('deleteRecord', normWidget1Patch)
+    expect(stubContext.commit).to.have.been.calledWith('addRecords', normWidget1Update)
   })
 
   it('should update record(s) in the store (no server response)', async function() {
@@ -82,10 +67,7 @@ describe('patch', function() {
 
     await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
 
-    expect(stubContext.commit).to.have.been.calledWith(
-      'mergeRecords',
-      normWidget1Patch
-    )
+    expect(stubContext.commit).to.have.been.calledWith('mergeRecords', normWidget1Patch)
   })
 
   it('should update record(s) in the store (meta-only response)', async function() {
@@ -93,10 +75,7 @@ describe('patch', function() {
 
     await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
 
-    expect(stubContext.commit).to.have.been.calledWith(
-      'mergeRecords',
-      normWidget1Patch
-    )
+    expect(stubContext.commit).to.have.been.calledWith('mergeRecords', normWidget1Patch)
   })
 
   it("should return data via the 'get' getter", async function() {
@@ -154,11 +133,10 @@ describe('patch', function() {
   })
 
   it('should not include rels/links/meta in requests (manual cleanPatch)', async function() {
-    const { cleanPatch } = _testing
     this.mockApi.onAny().reply(204)
     const widget = createNormWidget1WithRels()
     jsonapiModule = createJsonapiModule(this.api, {followRelationshipsData: true}) //prettier-ignore
-    await jsonapiModule.actions.patch(stubContext, cleanPatch(widget))
+    await jsonapiModule.actions.patch(stubContext, utils.cleanPatch(widget))
     const res = JSON.parse(this.mockApi.history.patch[0].data)
     expect(res.data).to.not.have.property('relationships')
     expect(res.data).to.not.have.property('links')
@@ -166,11 +144,10 @@ describe('patch', function() {
   })
 
   it('should include rels/links/meta in requests', async function() {
-    const { cleanPatch } = _testing
     this.mockApi.onAny().reply(204)
     const widget = createNormWidget1WithRels()
     jsonapiModule = createJsonapiModule(this.api, {followRelationshipsData: true}) //prettier-ignore
-    const clean = cleanPatch(widget, {}, ['links', 'meta', 'relationships'])
+    const clean = utils.cleanPatch(widget, {}, ['links', 'meta', 'relationships']) //prettier-ignore
     await jsonapiModule.actions.patch(stubContext, clean)
     const res = JSON.parse(this.mockApi.history.patch[0].data)
     expect(res.data).to.have.property('relationships')
