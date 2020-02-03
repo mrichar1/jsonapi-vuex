@@ -276,7 +276,7 @@ export default new Vuex.Store({
 </ul>
 <h3 id="actions">Actions</h3>
 <p><a href="https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex.jsonapiModule.actions.html">Actions API Reference</a></p>
-<p>The usual way to use this module is to use <code>actions</code> wherever possible. All actions are asynchronous, and both query the API and update the store, then return data in a normalized form. Every action call's state is tracked as it progresses, and this status can be easily queried (see the <a href="#status"><code>status</code></a> getter).</p>
+<p>The usual way to use this module is to use <code>actions</code> wherever possible. All actions are asynchronous, and both query the API and update the store, then return data in a normalized form.</p>
 <p>There are 4 actions (with aliases): <code>get</code> (<code>fetch</code>), <code>post</code> (<code>create</code>), <code>patch</code> (<code>update</code>), and <code>delete</code> which correspond to RESTful methods. There is also a <a href="#getrelated">getRelated</a> action which fetches a record's <a href="#relationships">relationships</a>.</p>
 <h4 id="restful-actions">RESTful actions</h4>
 <p>Actions are dispatched via <code>this.$store.dispatch</code>. As this project is used as a module, the first parameter to <code>dispatch</code> is of the form <code>module/action</code>, e.g. <code>jv/get</code>. The second parameter to <code>dispatch</code> is passed on to the action.</p>
@@ -423,7 +423,7 @@ this.$store.dispatch('jv/getRelated', customRels).then((data) => {
 </code></pre>
 <h3 id="getters">Getters</h3>
 <p><a href="https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex.jsonapiModule.getters.html">Getters API Reference</a></p>
-<p>There are 3 getters available. <code>get</code>, <code>getRelated</code> and <code>status</code>.</p>
+<p>There are 2 getters available: <code>get</code> and <code>getRelated</code>.</p>
 <h4 id="get">get</h4>
 <p>Get returns information directly from the store for previously cached records. This is useful for performance reasons, or for use in computed properties.</p>
 <p>Get returns an object with getters that point to the data in the store. This means that updates to the store will be dynamically reflected in the results object. However it also means that it is not possible to modify this object as getters aren't writeable.</p>
@@ -470,36 +470,6 @@ this.$store.getters['jv/get']('widget/1', '$[?(@.color==&quot;red&quot;)]')
 <p>For example, to get all widgets related to the widget with id 1:</p>
 <pre class="prettyprint source lang-js"><code>this.$store.getters['jv/getRelated']('widget/1')['widgets']
 </code></pre>
-<h4 id="status">status</h4>
-<p>Every action is given a unique id, and this is both returned as a property of the promise, and preserved in <code>state</code> under the <code>jvtag</code> (as defined in config).</p>
-<p>The <code>status</code> getter accepts either an id, or a promise returned by an action, and returns the stored state of the action. This can be one of:</p>
-<ul>
-<li>LOADING</li>
-<li>SUCCESS</li>
-<li>ERROR</li>
-</ul>
-<p>For example, to determine the state of an action:</p>
-<pre class="prettyprint source lang-js"><code>// Get a promise from calling an action
-let action = this.$store.dispatch('jv/get', 'widget')
-
-// Check the status of the action (and assuming it hasn't yet completed)
-let status = this.$store.getters['jv/status'](action)
-
-console.log(status) // LOADING
-
-// Continue to handle the action results in the usual way
-action.then((data) => {
-  // The action has returned
-  console.log(status) // SUCCESS
-
-  // Continue as usual
-  console.log(data)
-})
-</code></pre>
-<p>The <code>status</code> getter is primarily designed to use useful for handling UI changes based on actions.</p>
-<p>For example, you might want to disable an attribute while an action is happening by 'watching' <code>status</code>:</p>
-<pre class="prettyprint source"><code>&lt;input type=&quot;text&quot; :disabled=&quot;status === 'LOADING'&quot;>
-</code></pre>
 <h2 id="mutations">Mutations</h2>
 <p><a href="https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex.jsonapiModule.mutations.html">Mutations API Reference</a></p>
 <p>There are several mutations which can be used to directly modify the store.</p>
@@ -517,10 +487,6 @@ action.then((data) => {
 <p>As <code>addRecords</code>, but explicitly merges onto existing records.</p>
 <h4 id="clearrecords">clearRecords</h4>
 <p>Will remove all records from the store (of a given type) which aren't contained in given response. (See <a href="#usage">clearOnUpdate</a>).</p>
-<h4 id="setstatus">setStatus</h4>
-<p>Sets the session status information in the store.</p>
-<h4 id="deletestatus">deleteStatus</h4>
-<p>Deletes a session status record from the store.</p>
 <h2 id="helper-functions">Helper Functions</h2>
 <p>Distinguishing between the <code>attributes</code> and <code>relationships</code> in the 'root' is simplified by a number of 'helper' functions which are provided in the <code>_jv</code> (<code>jvtag</code>) object:</p>
 <ul>
@@ -583,7 +549,6 @@ jm = jsonapiModule(api, config)
 <li><code>jvtag</code> - The tag in restructured objects to hold object metadata (defaults to <code>_jv</code>)</li>
 <li><code>followRelationshipsData</code> - Whether to follow and expand relationships and store them alongside attributes in the item 'root' (defaults to <code>true</code>).</li>
 <li><code>preserveJson</code> - Whether actions should return the API response json (minus <code>data</code>) in <code>_jv/json</code> (for access to <code>meta</code> etc) (defaults to <code>false</code>)</li>
-<li><code>actionStatusCleanAge</code> - What age must action status records be before they are removed (defaults to 600 seconds). Set to <code>0</code> to disable.</li>
 <li><code>mergeRecords</code> - Whether new records should be merged onto existing records in the store, or just replace them (defaults to <code>false</code>).</li>
 <li><code>clearOnUpdate</code> - Whether the store should clear old records and only keep new records when updating. Applies to the <code>type(s)</code> associated with the new records. (defaults to false).</li>
 <li><code>cleanPatch</code> - If enabled, patch object is compared to the record in the store, and only unique or modified attributes are kept in the patch. (defaults to false).</li>
@@ -673,7 +638,7 @@ this.$store.dispatch('jv/get', [{ _jv: { type: 'widget' } }, { url: customUrl(da
 
 <footer class="footer">
     <div class="content has-text-centered">
-        <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Sun Feb 02 2020 11:36:15 GMT+0000 (Coordinated Universal Time)</p>
+        <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Mon Feb 03 2020 10:09:12 GMT+0000 (Coordinated Universal Time)</p>
         <p class="sidebar-created-by">
             <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by 
             <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
