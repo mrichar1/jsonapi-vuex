@@ -191,6 +191,8 @@ There are a number of features which are worth explaining in more detail. Many o
 
 - _Searching_ - The API can be searched without any changes being propagated to the store. This is useful for AJAX-style queries. (see [`search`](#search))
 
+- _Action Status Tracking_ - The state of any in-flight action can be checked to discover if it has completed yet (successfully or with an error). (See [Action Status](#action-status))
+
 ### Vuex Methods
 
 The 3 categories of Vuex methods are used as follows:
@@ -237,11 +239,9 @@ const params = {
 }
 
 // Get a specific record from the 'widget' endpoint, passing parameters to axios:
-this.$store
-  .dispatch('jv/get', ['widget/1', { params: params }])
-  .then((data) => {
-    console.log(data)
-  })
+this.$store.dispatch('jv/get', ['widget/1', { params: params }]).then((data) => {
+  console.log(data)
+})
 
 // Restructured representation of a record
 const newWidget = {
@@ -253,11 +253,9 @@ const newWidget = {
 }
 
 // Create a new widget in the API, using a restructured object, and passing parameters to axios:
-this.$store
-  .dispatch('jv/post', [newWidget, { params: params }])
-  .then((data) => {
-    console.log(data)
-  })
+this.$store.dispatch('jv/post', [newWidget, { params: params }]).then((data) => {
+  console.log(data)
+})
 
 // Update a widget in the API
 const widgetColor = {
@@ -271,12 +269,10 @@ const widgetColor = {
 this.$store.dispatch('jv/patch', [widgetColor, { params: params }])
 
 // Fetch, then update a widget in the API
-this.$store
-  .dispatch('jv/get', ['widget/1', { params: params }])
-  .then((widget1) => {
-    widget1['color'] = 'red'
-    this.$store.dispatch('jv/patch', [widget1, { params: params }])
-  })
+this.$store.dispatch('jv/get', ['widget/1', { params: params }]).then((widget1) => {
+  widget1['color'] = 'red'
+  this.$store.dispatch('jv/patch', [widget1, { params: params }])
+})
 ```
 
 #### search
@@ -287,11 +283,9 @@ The `search` action is the same as the `get` action, except that it does not res
 const widgetSearch = (text) => {
   const params = { 'filter[text_contains]': text }
 
-  this.$store
-    .dispatch('jv/search', 'widget', { params: params })
-    .then((data) => {
-      return data
-    })
+  this.$store.dispatch('jv/search', 'widget', { params: params }).then((data) => {
+    return data
+  })
 }
 ```
 
@@ -374,6 +368,69 @@ this.$store.dispatch('jv/getRelated', customRels).then((data) => {
   console.log(data)
 })
 ```
+
+#### Action Status
+
+The status of actions can be monitored using the `status` wrapper function, imported from `jsonapi-vuex`.
+
+`status` takes as an argument an `action` dispatch function (or any function which returns a promise). It then calls and tracks the state of that function.
+
+It returns the promise created by the function, with an ID added (`_statusID`). This ID can be used to get the status of the function via the `status.status` object:
+
+```
+import { status } from 'jsonapi-vuex'
+
+// Capture the returned promise
+let myAction = status.run(() => this.$store.dispatch('jv/get', 'widget/1'))
+
+// Make a reference to the ID and status value
+let myID = myAction._statusID
+let myStatus = status.status[myID]
+
+console.log('myAction Status is now:', myStatus) // Pending
+
+// Handle the promise
+myAction
+  .then((result) => {
+    console.log('myAction Status is now:', myStatus) // Success
+    console.log(result)
+  })
+  .catch((error) => {
+    console.log('myAction Status is now:', myStatus) // Error
+    console.log(error)
+  })
+
+```
+
+The value for the ID in `status.status` will be set to one of:
+
+- 0 - Action is Pending
+- 1 - Action is Complete (Success)
+- -1 - Action is Complete (Error)
+
+These values can be easily overidden if you wish to use the value directly:
+
+```
+// Change the status values at the start
+status.PENDING = 'Please wait...'
+status.SUCCESS = 'Task completed successfully'
+status.ERROR = 'There was an error'
+```
+
+You can now easily track status in your UI:
+
+```
+<!-- Displayed once action completes (success or error) -->
+<span v-if="myStatus">{{ result }}</span>
+
+<!-- Display only on error -->
+<span v-if="myStatus === -1">Error!</span>
+
+<!-- Display the status value directly -->
+<span>{{ myStatus }}</span>
+```
+
+_Note_ - By default action IDs will always increment. If you have concerns about `status.status` growing too large, and wish to limit this, see `maxStatusID` in [Configuration](#configuration)
 
 ### Getters
 
@@ -575,6 +632,7 @@ For many of these options, more information is provided in the [Usage](#usage) s
 - `cleanPatch` - If enabled, patch object is compared to the record in the store, and only unique or modified attributes are kept in the patch. (defaults to false).
 - `cleanPatchProps` - If cleanPatch is enabled, an array of `_jv` properties that should be preserved - `links`, `meta`, and/or `relationships`. (defaults to `[]`).
 - `recurseRelationships` - If `false`, replaces recursive relationships with a normalised resource identifier (i.e `{ _jv: { type: 'x', id: 'y' } }`). (defaults to `false`).
+- `maxStatusID` - Sets the highest status ID that will be used in `status` before rolling round to 1 again. (defaults to `-1` - no limit).
 
 ## Endpoints
 
