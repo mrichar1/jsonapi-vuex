@@ -58,7 +58,7 @@
             <div class="column is-3" id="sidebarNav">
                 <div class="sidebar">
                     <nav>
-                        <h2><a href="index.html">Home</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-jsonapi-vuex.html">jsonapi-vuex</a></li></ul><h3>Namespaces</h3><ul><li><a href="Configuration.html">Configuration</a></li><li><a href="module-jsonapi-vuex._internal.html">_internal</a></li><li><a href="module-jsonapi-vuex.helpers.html">helpers</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.html">jsonapiModule</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.getters.html">getters</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.mutations.html">mutations</a></li><li><a href="module-jsonapi-vuex.utils.html">utils</a></li></ul></div>
+                        <h2><a href="index.html">Home</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-jsonapi-vuex.html">jsonapi-vuex</a></li></ul><h3>Namespaces</h3><ul><li><a href="Configuration.html">Configuration</a></li><li><a href="module-jsonapi-vuex._internal.html">_internal</a></li><li><a href="module-jsonapi-vuex.helpers.html">helpers</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.html">jsonapiModule</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.getters.html">getters</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.mutations.html">mutations</a></li><li><a href="module-jsonapi-vuex.status.html">status</a></li><li><a href="module-jsonapi-vuex.utils.html">utils</a></li></ul></div>
                     </nav>
                 </div>
             </div>
@@ -260,6 +260,9 @@ export default new Vuex.Store({
 <li>
 <p><em>Searching</em> - The API can be searched without any changes being propagated to the store. This is useful for AJAX-style queries. (see <a href="#search"><code>search</code></a>)</p>
 </li>
+<li>
+<p><em>Action Status Tracking</em> - The state of any in-flight action can be checked to discover if it has completed yet (successfully or with an error). (See <a href="#action-status">Action Status</a>)</p>
+</li>
 </ul>
 <h3 id="vuex-methods">Vuex Methods</h3>
 <p>The 3 categories of Vuex methods are used as follows:</p>
@@ -297,11 +300,9 @@ const params = {
 }
 
 // Get a specific record from the 'widget' endpoint, passing parameters to axios:
-this.$store
-  .dispatch('jv/get', ['widget/1', { params: params }])
-  .then((data) => {
-    console.log(data)
-  })
+this.$store.dispatch('jv/get', ['widget/1', { params: params }]).then((data) => {
+  console.log(data)
+})
 
 // Restructured representation of a record
 const newWidget = {
@@ -313,11 +314,9 @@ const newWidget = {
 }
 
 // Create a new widget in the API, using a restructured object, and passing parameters to axios:
-this.$store
-  .dispatch('jv/post', [newWidget, { params: params }])
-  .then((data) => {
-    console.log(data)
-  })
+this.$store.dispatch('jv/post', [newWidget, { params: params }]).then((data) => {
+  console.log(data)
+})
 
 // Update a widget in the API
 const widgetColor = {
@@ -331,23 +330,19 @@ const widgetColor = {
 this.$store.dispatch('jv/patch', [widgetColor, { params: params }])
 
 // Fetch, then update a widget in the API
-this.$store
-  .dispatch('jv/get', ['widget/1', { params: params }])
-  .then((widget1) => {
-    widget1['color'] = 'red'
-    this.$store.dispatch('jv/patch', [widget1, { params: params }])
-  })
+this.$store.dispatch('jv/get', ['widget/1', { params: params }]).then((widget1) => {
+  widget1['color'] = 'red'
+  this.$store.dispatch('jv/patch', [widget1, { params: params }])
+})
 </code></pre>
 <h4 id="search">search</h4>
 <p>The <code>search</code> action is the same as the <code>get</code> action, except that it does not result in any updates to the store. This action exists for efficiency purposes - for example to do 'search-as-you-type' AJAX-style queries without continually updating the store with all the results.</p>
 <pre class="prettyprint source lang-js"><code>const widgetSearch = (text) => {
   const params = { 'filter[text_contains]': text }
 
-  this.$store
-    .dispatch('jv/search', 'widget', { params: params })
-    .then((data) => {
-      return data
-    })
+  this.$store.dispatch('jv/search', 'widget', { params: params }).then((data) => {
+    return data
+  })
 }
 </code></pre>
 <h4 id="getrelated">getRelated</h4>
@@ -421,6 +416,56 @@ this.$store.dispatch('jv/getRelated', customRels).then((data) => {
   console.log(data)
 })
 </code></pre>
+<h4 id="action-status">Action Status</h4>
+<p>The status of actions can be monitored using the <code>status</code> wrapper function, imported from <code>jsonapi-vuex</code>.</p>
+<p><code>status</code> takes as an argument an <code>action</code> dispatch function (or any function which returns a promise). It then calls and tracks the state of that function.</p>
+<p>It returns the promise created by the function, with an ID added (<code>_statusID</code>). This ID can be used to get the status of the function via the <code>status.status</code> object:</p>
+<pre class="prettyprint source"><code>import { status } from 'jsonapi-vuex'
+
+// Capture the returned promise
+let myAction = status.run(() => this.$store.dispatch('jv/get', 'widget/1'))
+
+// Make a reference to the ID and status value
+let myID = myAction._statusID
+let myStatus = status.status[myID]
+
+console.log('myAction Status is now:', myStatus) // Pending
+
+// Handle the promise
+myAction
+  .then((result) => {
+    console.log('myAction Status is now:', myStatus) // Success
+    console.log(result)
+  })
+  .catch((error) => {
+    console.log('myAction Status is now:', myStatus) // Error
+    console.log(error)
+  })
+
+</code></pre>
+<p>The value for the ID in <code>status.status</code> will be set to one of:</p>
+<ul>
+<li>0 - Action is Pending</li>
+<li>1 - Action is Complete (Success)</li>
+<li>-1 - Action is Complete (Error)</li>
+</ul>
+<p>These values can be easily overidden if you wish to use the value directly:</p>
+<pre class="prettyprint source"><code>// Change the status values at the start
+status.PENDING = 'Please wait...'
+status.SUCCESS = 'Task completed successfully'
+status.ERROR = 'There was an error'
+</code></pre>
+<p>You can now easily track status in your UI:</p>
+<pre class="prettyprint source"><code>&lt;!-- Displayed once action completes (success or error) -->
+&lt;span v-if=&quot;myStatus&quot;>{{ result }}&lt;/span>
+
+&lt;!-- Display only on error -->
+&lt;span v-if=&quot;myStatus === -1&quot;>Error!&lt;/span>
+
+&lt;!-- Display the status value directly -->
+&lt;span>{{ myStatus }}&lt;/span>
+</code></pre>
+<p><em>Note</em> - By default action IDs will always increment. If you have concerns about <code>status.status</code> growing too large, and wish to limit this, see <code>maxStatusID</code> in <a href="#configuration">Configuration</a></p>
 <h3 id="getters">Getters</h3>
 <p><a href="https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex.jsonapiModule.getters.html">Getters API Reference</a></p>
 <p>There are 2 getters available: <code>get</code> and <code>getRelated</code>.</p>
@@ -554,6 +599,7 @@ jm = jsonapiModule(api, config)
 <li><code>cleanPatch</code> - If enabled, patch object is compared to the record in the store, and only unique or modified attributes are kept in the patch. (defaults to false).</li>
 <li><code>cleanPatchProps</code> - If cleanPatch is enabled, an array of <code>_jv</code> properties that should be preserved - <code>links</code>, <code>meta</code>, and/or <code>relationships</code>. (defaults to <code>[]</code>).</li>
 <li><code>recurseRelationships</code> - If <code>false</code>, replaces recursive relationships with a normalised resource identifier (i.e <code>{ _jv: { type: 'x', id: 'y' } }</code>). (defaults to <code>false</code>).</li>
+<li><code>maxStatusID</code> - Sets the highest status ID that will be used in <code>status</code> before rolling round to 1 again. (defaults to <code>-1</code> - no limit).</li>
 </ul>
 <h2 id="endpoints">Endpoints</h2>
 <p>By default <code>jsonapi-vuex</code> assumes that object type and API endpoint are the same. For example, <code>type: person</code> would have endpoint URLs of <code>/person</code> and <code>/person/1</code> for collections and single items.</p>
@@ -638,7 +684,7 @@ this.$store.dispatch('jv/get', [{ _jv: { type: 'widget' } }, { url: customUrl(da
 
 <footer class="footer">
     <div class="content has-text-centered">
-        <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Mon Feb 03 2020 20:48:50 GMT+0000 (Coordinated Universal Time)</p>
+        <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Wed Feb 05 2020 11:09:09 GMT+0000 (Coordinated Universal Time)</p>
         <p class="sidebar-created-by">
             <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by 
             <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>

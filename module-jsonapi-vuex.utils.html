@@ -58,7 +58,7 @@
             <div class="column is-3" id="sidebarNav">
                 <div class="sidebar">
                     <nav>
-                        <h2><a href="index.html">Home</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-jsonapi-vuex.html">jsonapi-vuex</a></li></ul><h3>Namespaces</h3><ul><li><a href="Configuration.html">Configuration</a></li><li><a href="module-jsonapi-vuex._internal.html">_internal</a></li><li><a href="module-jsonapi-vuex.helpers.html">helpers</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.html">jsonapiModule</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.getters.html">getters</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.mutations.html">mutations</a></li><li><a href="module-jsonapi-vuex.utils.html">utils</a></li></ul></div>
+                        <h2><a href="index.html">Home</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-jsonapi-vuex.html">jsonapi-vuex</a></li></ul><h3>Namespaces</h3><ul><li><a href="Configuration.html">Configuration</a></li><li><a href="module-jsonapi-vuex._internal.html">_internal</a></li><li><a href="module-jsonapi-vuex.helpers.html">helpers</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.html">jsonapiModule</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.getters.html">getters</a></li><li><a href="module-jsonapi-vuex.jsonapiModule.mutations.html">mutations</a></li><li><a href="module-jsonapi-vuex.status.html">status</a></li><li><a href="module-jsonapi-vuex.utils.html">utils</a></li></ul></div>
                     </nav>
                 </div>
             </div>
@@ -88,7 +88,9 @@
     <div class="container-overview">
     
         
-            <div class="description"><p>Utility functions.</p></div>
+            <div class="description"><p>A class containing utility functions for use with jsonapi-vuex</p>
+<p><strong>Note</strong> - an instance of this class is exported as <code>utils</code> from <code>jsonapi-vuex</code>,
+so it does not need to be used directly.</p></div>
         
 
         
@@ -282,7 +284,7 @@
         <p class="tag-source">
             <a href="lib.js.html" class="button">View Source</a>
             <span>
-                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line60">line 60</a>
+                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line64">line 64</a>
             </span>
         </p>
     
@@ -357,7 +359,7 @@
     
     
     <div class="description">
-        <p>A function that cleans up a patch object, so that it doesn't introeuce unexpected chanegs when sent to the API
+        <p>A function that cleans up a patch object, so that it doesn't introduce unexpected changes when sent to the API.
 It removes any attributes which are unchanged from the store, to minimise accidental reversions.
 It also strips out any of links, relationships and meta from <code>_jv</code> - See <code>Configuration</code></p>
     </div>
@@ -528,7 +530,7 @@ It also strips out any of links, relationships and meta from <code>_jv</code> - 
         <p class="tag-source">
             <a href="lib.js.html" class="button">View Source</a>
             <span>
-                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line160">line 160</a>
+                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line164">line 164</a>
             </span>
         </p>
     
@@ -704,7 +706,7 @@ It also strips out any of links, relationships and meta from <code>_jv</code> - 
         <p class="tag-source">
             <a href="lib.js.html" class="button">View Source</a>
             <span>
-                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line196">line 196</a>
+                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line200">line 200</a>
             </span>
         </p>
     
@@ -880,7 +882,7 @@ It also strips out any of links, relationships and meta from <code>_jv</code> - 
         <p class="tag-source">
             <a href="lib.js.html" class="button">View Source</a>
             <span>
-                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line295">line 295</a>
+                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line299">line 299</a>
             </span>
         </p>
     
@@ -1056,7 +1058,7 @@ It also strips out any of links, relationships and meta from <code>_jv</code> - 
         <p class="tag-source">
             <a href="lib.js.html" class="button">View Source</a>
             <span>
-                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line317">line 317</a>
+                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line321">line 321</a>
             </span>
         </p>
     
@@ -1232,7 +1234,7 @@ It also strips out any of links, relationships and meta from <code>_jv</code> - 
         <p class="tag-source">
             <a href="lib.js.html" class="button">View Source</a>
             <span>
-                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line350">line 350</a>
+                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line354">line 354</a>
             </span>
         </p>
     
@@ -1408,7 +1410,7 @@ It also strips out any of links, relationships and meta from <code>_jv</code> - 
         <p class="tag-source">
             <a href="lib.js.html" class="button">View Source</a>
             <span>
-                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line390">line 390</a>
+                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line394">line 394</a>
             </span>
         </p>
     
@@ -1584,7 +1586,7 @@ It also strips out any of links, relationships and meta from <code>_jv</code> - 
         <p class="tag-source">
             <a href="lib.js.html" class="button">View Source</a>
             <span>
-                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line437">line 437</a>
+                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line441">line 441</a>
             </span>
         </p>
     
@@ -1659,7 +1661,7 @@ It also strips out any of links, relationships and meta from <code>_jv</code> - 
 
 <footer class="footer">
     <div class="content has-text-centered">
-        <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Mon Feb 03 2020 20:48:50 GMT+0000 (Coordinated Universal Time)</p>
+        <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Wed Feb 05 2020 11:09:09 GMT+0000 (Coordinated Universal Time)</p>
         <p class="sidebar-created-by">
             <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by 
             <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
