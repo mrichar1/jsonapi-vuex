@@ -11,6 +11,7 @@
  * @property {boolean} cleanPatch=false - Always run 'cleanPatch' method when patching
  * @property {string[]} cleanPatchProps='[]' - If cleanPatch is enabled, which _jv props (links, meta, rels) should be kept?
  * @property {boolean} recurseRelationships=false - Allow relationships to be recursive?
+ * @property {integer} maxStatusID=-1 - The maximum number of status IDs to generate before looping. Default is unlimited.
  */
 
 export default {
@@ -22,4 +23,5 @@ export default {
   cleanPatch: false,
   cleanPatchProps: [],
   recurseRelationships: false,
+  maxStatusID: -1,
 }

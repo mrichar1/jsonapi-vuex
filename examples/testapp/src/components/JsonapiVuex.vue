@@ -3,8 +3,8 @@
     <h1>JSONAPI Vuex Test App</h1>
     <div id="raw_data" style="border: 1px solid;">
       <h2>Raw Data</h2>
-      <h3>Action Sessions</h3>
-      <pre>{{ sessions }} </pre>
+      <h3>Action Status</h3>
+      <pre>{{ sessions }}</pre>
       <h3>API State</h3>
       <pre>{{ widgets }}</pre>
       <h3>Search</h3>
@@ -77,12 +77,13 @@
 </template>
 
 <script>
-import { utils } from '../../../../src/jsonapi-vuex'
+import { status, utils } from '../../../../src/jsonapi-vuex'
 
 export default {
   name: 'JsonapiVuex',
   data: () => {
     return {
+      sessions: {},
       searchResult: {},
       delWidgetId: undefined,
       postWidget: {
@@ -94,7 +95,7 @@ export default {
   },
   computed: {
     sessions() {
-      return this.$store.state.jv._jv
+      return status.status
     },
     widgets() {
       return this.$store.getters['jv/get']('widget')
@@ -104,10 +105,12 @@ export default {
     },
   },
   created() {
-    this.$store.dispatch('jv/get', 'widget')
-    this.$store.dispatch('jv/get', 'widget').then((res) => {
-      this.searchResult = res
-    })
+    status.run(() => this.$store.dispatch('jv/get', 'widget'))
+    status
+      .run(() => this.$store.dispatch('jv/get', 'widget'))
+      .then((res) => {
+        this.searchResult = res
+      })
   },
   methods: {
     patchRecord(record) {

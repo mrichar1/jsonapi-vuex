@@ -5,7 +5,7 @@ import sinon from 'sinon'
 import axios from 'axios'
 import MockAdapter from 'axios-mock-adapter'
 
-import { jsonapiModule, utils, config } from '../../src/jsonapi-vuex'
+import { jsonapiModule, config, status, utils } from '../../src/jsonapi-vuex'
 import createStubContext from './stubs/context'
 import createJsonapiModule from './utils/createJsonapiModule'
 import {
@@ -518,6 +518,50 @@ describe('jsonapi-vuex tests', function() {
         utils.getRelationships({ get: getStub }, normWidget1, seen)
         // No 'get' recursion occurs
         expect(getStub).to.not.have.been.called
+      })
+    })
+    describe('ActionStatus', function() {
+      it('_count should increment counter', function() {
+        expect(status.counter).to.equal(0)
+        status._count()
+        expect(status.counter).to.equal(1)
+      })
+      it('maxID should limit counter', function() {
+        status.maxID = 5
+        status.counter = 5
+        status._count()
+        expect(status.counter).to.equal(1)
+      })
+      it('should return a promise with an ID', async function() {
+        const prom = status.run(() => Promise.resolve())
+        await prom
+        expect(prom).to.have.property('_statusID')
+      })
+      it('should show success on completion', async function() {
+        const prom = status.run(() => Promise.resolve())
+        await prom
+        // success value = 1
+        expect(status.status).to.deep.equal({ [prom['_statusID']]: 1 })
+      })
+      it('should show error on completion', async function() {
+        const prom = status.run(() => Promise.reject(new Error('fail')))
+        try {
+          await prom
+        } catch (e) {
+          // Check the error propagated correctly
+          expect(e.message).to.equal('fail')
+          // error value = -1
+          expect(status.status).to.deep.equal({ [prom['_statusID']]: -1 })
+        }
+      })
+      it('should have a modified success value', async function() {
+        const mySuccess = 'well done'
+        status.SUCCESS = mySuccess
+        const prom = status.run(() => {
+          return new Promise((resolve) => resolve())
+        })
+        await prom
+        expect(status.status[prom['_statusID']]).to.equal(mySuccess)
       })
     })
   }) // Helper methods

@@ -1,8 +1,12 @@
 /**
- * Utility functions.
+ * A class containing utility functions for use with jsonapi-vuex
  *
+ * **Note** - an instance of this class is exported as `utils` from `jsonapi-vuex`,
+ * so it does not need to be used directly.
+ *
+ * @name Utils
  * @namespace utils
- * @memberof module:jsonapi-vuex.
+ * @memberof module:jsonapi-vuex
  * @param {object} conf - A jsonapi-vuex config object.
  */
 
@@ -148,7 +152,7 @@ const Utils = class {
   }
 
   /**
-   * A function that cleans up a patch object, so that it doesn't introeuce unexpected chanegs when sent to the API
+   * A function that cleans up a patch object, so that it doesn't introduce unexpected changes when sent to the API.
    * It removes any attributes which are unchanged from the store, to minimise accidental reversions.
    * It also strips out any of links, relationships and meta from `_jv` - See {@link module:jsonapi-vuex~Configuration|Configuration}
    * @memberof module:jsonapi-vuex.utils
@@ -533,4 +537,61 @@ const Utils = class {
   }
 }
 
-export { Utils }
+/**
+ * A class for tracking the status of actions.
+ *
+ * **Note** - an instance of this class is exported as `status` from `jsonapi-vuex`,
+ * so it does not need to be used directly.
+ *
+ * @namespace status
+ * @memberof module:jsonapi-vuex
+ * @param {object} maxId=-1 - Limit ID 'history' to N items (default is unlimited).
+ */
+const ActionStatus = class {
+  constructor(maxID = -1) {
+    this.PENDING = 0
+    this.SUCCESS = 1
+    this.ERROR = -1
+    this.maxID = maxID || -1
+    this.status = {}
+    this.counter = 0
+  }
+
+  _count() {
+    if (this.counter === this.maxID) {
+      this.counter = 0
+    }
+    return ++this.counter
+  }
+
+  /**
+   * This method:
+   * - Creates a new ID property in the class' `status` object.
+   * - Sets status to PENDING
+   * - Calls the provided function
+   * - Attaches then/catch blocks to the promise which will set status to SUCCESS/ERROR
+   *
+   * @memberof module:jsonapi-vuex.status
+   * @params {function} func - A function to be executed which returns a promised
+   * @returns {integer} The status ID for this function.
+   */
+  run(func) {
+    const id = this._count()
+    this.status[id] = this.PENDING
+    const promise = new Promise((resolve, reject) => {
+      func()
+        .then((result) => {
+          this.status[id] = this.SUCCESS
+          resolve(result)
+        })
+        .catch((error) => {
+          this.status[id] = this.ERROR
+          reject(error)
+        })
+    })
+    promise._statusID = id
+    return promise
+  }
+}
+
+export { Utils, ActionStatus }
