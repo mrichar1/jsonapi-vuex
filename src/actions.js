@@ -4,7 +4,7 @@
  *
  * `args` can be either a string or an object representing the item(s) required,
  * or it can be an array of string/object and an optional axios config object.
- * @namespaces actions
+ * @namespace actions
  * @memberof module:jsonapi-vuex.jsonapiModule
  * @param {axios} api - an axios api instance
  * @param {object} conf - a jsonapi-vuex config object
