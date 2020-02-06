@@ -23,7 +23,7 @@ const jsonapiModule = (api, conf = {}) => {
   let state = { [config['jvtag']]: {} }
 
   // Instantiate helper classes with config prior to re-exporting
-  utils = new Utils(config, getters, state)
+  utils = new Utils(config)
   status = new ActionStatus(config.maxStatusID)
 
   return {
