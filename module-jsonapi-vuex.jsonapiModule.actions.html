@@ -3,7 +3,7 @@
 <head>
     
     <meta charset="utf-8">
-    <title>JSDoc: _internal</title>
+    <title>JSDoc: actions</title>
 
     <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -66,7 +66,7 @@
                 <div class="content" id="main-content-wrapper">
                     <header class="page-title">
                         <p>Namespace</p>
-                        <h1>_internal</h1>
+                        <h1>actions</h1>
                     </header>
                     
                     
@@ -79,7 +79,7 @@
 <header>
     
         <h2>
-            <span class="ancestors"><a href="module-jsonapi-vuex.html">jsonapi-vuex</a>.</span>_internal</h2>
+            <span class="ancestors"><a href="module-jsonapi-vuex.html">jsonapi-vuex</a><a href="module-jsonapi-vuex.jsonapiModule.html">.jsonapiModule</a>.</span>actions</h2>
         
     
 </header>
@@ -88,9 +88,10 @@
     <div class="container-overview">
     
         
-            <div class="description"><p>Documentation for internal functions etc.
-These are not available when the module is imported,
-and are documented for module developers only.</p></div>
+            <div class="description"><p>Vuex actions, used via <code>this.$store.dispatch</code>, e.g.:
+<code>this.$store.dispatch('jv/get', &lt;args&gt;)</code></p>
+<p><code>args</code> can be either a string or an object representing the item(s) required,
+or it can be an array of string/object and an optional axios config object.</p></div>
         
 
         
@@ -129,9 +130,9 @@ and are documented for module developers only.</p></div>
 
     
         <p class="tag-source">
-            <a href="lib.js.html" class="button">View Source</a>
+            <a href="actions.js.html" class="button">View Source</a>
             <span>
-                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line24">line 24</a>
+                <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line1">line 1</a>
             </span>
         </p>
     
@@ -161,15 +162,17 @@ and are documented for module developers only.</p></div>
             
                 <div class="member">
 
-<h4 class="name" id=".hasProperty">
-    <a class="href-link" href="#.hasProperty">#</a>
+<h4 class="name" id=".create">
+    <a class="href-link" href="#.create">#</a>
     
+        
+            <span class='tag'>async</span>
         
             <span class='tag'>static</span>
         
     
     <span class="code-name">
-        hasProperty
+        create
     </span>
     
 </h4>
@@ -178,8 +181,7 @@ and are documented for module developers only.</p></div>
 
 
 <div class="description">
-    <p>Shorthand for the 'safe' <code>hasOwnProperty</code> as described here:
-<a href="https://eslint.org/docs/rules/no-prototype-builtins%5D">eslint: no-prototype-builtins</a></p>
+    <p>Alias for <a href="module-jsonapi-vuex.jsonapiModule.actions.html#.post"><code>module:jsonapi-vuex.jsonapiModule.actions.post</code></a></p>
 </div>
 
 
@@ -219,9 +221,159 @@ and are documented for module developers only.</p></div>
 
     
         <p class="tag-source">
-            <a href="lib.js.html" class="button">View Source</a>
+            <a href="actions.js.html" class="button">View Source</a>
             <span>
-                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line338">line 338</a>
+                <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line290">line 290</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+<h4 class="name" id=".fetch">
+    <a class="href-link" href="#.fetch">#</a>
+    
+        
+            <span class='tag'>async</span>
+        
+            <span class='tag'>static</span>
+        
+    
+    <span class="code-name">
+        fetch
+    </span>
+    
+</h4>
+
+
+
+
+<div class="description">
+    <p>Alias for <a href="module-jsonapi-vuex.jsonapiModule.actions.html#.get"><code>module:jsonapi-vuex.jsonapiModule.actions.get</code></a></p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="actions.js.html" class="button">View Source</a>
+            <span>
+                <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line282">line 282</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+</div>
+            
+                <div class="member">
+
+<h4 class="name" id=".update">
+    <a class="href-link" href="#.update">#</a>
+    
+        
+            <span class='tag'>async</span>
+        
+            <span class='tag'>static</span>
+        
+    
+    <span class="code-name">
+        update
+    </span>
+    
+</h4>
+
+
+
+
+<div class="description">
+    <p>Alias for <a href="module-jsonapi-vuex.jsonapiModule.actions.html#.patch"><code>module:jsonapi-vuex.jsonapiModule.actions.patch</code></a></p>
+</div>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="actions.js.html" class="button">View Source</a>
+            <span>
+                <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line298">line 298</a>
             </span>
         </p>
     
@@ -246,188 +398,18 @@ and are documented for module developers only.</p></div>
 
 
     
-    <h4 class="name" id="_copy">
-        <a class="href-link" href="#_copy">#</a>
+    <h4 class="name" id=".delete">
+        <a class="href-link" href="#.delete">#</a>
         
+            
+                <span class='tag'>async</span>
             
                 <span class='tag'>static</span>
             
         
         <span class="code-name">
             
-                Utils#_copy<span class="signature">(data)</span><span class="type-signature"> &rarr; {object}</span>
-            
-        </span>
-    </h4>
-    
-
-    
-    
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>data</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">object</span>
-
-
-  
-  </td>
-
-  
-
-  
-
-  <td class="description last"><p>An object to be deep copied</p></td>
-</tr>
-
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="lib.js.html" class="button">View Source</a>
-            <span>
-                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line44">line 44</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <div class='columns method-parameter'>
-        <div class="column is-2"><label>Returns:</label></div>
-        <div class="column is-10">
-            
-                    
-
-<div class="columns">
-    
-    <div class='param-desc column is-7'><p>A deep copied object</p></div>
-    
-    
-    <div class='column is-5 has-text-left'>
-        <label>Type: </label>
-        
-<span class="param-type">object</span>
-
-
-    </div>
-    
-</div>
-
-                
-        </div>
-    </div>
-
-
-
-
-</div>
-            
-                <div class="member">
-
-
-    
-    <h4 class="name" id="checkAndFollowRelationships">
-        <a class="href-link" href="#checkAndFollowRelationships">#</a>
-        
-            
-                <span class='tag'>static</span>
-            
-        
-        <span class="code-name">
-            
-                Utils#checkAndFollowRelationships<span class="signature">(state, getters, records, seen)</span><span class="type-signature"> &rarr; {object}</span>
+                delete<span class="signature">(context, args)</span><span class="type-signature"> &rarr; {object}</span>
             
         </span>
     </h4>
@@ -436,1295 +418,7 @@ and are documented for module developers only.</p></div>
     
     
     <div class="description">
-        <p>If <code>followRelationshipData</code> is set, call <code>followRelationships</code> for either an item or a collection
-See <code>Configuration</code></p>
-    </div>
-    
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>state</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">object</span>
-
-
-  
-  </td>
-
-  
-
-  
-
-  <td class="description last"><p>Vuex state object</p></td>
-</tr>
-
-
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>getters</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">object</span>
-
-
-  
-  </td>
-
-  
-
-  
-
-  <td class="description last"><p>Vuex getters object</p></td>
-</tr>
-
-
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>records</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">object</span>
-
-
-  
-  </td>
-
-  
-
-  
-
-  <td class="description last"><p>Record(s) to follow relationships for.</p></td>
-</tr>
-
-
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>seen</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">array</span>
-
-
-  
-  </td>
-
-  
-
-  
-
-  <td class="description last"><p>internal recursion state-tracking</p></td>
-</tr>
-
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="lib.js.html" class="button">View Source</a>
-            <span>
-                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line135">line 135</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <div class='columns method-parameter'>
-        <div class="column is-2"><label>Returns:</label></div>
-        <div class="column is-10">
-            
-                    
-
-<div class="columns">
-    
-    <div class='param-desc column is-7'><p>records with relationships followed</p></div>
-    
-    
-    <div class='column is-5 has-text-left'>
-        <label>Type: </label>
-        
-<span class="param-type">object</span>
-
-
-    </div>
-    
-</div>
-
-                
-        </div>
-    </div>
-
-
-
-
-</div>
-            
-                <div class="member">
-
-
-    
-    <h4 class="name" id="followRelationships">
-        <a class="href-link" href="#followRelationships">#</a>
-        
-            
-                <span class='tag'>static</span>
-            
-        
-        <span class="code-name">
-            
-                Utils#followRelationships<span class="signature">(state, getters, record, seen)</span><span class="type-signature"> &rarr; {object}</span>
-            
-        </span>
-    </h4>
-    
-
-    
-    
-    <div class="description">
-        <p>A thin wrapper around `getRelationships, making a copy of the object.
-We can't add rels to the original object, otherwise Vue's watchers
-spot the potential for loops (which we are guarding against) and throw an error</p>
-    </div>
-    
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>state</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">object</span>
-
-
-  
-  </td>
-
-  
-
-  
-
-  <td class="description last"><p>Vuex state object</p></td>
-</tr>
-
-
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>getters</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">object</span>
-
-
-  
-  </td>
-
-  
-
-  
-
-  <td class="description last"><p>Vuex getters object</p></td>
-</tr>
-
-
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>record</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">object</span>
-
-
-  
-  </td>
-
-  
-
-  
-
-  <td class="description last"><p>Record to get relationships for.</p></td>
-</tr>
-
-
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>seen</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">array</span>
-
-
-  
-  </td>
-
-  
-
-  
-
-  <td class="description last"><p>internal recursion state-tracking</p></td>
-</tr>
-
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="lib.js.html" class="button">View Source</a>
-            <span>
-                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line220">line 220</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <div class='columns method-parameter'>
-        <div class="column is-2"><label>Returns:</label></div>
-        <div class="column is-10">
-            
-                    
-
-<div class="columns">
-    
-    <div class='param-desc column is-7'><p>records with relationships followed and helper functions added (see <code>module:jsonapi-vuex.utils.addJvHelpers</code>)</p></div>
-    
-    
-    <div class='column is-5 has-text-left'>
-        <label>Type: </label>
-        
-<span class="param-type">object</span>
-
-
-    </div>
-    
-</div>
-
-                
-        </div>
-    </div>
-
-
-
-
-</div>
-            
-                <div class="member">
-
-
-    
-    <h4 class="name" id="getRelationships">
-        <a class="href-link" href="#getRelationships">#</a>
-        
-            
-                <span class='tag'>static</span>
-            
-        
-        <span class="code-name">
-            
-                Utils#getRelationships<span class="signature">(getters, parent, seen)</span><span class="type-signature"> &rarr; {object}</span>
-            
-        </span>
-    </h4>
-    
-
-    
-    
-    <div class="description">
-        <p>Make a copy of a restructured object, adding (js) getters for its relationships
-That call the (vuex) get getter to fecth that record from the store</p>
-<p>Already seen objects are tracked using the 'seen' param to avoid loops.</p>
-    </div>
-    
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>getters</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">object</span>
-
-
-  
-  </td>
-
-  
-
-  
-
-  <td class="description last"><p>Vuex getters object</p></td>
-</tr>
-
-
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>parent</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">object</span>
-
-
-  
-  </td>
-
-  
-
-  
-
-  <td class="description last"><p>The object whose relationships should be fetched</p></td>
-</tr>
-
-
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>seen</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">array</span>
-
-
-  
-  </td>
-
-  
-
-  
-
-  <td class="description last"><p>Internal recursion state tracking</p></td>
-</tr>
-
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="lib.js.html" class="button">View Source</a>
-            <span>
-                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line243">line 243</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <div class='columns method-parameter'>
-        <div class="column is-2"><label>Returns:</label></div>
-        <div class="column is-10">
-            
-                    
-
-<div class="columns">
-    
-    <div class='param-desc column is-7'><p>A copy of the object with getter relationships added</p></div>
-    
-    
-    <div class='column is-5 has-text-left'>
-        <label>Type: </label>
-        
-<span class="param-type">object</span>
-
-
-    </div>
-    
-</div>
-
-                
-        </div>
-    </div>
-
-
-
-
-</div>
-            
-                <div class="member">
-
-
-    
-    <h4 class="name" id="jsonapiToNormItem">
-        <a class="href-link" href="#jsonapiToNormItem">#</a>
-        
-            
-                <span class='tag'>static</span>
-            
-        
-        <span class="code-name">
-            
-                Utils#jsonapiToNormItem<span class="signature">(data)</span><span class="type-signature"> &rarr; {object}</span>
-            
-        </span>
-    </h4>
-    
-
-    
-    
-    <div class="description">
-        <p>Restructure a single jsonapi item. Used internally by <code>module:jsonapi-vuex.utils.jsonapiToNorm</code></p>
-    </div>
-    
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>data</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">object</span>
-
-
-  
-  </td>
-
-  
-
-  
-
-  <td class="description last"><p>JSONAPI record</p></td>
-</tr>
-
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="lib.js.html" class="button">View Source</a>
-            <span>
-                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line376">line 376</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <div class='columns method-parameter'>
-        <div class="column is-2"><label>Returns:</label></div>
-        <div class="column is-10">
-            
-                    
-
-<div class="columns">
-    
-    <div class='param-desc column is-7'><p>Restructured data</p></div>
-    
-    
-    <div class='column is-5 has-text-left'>
-        <label>Type: </label>
-        
-<span class="param-type">object</span>
-
-
-    </div>
-    
-</div>
-
-                
-        </div>
-    </div>
-
-
-
-
-</div>
-            
-                <div class="member">
-
-
-    
-    <h4 class="name" id="normToJsonapiItem">
-        <a class="href-link" href="#normToJsonapiItem">#</a>
-        
-            
-                <span class='tag'>static</span>
-            
-        
-        <span class="code-name">
-            
-                Utils#normToJsonapiItem<span class="signature">(data)</span><span class="type-signature"> &rarr; {object}</span>
-            
-        </span>
-    </h4>
-    
-
-    
-    
-    <div class="description">
-        <p>Convert a single restructured item to JSONAPI. Used internally by <code>module:jsonapi-vuex.utils.normToJsonapi</code></p>
-    </div>
-    
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>data</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">object</span>
-
-
-  
-  </td>
-
-  
-
-  
-
-  <td class="description last"><p>Restructured data</p></td>
-</tr>
-
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="lib.js.html" class="button">View Source</a>
-            <span>
-                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line417">line 417</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <div class='columns method-parameter'>
-        <div class="column is-2"><label>Returns:</label></div>
-        <div class="column is-10">
-            
-                    
-
-<div class="columns">
-    
-    <div class='param-desc column is-7'><p>JSONAPI record</p></div>
-    
-    
-    <div class='column is-5 has-text-left'>
-        <label>Type: </label>
-        
-<span class="param-type">object</span>
-
-
-    </div>
-    
-</div>
-
-                
-        </div>
-    </div>
-
-
-
-
-</div>
-            
-                <div class="member">
-
-
-    
-    <h4 class="name" id="preserveJSON">
-        <a class="href-link" href="#preserveJSON">#</a>
-        
-            
-                <span class='tag'>static</span>
-            
-        
-        <span class="code-name">
-            
-                Utils#preserveJSON<span class="signature">(data, json)</span><span class="type-signature"> &rarr; {object}</span>
-            
-        </span>
-    </h4>
-    
-
-    
-    
-    <div class="description">
-        <p>If <code>preserveJSON</code> is set, add the returned JSONAPI in a get action to _jv.json
-See <code>Configuration</code></p>
-    </div>
-    
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>data</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">object</span>
-
-
-  
-  </td>
-
-  
-
-  
-
-  <td class="description last"><p>Restructured record</p></td>
-</tr>
-
-
-    
-
-        
-<tr class="deep-level-0">
-  
-      <td class="name"><code>json</code></td>
-  
-
-  <td class="type">
-  
-      
-<span class="param-type">object</span>
-
-
-  
-  </td>
-
-  
-
-  
-
-  <td class="description last"><p>JSONAPI record</p></td>
-</tr>
-
-
-    
-    </tbody>
-</table>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="lib.js.html" class="button">View Source</a>
-            <span>
-                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line470">line 470</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <div class='columns method-parameter'>
-        <div class="column is-2"><label>Returns:</label></div>
-        <div class="column is-10">
-            
-                    
-
-<div class="columns">
-    
-    <div class='param-desc column is-7'><p>data record, with JSONAPI added in _jv.json</p></div>
-    
-    
-    <div class='column is-5 has-text-left'>
-        <label>Type: </label>
-        
-<span class="param-type">object</span>
-
-
-    </div>
-    
-</div>
-
-                
-        </div>
-    </div>
-
-
-
-
-</div>
-            
-                <div class="member">
-
-
-    
-    <h4 class="name" id="processIncludedRecords">
-        <a class="href-link" href="#processIncludedRecords">#</a>
-        
-            
-                <span class='tag'>static</span>
-            
-        
-        <span class="code-name">
-            
-                Utils#processIncludedRecords<span class="signature">(context, results)</span><span class="type-signature"></span>
-            
-        </span>
-    </h4>
-    
-
-    
-    
-    <div class="description">
-        <p>Restructure all records in 'included' (using <code>module:jsonapi-vuex._internal.jsonapiToNormItem</code>)
-and add to the store.</p>
+        <p>Delete an item from the API</p>
     </div>
     
 
@@ -1778,7 +472,7 @@ and add to the store.</p>
 
   
 
-  <td class="description last"><p>Vuex actions context object</p></td>
+  <td class="description last"><p>Vuex context object</p></td>
 </tr>
 
 
@@ -1787,7 +481,63 @@ and add to the store.</p>
         
 <tr class="deep-level-0">
   
-      <td class="name"><code>results</code></td>
+      <td class="name"><code>args</code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">string</span>
+|
+
+<span class="param-type">object</span>
+|
+
+<span class="param-type">array</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>See <a href="module-jsonapi-vuex.jsonapiModule.actions.html"><code>module:jsonapi-vuex.jsonapiModule.actions</code></a> for a summary of args</p></td>
+</tr>
+
+
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code></code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">string</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>A URL path to an item - e.g. <code>endpoint/1</code></p></td>
+</tr>
+
+
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code></code></td>
   
 
   <td class="type">
@@ -1803,151 +553,21 @@ and add to the store.</p>
 
   
 
-  <td class="description last"><p>JSONAPI record</p></td>
+  <td class="description last"><p>A restructured object  - e.g. <code>{ _jv: { type: &quot;endpoint&quot;, id: &quot;1&quot; } }</code></p></td>
 </tr>
 
 
-    
-    </tbody>
-</table>
-
-
-
-
-
-<dl class="details">
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-
-    
-
-    
-        <p class="tag-source">
-            <a href="lib.js.html" class="button">View Source</a>
-            <span>
-                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line488">line 488</a>
-            </span>
-        </p>
-    
-</dl>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
-            
-                <div class="member">
-
-
-    
-    <h4 class="name" id="unpackArgs">
-        <a class="href-link" href="#unpackArgs">#</a>
-        
-            
-                <span class='tag'>static</span>
-            
-        
-        <span class="code-name">
-            
-                Utils#unpackArgs<span class="signature">(args)</span><span class="type-signature"> &rarr; {array}</span>
-            
-        </span>
-    </h4>
-    
-
-    
-    
-    <div class="description">
-        <p>Transform args to always be an array (data and config options).
-See <code>module:jsonapi-vuex.actions</code> for an explanation of why this function is needed.</p>
-    </div>
-    
-
-
-
-
-
-
-
-
-
-    <h5>Parameters:</h5>
-    
-
-<table class="params">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
     
 
         
 <tr class="deep-level-0">
   
-      <td class="name"><code>args</code></td>
+      <td class="name"><code></code></td>
   
 
   <td class="type">
   
       
-<span class="param-type">string</span>
-|
-
 <span class="param-type">array</span>
 
 
@@ -1958,7 +578,7 @@ See <code>module:jsonapi-vuex.actions</code> for an explanation of why this func
 
   
 
-  <td class="description last"><p>Array of data and configuration info</p></td>
+  <td class="description last"><p>A 2-element array, consisting of a string/object and an optional axios config object</p></td>
 </tr>
 
 
@@ -2003,9 +623,9 @@ See <code>module:jsonapi-vuex.actions</code> for an explanation of why this func
 
     
         <p class="tag-source">
-            <a href="lib.js.html" class="button">View Source</a>
+            <a href="actions.js.html" class="button">View Source</a>
             <span>
-                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line503">line 503</a>
+                <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line238">line 238</a>
             </span>
         </p>
     
@@ -2036,13 +656,13 @@ See <code>module:jsonapi-vuex.actions</code> for an explanation of why this func
 
 <div class="columns">
     
-    <div class='param-desc column is-7'><p>Array of data and config options</p></div>
+    <div class='param-desc column is-7'><p>Restructured representation of the deleted item</p></div>
     
     
     <div class='column is-5 has-text-left'>
         <label>Type: </label>
         
-<span class="param-type">array</span>
+<span class="param-type">object</span>
 
 
     </div>
@@ -2062,16 +682,18 @@ See <code>module:jsonapi-vuex.actions</code> for an explanation of why this func
 
 
     
-    <h4 class="name" id="updateRecords">
-        <a class="href-link" href="#updateRecords">#</a>
+    <h4 class="name" id=".get">
+        <a class="href-link" href="#.get">#</a>
         
+            
+                <span class='tag'>async</span>
             
                 <span class='tag'>static</span>
             
         
         <span class="code-name">
             
-                Utils#updateRecords<span class="signature">(state, records, merging)</span><span class="type-signature"></span>
+                get<span class="signature">(context, args)</span><span class="type-signature"> &rarr; {object}</span>
             
         </span>
     </h4>
@@ -2080,8 +702,7 @@ See <code>module:jsonapi-vuex.actions</code> for an explanation of why this func
     
     
     <div class="description">
-        <p>A single function to encapsulate the different merge approaches of the record mutations.
-See <code>module:jsonapi-vuex.mutations</code> to see the mutations that use this function.</p>
+        <p>Get items from the API</p>
     </div>
     
 
@@ -2119,7 +740,7 @@ See <code>module:jsonapi-vuex.mutations</code> to see the mutations that use thi
         
 <tr class="deep-level-0">
   
-      <td class="name"><code>state</code></td>
+      <td class="name"><code>context</code></td>
   
 
   <td class="type">
@@ -2135,7 +756,7 @@ See <code>module:jsonapi-vuex.mutations</code> to see the mutations that use thi
 
   
 
-  <td class="description last"><p>Vuex state object</p></td>
+  <td class="description last"><p>Vuex context object</p></td>
 </tr>
 
 
@@ -2144,7 +765,63 @@ See <code>module:jsonapi-vuex.mutations</code> to see the mutations that use thi
         
 <tr class="deep-level-0">
   
-      <td class="name"><code>records</code></td>
+      <td class="name"><code>args</code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">string</span>
+|
+
+<span class="param-type">object</span>
+|
+
+<span class="param-type">array</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>See <a href="module-jsonapi-vuex.jsonapiModule.actions.html"><code>module:jsonapi-vuex.jsonapiModule.actions</code></a> for a summary of args</p></td>
+</tr>
+
+
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code></code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">string</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>A URL path to an item - e.g. <code>endpoint/1</code></p></td>
+</tr>
+
+
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code></code></td>
   
 
   <td class="type">
@@ -2160,7 +837,7 @@ See <code>module:jsonapi-vuex.mutations</code> to see the mutations that use thi
 
   
 
-  <td class="description last"><p>Restructured records to be updated</p></td>
+  <td class="description last"><p>A restructured object  - e.g. <code>{ _jv: { type: &quot;endpoint&quot;, id: &quot;1&quot; } }</code></p></td>
 </tr>
 
 
@@ -2169,13 +846,13 @@ See <code>module:jsonapi-vuex.mutations</code> to see the mutations that use thi
         
 <tr class="deep-level-0">
   
-      <td class="name"><code>merging</code></td>
+      <td class="name"><code></code></td>
   
 
   <td class="type">
   
       
-<span class="param-type">boolean</span>
+<span class="param-type">array</span>
 
 
   
@@ -2185,7 +862,7 @@ See <code>module:jsonapi-vuex.mutations</code> to see the mutations that use thi
 
   
 
-  <td class="description last"><p>Whether or not to merge or overwrite records</p></td>
+  <td class="description last"><p>A 2-element array, consisting of a string/object and an optional axios config object</p></td>
 </tr>
 
 
@@ -2230,9 +907,9 @@ See <code>module:jsonapi-vuex.mutations</code> to see the mutations that use thi
 
     
         <p class="tag-source">
-            <a href="lib.js.html" class="button">View Source</a>
+            <a href="actions.js.html" class="button">View Source</a>
             <span>
-                <a href="lib.js.html">lib.js</a>, <a href="lib.js.html#line519">line 519</a>
+                <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line34">line 34</a>
             </span>
         </p>
     
@@ -2254,6 +931,1118 @@ See <code>module:jsonapi-vuex.mutations</code> to see the mutations that use thi
 
 
 
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>Restructured representation of the requested item(s)</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<span class="param-type">object</span>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id=".getRelated">
+        <a class="href-link" href="#.getRelated">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+                <span class='tag'>static</span>
+            
+        
+        <span class="code-name">
+            
+                getRelated<span class="signature">(context, args)</span><span class="type-signature"> &rarr; {object}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Get related items from the API</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code>context</code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">object</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>Vuex context object</p></td>
+</tr>
+
+
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code>args</code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">string</span>
+|
+
+<span class="param-type">object</span>
+|
+
+<span class="param-type">array</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>See <a href="module-jsonapi-vuex.jsonapiModule.actions.html"><code>module:jsonapi-vuex.jsonapiModule.actions</code></a> for a summary of args</p></td>
+</tr>
+
+
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code></code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">string</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>A URL path to an item - e.g. <code>endpoint/1</code></p></td>
+</tr>
+
+
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code></code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">object</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>A restructured object  - e.g. <code>{ _jv: { type: &quot;endpoint&quot;, id: &quot;1&quot; } }</code></p></td>
+</tr>
+
+
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code></code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">array</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>A 2-element array, consisting of a string/object and an optional axios config object</p></td>
+</tr>
+
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="actions.js.html" class="button">View Source</a>
+            <span>
+                <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line65">line 65</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>Restructured representation of the requested item(s)</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<span class="param-type">object</span>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id=".patch">
+        <a class="href-link" href="#.patch">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+                <span class='tag'>static</span>
+            
+        
+        <span class="code-name">
+            
+                patch<span class="signature">(context, args)</span><span class="type-signature"> &rarr; {object}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Patch an item in the API</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code>context</code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">object</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>Vuex context object</p></td>
+</tr>
+
+
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code>args</code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">object</span>
+|
+
+<span class="param-type">array</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>See <a href="module-jsonapi-vuex.jsonapiModule.actions.html"><code>module:jsonapi-vuex.jsonapiModule.actions</code></a> for a summary of args</p></td>
+</tr>
+
+
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code></code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">object</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>A restructured object  - e.g. <code>{ _jv: { type: &quot;endpoint&quot;, id: &quot;1&quot; } }</code></p></td>
+</tr>
+
+
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code></code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">array</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>A 2-element array, consisting of a string/object and an optional axios config object</p></td>
+</tr>
+
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="actions.js.html" class="button">View Source</a>
+            <span>
+                <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line195">line 195</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>Restructured representation of the patched item</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<span class="param-type">object</span>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id=".post">
+        <a class="href-link" href="#.post">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+                <span class='tag'>static</span>
+            
+        
+        <span class="code-name">
+            
+                post<span class="signature">(context, args)</span><span class="type-signature"> &rarr; {object}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Post an item to the API</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code>context</code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">object</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>Vuex context object</p></td>
+</tr>
+
+
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code>args</code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">object</span>
+|
+
+<span class="param-type">array</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>See <a href="module-jsonapi-vuex.jsonapiModule.actions.html"><code>module:jsonapi-vuex.jsonapiModule.actions</code></a> for a summary of args</p></td>
+</tr>
+
+
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code></code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">object</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>A restructured object  - e.g. <code>{ _jv: { type: &quot;endpoint&quot;, id: &quot;1&quot; } }</code></p></td>
+</tr>
+
+
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code></code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">array</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>A 2-element array, consisting of a string/object and an optional axios config object</p></td>
+</tr>
+
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="actions.js.html" class="button">View Source</a>
+            <span>
+                <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line163">line 163</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>Restructured representation of the posted item</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<span class="param-type">object</span>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
+
+
+
+
+</div>
+            
+                <div class="member">
+
+
+    
+    <h4 class="name" id=".search">
+        <a class="href-link" href="#.search">#</a>
+        
+            
+                <span class='tag'>async</span>
+            
+                <span class='tag'>static</span>
+            
+        
+        <span class="code-name">
+            
+                search<span class="signature">(context, args)</span><span class="type-signature"> &rarr; {object}</span>
+            
+        </span>
+    </h4>
+    
+
+    
+    
+    <div class="description">
+        <p>Get items from the API without updating the Vuex store</p>
+    </div>
+    
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code>context</code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">object</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>Vuex context object</p></td>
+</tr>
+
+
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code>args</code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">string</span>
+|
+
+<span class="param-type">object</span>
+|
+
+<span class="param-type">array</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>See <a href="module-jsonapi-vuex.jsonapiModule.actions.html"><code>module:jsonapi-vuex.jsonapiModule.actions</code></a> for a summary of args</p></td>
+</tr>
+
+
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code></code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">string</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>A URL path to an item - e.g. <code>endpoint/1</code></p></td>
+</tr>
+
+
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code></code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">object</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>A restructured object  - e.g. <code>{ _jv: { type: &quot;endpoint&quot;, id: &quot;1&quot; } }</code></p></td>
+</tr>
+
+
+    
+
+        
+<tr class="deep-level-0">
+  
+      <td class="name"><code></code></td>
+  
+
+  <td class="type">
+  
+      
+<span class="param-type">array</span>
+
+
+  
+  </td>
+
+  
+
+  
+
+  <td class="description last"><p>A 2-element array, consisting of a string/object and an optional axios config object</p></td>
+</tr>
+
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    
+
+    
+    <dt class="tag-see">See:</dt>
+    <dd class="tag-see">
+        <ul>
+            <li><a href="module-jsonapi-vuex.jsonapiModule.actions.html#.get">module:jsonapi-vuex.jsonapiModule.actions.get</a></li>
+        </ul>
+    </dd>
+    
+
+    
+
+    
+        <p class="tag-source">
+            <a href="actions.js.html" class="button">View Source</a>
+            <span>
+                <a href="actions.js.html">actions.js</a>, <a href="actions.js.html#line267">line 267</a>
+            </span>
+        </p>
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class='columns method-parameter'>
+        <div class="column is-2"><label>Returns:</label></div>
+        <div class="column is-10">
+            
+                    
+
+<div class="columns">
+    
+    <div class='param-desc column is-7'><p>Restructured representation of the posted item</p></div>
+    
+    
+    <div class='column is-5 has-text-left'>
+        <label>Type: </label>
+        
+<span class="param-type">object</span>
+
+
+    </div>
+    
+</div>
+
+                
+        </div>
+    </div>
 
 
 
