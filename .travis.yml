@@ -18,8 +18,7 @@ deploy:
     edge: true
     local_dir: docs
     skip_cleanup: true
-    github_token:
-      secure: "rmlMFLAmFNv+MMnKx3qPZBrQ/KUARNwAvhR2OJl4LZw/L1jWIEWM+9dTmMzKybOlIQrLEkS4T/maPqoXgAuG9bJCSXEvGjJtbJau0+5wUKDAEnOlUa5zAZsBoMxRKuakH7a9kKhtzWJ3DzCnlqbEDQQhqRRzioVAaS4gk6/Ayjo9GXdBBQWu08wZxHh4+KGshkpxmTyuFS9HL3B3jLq+xQi2McLT6UbRRMo4eZpgYA/7ohvQ/nmjIa8rqUIj5nXrz27ReiTrEMlikSXsI1RwTAjXOdLRNjLvpinGbpBfRG3nUjYMKiM5nLaGiCi53yZQF2P2vmDqQu+JPJIaNDLJ8GELpJ8HzIz5hy4YLtOWMfm+35dX+duCct90Q2bCl9P/fCMhLnM2EvyyuXD3ug9xWmJTDr6VU8MZetCOoPz7XsiC7z6DPbw34c3RSAbrjnyupz4xt1YReQDtdgbb8cGKGiPnU7EIIdh9Hop8IXAH6nq7uf71/u1ctXrXLOgKDI0hbM66aQt3WrtkGAabkZnCNza5lmuqHlnzrJQpcKX+j+thzPz5d6pAt8QqdYgVfDFTd+kOxX1lQ8k0wKx830FtHqgE5IpX3Czz9x7Xeq25gd8B5UQ3WMEFjGew3H81hWGuc2Fxr4lfI7iQSaiRI7XZjPOjDxL+q5L5sPsn5MRnUoc="
+    github_token: $GITHUB_TOKEN # Secure var in travis settings
     on:
       tags: true
       repo: mrichar1/jsonapi-vuex

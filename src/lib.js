@@ -90,35 +90,37 @@ const Utils = class {
      * @name rels
      * @property {object} - An object containing all relationships for this object
      */
-    Object.defineProperty(obj[jvtag], 'rels', {
-      get() {
-        const rel = {}
-        for (let key of Object.keys(get(obj, [jvtag, 'relationships'], {}))) {
-          rel[key] = obj[key]
-        }
-        return rel
-      },
-      // Allow to be redefined
-      configurable: true,
-    })
-    /**
-     * @memberof module:jsonapi-vuex.helpers
-     * @name attrs
-     * @property {object} - An object containing all attributes for this object
-     */
-    Object.defineProperty(obj[jvtag], 'attrs', {
-      get() {
-        const att = {}
-        for (let [key, val] of Object.entries(obj)) {
-          if (obj[jvtag].isAttr(key)) {
-            att[key] = val
+    if (hasProperty(obj, jvtag)) {
+      Object.defineProperty(obj[jvtag], 'rels', {
+        get() {
+          const rel = {}
+          for (let key of Object.keys(get(obj, [jvtag, 'relationships'], {}))) {
+            rel[key] = obj[key]
           }
-        }
-        return att
-      },
-      // Allow to be redefined
-      configurable: true,
-    })
+          return rel
+        },
+        // Allow to be redefined
+        configurable: true,
+      })
+      /**
+       * @memberof module:jsonapi-vuex.helpers
+       * @name attrs
+       * @property {object} - An object containing all attributes for this object
+       */
+      Object.defineProperty(obj[jvtag], 'attrs', {
+        get() {
+          const att = {}
+          for (let [key, val] of Object.entries(obj)) {
+            if (obj[jvtag].isAttr(key)) {
+              att[key] = val
+            }
+          }
+          return att
+        },
+        // Allow to be redefined
+        configurable: true,
+      })
+    }
     return obj
   }
 
@@ -198,9 +200,12 @@ const Utils = class {
    * @return {object} A deep copied object, with Helper functions added
    */
   deepCopy(obj) {
-    const copyObj = this._copy(obj)
+    let copyObj = this._copy(obj)
     if (Object.entries(copyObj).length) {
-      return this.addJvHelpers(copyObj)
+      if (this.hasProperty(copyObj, this.jvtag)) {
+        copyObj = this.addJvHelpers(copyObj)
+      }
+      return copyObj
     }
     return obj
   }
@@ -230,7 +235,7 @@ const Utils = class {
 
   /**
    * Make a copy of a restructured object, adding (js) getters for its relationships
-   * That call the (vuex) get getter to fecth that record from the store
+   * That call the (vuex) get getter to fetch that record from the store
    *
    * Already seen objects are tracked using the 'seen' param to avoid loops.
    *
@@ -243,7 +248,8 @@ const Utils = class {
   getRelationships(getters, parent, seen = []) {
     // Avoid 'this' confusion in Object.defineProperty
     let conf = this.conf
-    let relationships = get(parent, [this.jvtag, 'relationships'], {})
+    let jvtag = this.jvtag
+    let relationships = get(parent, [jvtag, 'relationships'], {})
     let relationshipsData = {}
     for (let relName of Object.keys(relationships)) {
       let relations = get(relationships, [relName, 'data'])
@@ -262,7 +268,7 @@ const Utils = class {
                 let current = [relName, relType, relId]
                 // Stop if seen contains an array which matches 'current'
                 if (!conf.recurseRelationships && seen.some((a) => a.every((v, i) => v === current[i]))) {
-                  return { [this.jvtag]: { type: relType, id: relId } }
+                  return { [jvtag]: { type: relType, id: relId } }
                 } else {
                   // prettier-ignore
                   return getters.get(
