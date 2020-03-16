@@ -38,16 +38,18 @@ const Utils = class {
   /**
    * @memberof module:jsonapi-vuex._internal
    * @param {object} data - An object to be deep copied
+   * @param {integer} depthLimit - Limit the depth of deep copying
    * @return {object} A deep copied object
    */
 
-  _copy(data) {
+  _copy(data, depthLimit, depth = 0) {
     // Recursive object copying function (for 'simple' objects)
     let out = Array.isArray(data) ? [] : {}
     for (let key in data) {
       // null is typeof 'object'
-      if (typeof data[key] === 'object' && data[key] !== null) {
-        out[key] = this._copy(data[key])
+      if (depth !== depthLimit && typeof data[key] === 'object' && data[key] !== null) {
+        depth++
+        out[key] = this._copy(data[key], depthLimit, depth)
       } else {
         out[key] = data[key]
       }
@@ -197,10 +199,11 @@ const Utils = class {
    * Deep copy a normalised object, then re-add helper nethods
    * @memberof module:jsonapi-vuex.utils
    * @param {object} obj - An object to be deep copied
+   * @param {integer} depthLimit - Limit the depth of deep copying
    * @return {object} A deep copied object, with Helper functions added
    */
-  deepCopy(obj) {
-    let copyObj = this._copy(obj)
+  deepCopy(obj, depthLimit) {
+    let copyObj = this._copy(obj, depthLimit)
     if (Object.entries(copyObj).length) {
       if (this.hasProperty(copyObj, this.jvtag)) {
         copyObj = this.addJvHelpers(copyObj)
