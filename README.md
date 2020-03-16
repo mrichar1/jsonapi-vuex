@@ -585,6 +585,8 @@ Makes a deep copy of a normalised object, and adds/updates the [Helper functions
 
 This function is designed for situations where you wish to modify the results of a `getter` call, which will throw an error if any of its data is modified.
 
+The optional `depthLimit` argument allows you to limit the depth of copying. After that, nested objects will be shallow copied.
+
 _Note_ - Be aware that this copy will be a 'static' version of the original object - if the store is subsequently updated, the copied object will no longer reflect this.
 
 ### `getTypeId`
