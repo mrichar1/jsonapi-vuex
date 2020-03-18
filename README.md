@@ -207,11 +207,11 @@ The 3 categories of Vuex methods are used as follows:
 
 [Actions API Reference](https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex.jsonapiModule.actions.html)
 
-The usual way to use this module is to use `actions` wherever possible. All actions are asynchronous, and both query the API and update the store, then return data in a normalized form.
-
-There are 4 actions (with aliases): `get` (`fetch`), `post` (`create`), `patch` (`update`), and `delete` which correspond to RESTful methods. There is also a [getRelated](#getrelated) action which fetches a record's [relationships](#relationships).
+The usual way to use this module is to use `actions` wherever possible. All actions are asynchronous, and both query the API and update the store, then return data in a normalized form. Actions can be handled using the `then/catch` methods of promises, or using `async/await`.
 
 #### RESTful actions
+
+There are 4 actions (with aliases): `get` (`fetch`), `post` (`create`), `patch` (`update`), and `delete` which correspond to RESTful methods.
 
 Actions are dispatched via `this.$store.dispatch`. As this project is used as a module, the first parameter to `dispatch` is of the form `module/action`, e.g. `jv/get`. The second parameter to `dispatch` is passed on to the action.
 
@@ -367,6 +367,44 @@ const customRelsNoData = {
 this.$store.dispatch('jv/getRelated', customRels).then((data) => {
   console.log(data)
 })
+```
+
+#### Error Handling
+
+Most errors are likely to be those raised by the API in response to the request. These will take the form of an [Axios Error Handling](https://github.com/axios/axios#handling-errors) object, containing an [JSONAPI Error object](https://jsonapi.org/format/#error-objects).
+
+To handle errors with `jsonapi-vuex` using `then/catch` methods on the promise:
+
+```
+this.$store
+  .dispatch('jv/get', '/widget/99')
+  .then((res) => {
+    // request is successful - normalised jsonapi
+    console.log(res)
+  })
+  .catch((errs) => {
+    if (errs.response) {
+      // API error
+      console.log('HTTP Error Code:', errs.response.status)
+      // Work with each error from the JSONAPI 'errors' array
+      for (let err of errs.response.data.errors) {
+        console.log(err.detail)
+    } else {
+      // Some other type of error
+      console.log(errors.message)
+    }
+  })
+```
+
+Otherwise if you are using `async/await`:
+
+```
+try {
+  let res = await this.$store.dispatch('jv/get', '/widget/99')
+  console.log(res)
+} catch(errs) {
+  <... handle errors here ...>
+}
 ```
 
 #### Action Status
