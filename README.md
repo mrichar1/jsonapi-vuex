@@ -183,7 +183,7 @@ There are a number of features which are worth explaining in more detail. Many o
 
 - _Merging_ - By default, data returned from the API overwrites records already in the store. However, this may lead to inconsistencies if using [Sparse fieldsets](https://jsonapi.org/format/#fetching-sparse-fieldsets) or otherwise obtaining only a subset of data from the API. If merging is enabled, then new data will be merged onto existing data. this does however mean that you are responsible for explicitly calling the `deleteRecord` mutation in cases where attributes ahve been removed in the API, as they will never be removed from the store, only added to.
 
-- _Clear on update_ - If enabled, then each new set of records is considered to be definitive for that `type`, and any other records of that `type` in the store will be removed. This option is useful for cases where you expect the API response to contain the full set of records from the server, as it avoids the need for manual cache expiry. The code will first apply the new records to the store, and then for each `type` which has had new records added, remove old ones. This is designed to be more efficient in terms of updating computed properties and UI redraws than emptying then repopulating the store. (see [Configuration])
+- _Clear on update_ - If enabled, then each new set of records is considered to be definitive for that `type`, and any other records of that `type` in the store will be removed. This option is useful for cases where you expect the API response to contain the full set of records from the server, as it avoids the need for manual cache expiry. The code will first apply the new records to the store, and then for each `type` which has had new records added, remove old ones. This is designed to be more efficient in terms of updating computed properties and UI redraws than emptying then repopulating the store. (see [Configuration](#configuration))
 
 - _Endpoints_ - by default this module assumes that object types and API endpoints (item and collection) all share the same name. however, some APIs use plurals or other variations on the endpoint names. You can override the endpoint name via the `axios` `url` config option or the `links.self` attribute (see [Endpoints](#endpoints))
 
@@ -753,6 +753,6 @@ Please follow these guidelines when writing and submitting code:
 
 - **Versioning** - Semantic versioning should be used, see https://semver.org for details.
 
-- **Continuous Integration** - The project uses [travis(https://travis-ci.com) to run tests against all submissions - PRs that are not passing will not be accepted (without good reason).
+- **Continuous Integration** - The project uses [travis](https://travis-ci.com) to run tests against all submissions - PRs that are not passing will not be accepted (without good reason).
 
 - **Specific Commits** - Please make all commits/PRs as atomic and specific as possible.
