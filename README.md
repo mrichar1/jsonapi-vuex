@@ -569,7 +569,12 @@ As `addRecords`, but explicitly merges onto existing records.
 
 #### clearRecords
 
-Will remove all records from the store (of a given type) which aren't contained in given response. (See [clearOnUpdate](#usage)).
+Will remove all records from the store (of a given type) which aren't contained in a given response. Can be set as he default behaviour on updates - see [clearOnUpdate](#usage).
+
+```js
+// Remove all records of type 'widget' from the store
+store.commit('jv/clearRecords', { _jv: { type: 'widget' } })
+```
 
 ## Helper Functions
 
