@@ -249,7 +249,7 @@ export default new Vuex.Store({
 <p><em>Merging</em> - By default, data returned from the API overwrites records already in the store. However, this may lead to inconsistencies if using <a href="https://jsonapi.org/format/#fetching-sparse-fieldsets">Sparse fieldsets</a> or otherwise obtaining only a subset of data from the API. If merging is enabled, then new data will be merged onto existing data. this does however mean that you are responsible for explicitly calling the <code>deleteRecord</code> mutation in cases where attributes ahve been removed in the API, as they will never be removed from the store, only added to.</p>
 </li>
 <li>
-<p><em>Clear on update</em> - If enabled, then each new set of records is considered to be definitive for that <code>type</code>, and any other records of that <code>type</code> in the store will be removed. This option is useful for cases where you expect the API response to contain the full set of records from the server, as it avoids the need for manual cache expiry. The code will first apply the new records to the store, and then for each <code>type</code> which has had new records added, remove old ones. This is designed to be more efficient in terms of updating computed properties and UI redraws than emptying then repopulating the store. (see [Configuration])</p>
+<p><em>Clear on update</em> - If enabled, then each new set of records is considered to be definitive for that <code>type</code>, and any other records of that <code>type</code> in the store will be removed. This option is useful for cases where you expect the API response to contain the full set of records from the server, as it avoids the need for manual cache expiry. The code will first apply the new records to the store, and then for each <code>type</code> which has had new records added, remove old ones. This is designed to be more efficient in terms of updating computed properties and UI redraws than emptying then repopulating the store. (see <a href="#configuration">Configuration</a>)</p>
 </li>
 <li>
 <p><em>Endpoints</em> - by default this module assumes that object types and API endpoints (item and collection) all share the same name. however, some APIs use plurals or other variations on the endpoint names. You can override the endpoint name via the <code>axios</code> <code>url</code> config option or the <code>links.self</code> attribute (see <a href="#endpoints">Endpoints</a>)</p>
@@ -279,9 +279,9 @@ export default new Vuex.Store({
 </ul>
 <h3 id="actions">Actions</h3>
 <p><a href="https://mrichar1.github.io/jsonapi-vuex/module-jsonapi-vuex.jsonapiModule.actions.html">Actions API Reference</a></p>
-<p>The usual way to use this module is to use <code>actions</code> wherever possible. All actions are asynchronous, and both query the API and update the store, then return data in a normalized form.</p>
-<p>There are 4 actions (with aliases): <code>get</code> (<code>fetch</code>), <code>post</code> (<code>create</code>), <code>patch</code> (<code>update</code>), and <code>delete</code> which correspond to RESTful methods. There is also a <a href="#getrelated">getRelated</a> action which fetches a record's <a href="#relationships">relationships</a>.</p>
+<p>The usual way to use this module is to use <code>actions</code> wherever possible. All actions are asynchronous, and both query the API and update the store, then return data in a normalized form. Actions can be handled using the <code>then/catch</code> methods of promises, or using <code>async/await</code>.</p>
 <h4 id="restful-actions">RESTful actions</h4>
+<p>There are 4 actions (with aliases): <code>get</code> (<code>fetch</code>), <code>post</code> (<code>create</code>), <code>patch</code> (<code>update</code>), and <code>delete</code> which correspond to RESTful methods.</p>
 <p>Actions are dispatched via <code>this.$store.dispatch</code>. As this project is used as a module, the first parameter to <code>dispatch</code> is of the form <code>module/action</code>, e.g. <code>jv/get</code>. The second parameter to <code>dispatch</code> is passed on to the action.</p>
 <p>Actions take 2 arguments:</p>
 <p>The first argument is an object containing <a href="#restructured-data">restructured data</a>. Actions which take no <code>data</code> argument apart from the record (<code>get</code> and <code>delete</code>) can also accept a URL to fetch, relative to the value of <code>axios</code> <code>baseURL</code> (if set). The leading slash is optional. This means you don't need to create an 'empty' restructured data object to get or delete a record.</p>
@@ -416,6 +416,36 @@ this.$store.dispatch('jv/getRelated', customRels).then((data) => {
   console.log(data)
 })
 </code></pre>
+<h4 id="error-handling">Error Handling</h4>
+<p>Most errors are likely to be those raised by the API in response to the request. These will take the form of an <a href="https://github.com/axios/axios#handling-errors">Axios Error Handling</a> object, containing an <a href="https://jsonapi.org/format/#error-objects">JSONAPI Error object</a>.</p>
+<p>To handle errors with <code>jsonapi-vuex</code> using <code>then/catch</code> methods on the promise:</p>
+<pre class="prettyprint source"><code>this.$store
+  .dispatch('jv/get', '/widget/99')
+  .then((res) => {
+    // request is successful - normalised jsonapi
+    console.log(res)
+  })
+  .catch((errs) => {
+    if (errs.response) {
+      // API error
+      console.log('HTTP Error Code:', errs.response.status)
+      // Work with each error from the JSONAPI 'errors' array
+      for (let err of errs.response.data.errors) {
+        console.log(err.detail)
+    } else {
+      // Some other type of error
+      console.log(errors.message)
+    }
+  })
+</code></pre>
+<p>Otherwise if you are using <code>async/await</code>:</p>
+<pre class="prettyprint source"><code>try {
+  let res = await this.$store.dispatch('jv/get', '/widget/99')
+  console.log(res)
+} catch(errs) {
+  &lt;... handle errors here ...>
+}
+</code></pre>
 <h4 id="action-status">Action Status</h4>
 <p>The status of actions can be monitored using the <code>status</code> wrapper function, imported from <code>jsonapi-vuex</code>.</p>
 <p><code>status</code> takes as an argument an <code>action</code> dispatch function (or any function which returns a promise). It then calls and tracks the state of that function.</p>
@@ -531,7 +561,10 @@ this.$store.getters['jv/get']('widget/1', '$[?(@.color==&quot;red&quot;)]')
 <h4 id="mergerecords">mergeRecords</h4>
 <p>As <code>addRecords</code>, but explicitly merges onto existing records.</p>
 <h4 id="clearrecords">clearRecords</h4>
-<p>Will remove all records from the store (of a given type) which aren't contained in given response. (See <a href="#usage">clearOnUpdate</a>).</p>
+<p>Will remove all records from the store (of a given type) which aren't contained in a given response. Can be set as he default behaviour on updates - see <a href="#usage">clearOnUpdate</a>.</p>
+<pre class="prettyprint source lang-js"><code>// Remove all records of type 'widget' from the store
+store.commit('jv/clearRecords', { _jv: { type: 'widget' } })
+</code></pre>
 <h2 id="helper-functions">Helper Functions</h2>
 <p>Distinguishing between the <code>attributes</code> and <code>relationships</code> in the 'root' is simplified by a number of 'helper' functions which are provided in the <code>_jv</code> (<code>jvtag</code>) object:</p>
 <ul>
@@ -570,7 +603,6 @@ this.$store.getters['jv/get']('widget/1', '$[?(@.color==&quot;red&quot;)]')
 <h3 id="deepcopy"><code>deepCopy</code></h3>
 <p>Makes a deep copy of a normalised object, and adds/updates the <a href="#helper-functions">Helper functions</a>. This is done because walking the object will normally cause the helper functions to be called, resulting in static (and out-of-date) results.</p>
 <p>This function is designed for situations where you wish to modify the results of a <code>getter</code> call, which will throw an error if any of its data is modified.</p>
-<p>The optional <code>depthLimit</code> argument allows you to limit the depth of copying. After that, nested objects will be shallow copied.</p>
 <p><em>Note</em> - Be aware that this copy will be a 'static' version of the original object - if the store is subsequently updated, the copied object will no longer reflect this.</p>
 <h3 id="gettypeid"><code>getTypeId</code></h3>
 <p>Returns an array containing the type, id and rels for a given restructured object (if defined).</p>
@@ -664,7 +696,7 @@ this.$store.dispatch('jv/get', [{ _jv: { type: 'widget' } }, { url: customUrl(da
 <p><strong>Versioning</strong> - Semantic versioning should be used, see https://semver.org for details.</p>
 </li>
 <li>
-<p><strong>Continuous Integration</strong> - The project uses [travis(https://travis-ci.com) to run tests against all submissions - PRs that are not passing will not be accepted (without good reason).</p>
+<p><strong>Continuous Integration</strong> - The project uses <a href="https://travis-ci.com">travis</a> to run tests against all submissions - PRs that are not passing will not be accepted (without good reason).</p>
 </li>
 <li>
 <p><strong>Specific Commits</strong> - Please make all commits/PRs as atomic and specific as possible.</p>
@@ -685,7 +717,7 @@ this.$store.dispatch('jv/get', [{ _jv: { type: 'widget' } }, { url: customUrl(da
 
 <footer class="footer">
     <div class="content has-text-centered">
-        <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Mon Mar 16 2020 17:04:40 GMT+0000 (Coordinated Universal Time)</p>
+        <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.3</a> on Fri Mar 27 2020 09:32:42 GMT+0000 (Coordinated Universal Time)</p>
         <p class="sidebar-created-by">
             <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by 
             <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
