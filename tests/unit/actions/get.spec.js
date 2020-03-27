@@ -192,6 +192,16 @@ describe('get', function() {
     expect(stubContext.commit).to.have.been.calledWith('clearRecords', normWidget1)
   })
 
+  it('should call clearRecords with endpoint if clearOnUpdate is set and no data', async function() {
+    this.mockApi.onAny().reply(200, { data: [] })
+
+    config.clearOnUpdate = true
+
+    let endpoint = 'MyEndpoint'
+    await jsonapiModule.actions.get(stubContext, endpoint)
+    expect(stubContext.commit).to.have.been.calledWith('clearRecords', { _jv: { type: endpoint } })
+  })
+
   it('should handle API errors', async function() {
     this.mockApi.onAny().reply(500)
 

@@ -43,7 +43,13 @@ const actions = (api, conf) => {
         let resData = utils.jsonapiToNorm(results.data.data)
         context.commit('addRecords', resData)
         if (conf.clearOnUpdate) {
-          context.commit('clearRecords', resData)
+          let record = resData
+          if (Object.keys(resData).length === 0) {
+            // No records - assume type == endpoint
+            let [type] = utils.getTypeId(data)
+            record = { _jv: { type: type } }
+          }
+          context.commit('clearRecords', record)
         }
         resData = utils.checkAndFollowRelationships(context.state, context.getters, resData)
         resData = utils.preserveJSON(resData, results.data)
