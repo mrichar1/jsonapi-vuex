@@ -13,7 +13,7 @@ import {
 } from '../fixtures/record'
 import { createResponseMeta } from '../fixtures/serverResponse'
 
-describe('get', function() {
+describe('get', function () {
   let jsonMachine1,
     normMachine1,
     jsonWidget1,
@@ -28,7 +28,7 @@ describe('get', function() {
     jsonapiModule,
     stubContext
 
-  beforeEach(function() {
+  beforeEach(function () {
     jsonMachine1 = createJsonMachine1()
     normMachine1 = createNormMachine1()
     jsonWidget1 = createJsonWidget1()
@@ -44,7 +44,7 @@ describe('get', function() {
     stubContext = createStubContext(jsonapiModule)
   })
 
-  it('should make an api call to GET item(s)', async function() {
+  it('should make an api call to GET item(s)', async function () {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
 
     await jsonapiModule.actions.get(stubContext, normWidget1)
@@ -52,7 +52,7 @@ describe('get', function() {
     expect(this.mockApi.history.get[0].url).to.equal(normWidget1['_jv']['links']['self'])
   })
 
-  it('should make an api call to GET a collection', async function() {
+  it('should make an api call to GET a collection', async function () {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
     delete normWidget1['_jv']['id']
     delete normWidget1['_jv']['links']
@@ -62,7 +62,7 @@ describe('get', function() {
     expect(this.mockApi.history.get[0].url).to.equal(`${normWidget1['_jv']['type']}`)
   })
 
-  it('should accept axios config as the 2nd arg in a list', async function() {
+  it('should accept axios config as the 2nd arg in a list', async function () {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
     const params = { filter: 'color' }
 
@@ -70,7 +70,7 @@ describe('get', function() {
     expect(this.mockApi.history.get[0].params).to.deep.equal(params)
   })
 
-  it('should allow the endpoint url to be overridden in config', async function() {
+  it('should allow the endpoint url to be overridden in config', async function () {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
     const url = '/fish/1'
 
@@ -78,7 +78,7 @@ describe('get', function() {
     expect(this.mockApi.history.get[0].url).to.equal(url)
   })
 
-  it('should add record(s) in the store', async function() {
+  it('should add record(s) in the store', async function () {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
 
     await jsonapiModule.actions.get(stubContext, normWidget1)
@@ -86,7 +86,7 @@ describe('get', function() {
     expect(stubContext.commit).to.have.been.calledWith('addRecords', normWidget1)
   })
 
-  it('should add record(s) (string) in the store', async function() {
+  it('should add record(s) (string) in the store', async function () {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
 
     // Leading slash is incorrect syntax, but we should handle it so test with it in
@@ -95,7 +95,7 @@ describe('get', function() {
     expect(stubContext.commit).to.have.been.calledWith('addRecords', normWidget1)
   })
 
-  it('should return normalized data', async function() {
+  it('should return normalized data', async function () {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
 
     let res = await jsonapiModule.actions.get(stubContext, normWidget1)
@@ -103,7 +103,7 @@ describe('get', function() {
     expect(res).to.deep.equal(normWidget1)
   })
 
-  it('should add included record(s) to the store', async function() {
+  it('should add included record(s) to the store', async function () {
     // included array can include objects from different collections
     const data = {
       data: jsonWidget1,
@@ -118,7 +118,7 @@ describe('get', function() {
     expect(stubContext.commit).to.have.been.calledWith('addRecords', normMachine1)
   })
 
-  it('should return normalized data with expanded rels (single item)', async function() {
+  it('should return normalized data with expanded rels (single item)', async function () {
     const jm = createJsonapiModule(this.api, {
       followRelationshipsData: true,
     })
@@ -131,7 +131,7 @@ describe('get', function() {
     expect(res).to.have.all.keys(normWidget1Rels)
   })
 
-  it('should return normalized data with expanded rels (array)', async function() {
+  it('should return normalized data with expanded rels (array)', async function () {
     const jm = createJsonapiModule(this.api, {
       followRelationshipsData: true,
     })
@@ -147,7 +147,7 @@ describe('get', function() {
     }
   })
 
-  it("should handle an empty rels 'data' object", async function() {
+  it("should handle an empty rels 'data' object", async function () {
     const jm = createJsonapiModule(this.api, {
       followRelationshipsData: true,
     })
@@ -161,7 +161,7 @@ describe('get', function() {
     expect(res['_jv']['rels']['widgets']).to.deep.equal({})
   })
 
-  it('should preserve json in _jv in returned data', async function() {
+  it('should preserve json in _jv in returned data', async function () {
     const jm = createJsonapiModule(this.api, { preserveJson: true })
     // Mock server to only return a meta section
     this.mockApi.onAny().reply(200, meta)
@@ -172,7 +172,7 @@ describe('get', function() {
     expect(res['_jv']['json']).to.deep.equal(meta)
   })
 
-  it('should not preserve json in _jv in returned data', async function() {
+  it('should not preserve json in _jv in returned data', async function () {
     const jm = createJsonapiModule(this.api, { preserveJson: false })
     // Mock server to only return a meta section
     this.mockApi.onAny().reply(200, meta)
@@ -183,7 +183,7 @@ describe('get', function() {
     expect(res).to.not.have.key('_jv')
   })
 
-  it('should call clearRecords if clearOnUpdate is set', async function() {
+  it('should call clearRecords if clearOnUpdate is set', async function () {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
 
     config.clearOnUpdate = true
@@ -192,7 +192,7 @@ describe('get', function() {
     expect(stubContext.commit).to.have.been.calledWith('clearRecords', normWidget1)
   })
 
-  it('should call clearRecords with endpoint if clearOnUpdate is set and no data', async function() {
+  it('should call clearRecords with endpoint if clearOnUpdate is set and no data', async function () {
     this.mockApi.onAny().reply(200, { data: [] })
 
     config.clearOnUpdate = true
@@ -202,7 +202,7 @@ describe('get', function() {
     expect(stubContext.commit).to.have.been.calledWith('clearRecords', { _jv: { type: endpoint } })
   })
 
-  it('should handle API errors', async function() {
+  it('should handle API errors', async function () {
     this.mockApi.onAny().reply(500)
 
     try {
