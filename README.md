@@ -559,6 +559,39 @@ store.commit('jv/deleteRecord', { _jv: { type: 'widget', id: '1' } })
 
 Updates records in the store. Replaces or merges with existing records, depending on the value of the [mergeRecords](#configuration) configuration option.
 
+`addRecords` takes a normalised data object as an argument.
+
+```
+// Update a single record in ths store
+store.commit(
+  'jv/addRecords',
+  {
+    name: 'sprocket',
+    color: 'black',
+    _jv: {
+      id: '1',
+      type: 'widget',
+    }
+  }
+)
+
+// Update multiple records
+store.commit(
+  'jv/addRecords',
+  {
+    10: {
+      name: 'sprocket',
+      color: 'black',
+      _jv: {
+        id: '10',
+        type: 'widget',
+      }
+    },
+    20: { ... }
+  }
+)
+```
+
 #### replaceRecords
 
 As `addRecords`, but explicitly replaces existing records.
