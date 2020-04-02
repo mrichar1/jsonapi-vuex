@@ -1,6 +1,6 @@
 import sinon from 'sinon'
 
-export default function (jsonapiModule) {
+export default function(jsonapiModule) {
   if (!jsonapiModule) {
     throw new Error('No jsonapiModule passed to stub context creator')
   }

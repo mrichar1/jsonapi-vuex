@@ -2,14 +2,14 @@ import { expect } from 'chai'
 
 import createJsonapiModule from '../utils/createJsonapiModule'
 
-describe('update', function () {
+describe('update', function() {
   let jsonapiModule
 
-  beforeEach(function () {
+  beforeEach(function() {
     jsonapiModule = createJsonapiModule(this.api)
   })
 
-  it('should be an alias for patch', function () {
+  it('should be an alias for patch', function() {
     expect(jsonapiModule.actions.update).to.equal(jsonapiModule.actions.patch)
   })
 })

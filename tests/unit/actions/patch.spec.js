@@ -12,10 +12,10 @@ import {
   normFormatWithRels as createNormWidget1WithRels,
 } from '../fixtures/widget1'
 
-describe('patch', function () {
+describe('patch', function() {
   let jsonWidget1, jsonWidget1Patch, normWidget1, normWidget1Patch, normWidget1Update, jsonapiModule, stubContext
 
-  beforeEach(function () {
+  beforeEach(function() {
     jsonWidget1 = createJsonWidget1()
     jsonWidget1Patch = createJsonWidget1Patch()
     normWidget1 = createNormWidget1()
@@ -26,7 +26,7 @@ describe('patch', function () {
     stubContext = createStubContext(jsonapiModule)
   })
 
-  it('should make an api call to PATCH item(s)', async function () {
+  it('should make an api call to PATCH item(s)', async function() {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
 
     await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
@@ -36,7 +36,7 @@ describe('patch', function () {
     )
   })
 
-  it('should accept axios config as the 2nd arg in a list', async function () {
+  it('should accept axios config as the 2nd arg in a list', async function() {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
     const params = { filter: 'color' }
 
@@ -45,7 +45,7 @@ describe('patch', function () {
     expect(this.mockApi.history.patch[0].params).to.deep.equal(params)
   })
 
-  it('should allow the endpoint url to be overridden in config', async function () {
+  it('should allow the endpoint url to be overridden in config', async function() {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
     const url = '/fish/1'
 
@@ -53,7 +53,7 @@ describe('patch', function () {
     expect(this.mockApi.history.patch[0].url).to.equal(url)
   })
 
-  it('should delete then add record(s) in the store (from server response)', async function () {
+  it('should delete then add record(s) in the store (from server response)', async function() {
     this.mockApi.onAny().reply(200, { data: jsonWidget1Patch })
 
     await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
@@ -62,7 +62,7 @@ describe('patch', function () {
     expect(stubContext.commit).to.have.been.calledWith('addRecords', normWidget1Update)
   })
 
-  it('should update record(s) in the store (no server response)', async function () {
+  it('should update record(s) in the store (no server response)', async function() {
     this.mockApi.onAny().reply(204)
 
     await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
@@ -70,7 +70,7 @@ describe('patch', function () {
     expect(stubContext.commit).to.have.been.calledWith('mergeRecords', normWidget1Patch)
   })
 
-  it('should update record(s) in the store (meta-only response)', async function () {
+  it('should update record(s) in the store (meta-only response)', async function() {
     this.mockApi.onAny().reply(200, { meta: 'testing' })
 
     await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
@@ -78,7 +78,7 @@ describe('patch', function () {
     expect(stubContext.commit).to.have.been.calledWith('mergeRecords', normWidget1Patch)
   })
 
-  it("should return data via the 'get' getter", async function () {
+  it("should return data via the 'get' getter", async function() {
     this.mockApi.onAny().reply(204)
 
     await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
@@ -86,7 +86,7 @@ describe('patch', function () {
     expect(stubContext.getters.get).to.have.been.calledWith(normWidget1Patch)
   })
 
-  it('should preserve json in _jv in returned data', async function () {
+  it('should preserve json in _jv in returned data', async function() {
     let jm = createJsonapiModule(this.api, { preserveJson: true })
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
 
@@ -96,7 +96,7 @@ describe('patch', function () {
     expect(res['_jv']).to.have.keys('json')
   })
 
-  it('should handle API errors', async function () {
+  it('should handle API errors', async function() {
     this.mockApi.onAny().reply(500)
 
     try {
@@ -106,7 +106,7 @@ describe('patch', function () {
     }
   })
 
-  it('should not include rels/links/meta in requests (auto cleanPatch)', async function () {
+  it('should not include rels/links/meta in requests (auto cleanPatch)', async function() {
     this.mockApi.onAny().reply(204)
     const widget = createNormWidget1WithRels()
     jsonapiModule = createJsonapiModule(this.api, {followRelationshipsData: true, cleanPatch: true }) //prettier-ignore
@@ -117,7 +117,7 @@ describe('patch', function () {
     expect(res.data).to.not.have.property('meta')
   })
 
-  it('should include rels/links/meta in requests (auto cleanPatch)', async function () {
+  it('should include rels/links/meta in requests (auto cleanPatch)', async function() {
     this.mockApi.onAny().reply(204)
     const widget = createNormWidget1WithRels()
     const conf = {
@@ -132,7 +132,7 @@ describe('patch', function () {
     expect(res.data).to.have.property('links')
   })
 
-  it('should not include rels/links/meta in requests (manual cleanPatch)', async function () {
+  it('should not include rels/links/meta in requests (manual cleanPatch)', async function() {
     this.mockApi.onAny().reply(204)
     const widget = createNormWidget1WithRels()
     jsonapiModule = createJsonapiModule(this.api, {followRelationshipsData: true}) //prettier-ignore
@@ -143,7 +143,7 @@ describe('patch', function () {
     expect(res.data).to.not.have.property('meta')
   })
 
-  it('should include rels/links/meta in requests', async function () {
+  it('should include rels/links/meta in requests', async function() {
     this.mockApi.onAny().reply(204)
     const widget = createNormWidget1WithRels()
     jsonapiModule = createJsonapiModule(this.api, {followRelationshipsData: true}) //prettier-ignore
