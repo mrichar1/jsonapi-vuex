@@ -10,7 +10,7 @@ import {
 } from '../fixtures/record'
 import { createResponseMeta } from '../fixtures/serverResponse'
 
-describe('search', function() {
+describe('search', function () {
   let jsonWidget1,
     normWidget1,
     normWidget1Rels,
@@ -21,7 +21,7 @@ describe('search', function() {
     jsonapiModule,
     stubContext
 
-  beforeEach(function() {
+  beforeEach(function () {
     jsonWidget1 = createJsonWidget1()
     normWidget1 = createNormWidget1()
     normRecordRels = createNormRecordRels()
@@ -33,7 +33,7 @@ describe('search', function() {
     stubContext = createStubContext(jsonapiModule)
   })
 
-  it('should make an api call to GET item(s)', async function() {
+  it('should make an api call to GET item(s)', async function () {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
 
     await jsonapiModule.actions.search(stubContext, normWidget1)
@@ -41,7 +41,7 @@ describe('search', function() {
     expect(this.mockApi.history.get[0].url).to.equal(normWidget1['_jv']['links']['self'])
   })
 
-  it('should make an api call to GET a collection', async function() {
+  it('should make an api call to GET a collection', async function () {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
     delete normWidget1['_jv']['id']
     delete normWidget1['_jv']['links']
@@ -51,7 +51,7 @@ describe('search', function() {
     expect(this.mockApi.history.get[0].url).to.equal(`${normWidget1['_jv']['type']}`)
   })
 
-  it('should accept axios config as the 2nd arg in a list', async function() {
+  it('should accept axios config as the 2nd arg in a list', async function () {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
     const params = { filter: 'color' }
 
@@ -59,7 +59,7 @@ describe('search', function() {
     expect(this.mockApi.history.get[0].params).to.deep.equal(params)
   })
 
-  it('should allow the endpoint url to be overridden in config', async function() {
+  it('should allow the endpoint url to be overridden in config', async function () {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
     const url = '/fish/1'
 
@@ -67,7 +67,7 @@ describe('search', function() {
     expect(this.mockApi.history.get[0].url).to.equal(url)
   })
 
-  it('should return normalized data', async function() {
+  it('should return normalized data', async function () {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
 
     let res = await jsonapiModule.actions.search(stubContext, normWidget1)
@@ -75,7 +75,7 @@ describe('search', function() {
     expect(res).to.deep.equal(normWidget1)
   })
 
-  it('should return normalized data with expanded rels (single item)', async function() {
+  it('should return normalized data with expanded rels (single item)', async function () {
     const jm = createJsonapiModule(this.api, {
       followRelationshipsData: true,
     })
@@ -88,7 +88,7 @@ describe('search', function() {
     expect(res).to.have.all.keys(normWidget1Rels)
   })
 
-  it('should return normalized data with expanded rels (array)', async function() {
+  it('should return normalized data with expanded rels (array)', async function () {
     const jm = createJsonapiModule(this.api, {
       followRelationshipsData: true,
     })
@@ -104,7 +104,7 @@ describe('search', function() {
     }
   })
 
-  it("should handle an empty rels 'data' object", async function() {
+  it("should handle an empty rels 'data' object", async function () {
     const jm = createJsonapiModule(this.api, {
       followRelationshipsData: true,
     })
@@ -118,7 +118,7 @@ describe('search', function() {
     expect(res['_jv']['rels']['widgets']).to.deep.equal({})
   })
 
-  it('should preserve json in _jv in returned data', async function() {
+  it('should preserve json in _jv in returned data', async function () {
     const jm = createJsonapiModule(this.api, { preserveJson: true })
     // Mock server to only return a meta section
     this.mockApi.onAny().reply(200, meta)
@@ -129,7 +129,7 @@ describe('search', function() {
     expect(res['_jv']['json']).to.deep.equal(meta)
   })
 
-  it('should not preserve json in _jv in returned data', async function() {
+  it('should not preserve json in _jv in returned data', async function () {
     const jm = createJsonapiModule(this.api, { preserveJson: false })
     // Mock server to only return a meta section
     this.mockApi.onAny().reply(200, meta)
@@ -140,7 +140,7 @@ describe('search', function() {
     expect(res).to.not.have.key('_jv')
   })
 
-  it('should handle API errors', async function() {
+  it('should handle API errors', async function () {
     this.mockApi.onAny().reply(500)
 
     try {

@@ -1,0 +1,40 @@
+{
+  "widget": {
+    "data": [
+      {
+        "type": "widget",
+        "id": "1",
+        "attributes": {
+          "name": "sprocket",
+          "color": "black"
+        },
+        "relationships": {
+          "widgets": {
+            "data": {
+              "type": "widget",
+              "id": "2"
+            }
+          }
+        }
+      },
+      {
+        "type": "widget",
+        "id": "2",
+        "attributes": {
+          "name": "gear",
+          "color": "blue"
+        },
+        "relationships": {
+          "widgets": {
+            "data": [
+              {
+                "type": "widget",
+                "id": "1"
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+}
