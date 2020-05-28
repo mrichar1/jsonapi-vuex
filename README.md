@@ -677,7 +677,7 @@ Returns the `self.links` url, or constructs a path from the type and id.
 
 Convert a JSONAPI object to a restructured object.
 
-### `normtoJsonapi`
+### `normToJsonapi`
 
 Convert a restructured object to a JSONAPI object.
 
