@@ -259,10 +259,10 @@ this.$store.dispatch('jv/post', [newWidget, { params: params }]).then((data) => 
 
 // Update a widget in the API
 const widgetColor = {
-  widget: {
-    1: {
-      color: 'red',
-    },
+  color: 'red',
+  _jv: {
+    type: 'widget',
+    id: '1',
   },
 }
 
