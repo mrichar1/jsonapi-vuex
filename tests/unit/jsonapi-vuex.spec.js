@@ -142,6 +142,11 @@ describe('jsonapi-vuex tests', function () {
         // expect needs a function to call, not the return from a function
         expect(() => deleteRecord(storeWidget1, { _jv: {} })).to.throw(utils.RecordError)
       })
+      it('should not throw an error if trying to delete an object not in the store.', function () {
+        const { deleteRecord } = jm.mutations
+        // expect needs a function to call, not the return from a function
+        deleteRecord(storeWidget1, { _jv: { type: 'nosuchtype', id: '999' } })
+      })
     })
 
     describe('mergeRecords', function () {
