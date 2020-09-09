@@ -83,7 +83,6 @@ export default {
   name: 'JsonapiVuex',
   data: () => {
     return {
-      sessions: {},
       searchResult: {},
       delWidgetId: undefined,
       postWidget: {
