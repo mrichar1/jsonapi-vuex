@@ -20,7 +20,6 @@ let config, status, utils
  */
 const jsonapiModule = (api, conf = {}) => {
   config = Object.assign({}, jvConfig, conf)
-  let state = { [config['jvtag']]: {} }
 
   // Instantiate helper classes with config prior to re-exporting
   utils = new Utils(config)
@@ -29,7 +28,10 @@ const jsonapiModule = (api, conf = {}) => {
   return {
     namespaced: true,
 
-    state: state,
+    // Nuxt requires that state be a function
+    state: () => {
+      return { [config['jvtag']]: {} }
+    },
 
     actions: actions(api, config),
     getters: getters(config),
