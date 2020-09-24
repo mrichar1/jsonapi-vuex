@@ -389,6 +389,7 @@ this.$store
       // Work with each error from the JSONAPI 'errors' array
       for (let err of errs.response.data.errors) {
         console.log(err.detail)
+      }
     } else {
       // Some other type of error
       console.log(errors.message)
