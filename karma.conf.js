@@ -4,7 +4,7 @@ const src = './src/**/*.js'
 const tests = './tests/unit/jsonapi-vuex.spec.js'
 const ci = process.env.CI || process.env.TRAVIS || false
 
-module.exports = function(config) {
+module.exports = function (config) {
   config.set({
     singleRun: ci,
     browsers: ['FirefoxHeadless'],
@@ -14,7 +14,7 @@ module.exports = function(config) {
         flags: ['-headless'],
       },
     },
-    frameworks: ['mocha', 'chai', 'sinon'],
+    frameworks: ['mocha', 'chai', 'sinon', 'webpack'],
     files: ['node_modules/babel-polyfill/dist/polyfill.js', tests],
     preprocessors: {
       [src]: ['webpack'],
