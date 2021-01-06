@@ -6,7 +6,7 @@
     "@vue/cli-plugin-e2e-nightwatch": "^4.3.1",
     "@vue/cli-plugin-eslint": "^4.3.1",
     "@vue/cli-service": "^4.3.1",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "axios-mock-adapter": "^1.18.1",
     "babel-eslint": "^10.1.0",
     "babel-loader": "^8.1.0",
