@@ -3,3 +3,5 @@ karma.conf.js
 nightwatch.config.js
 vue.config.js
 webpack.config.js
+# Don't lint docs
+docs/
