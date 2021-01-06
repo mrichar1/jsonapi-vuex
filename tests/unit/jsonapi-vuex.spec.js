@@ -97,7 +97,7 @@ beforeEach(function () {
   storeWidget1 = createStoreWidget1()
   storeWidget1Update = {
     widget: {
-      '1': {
+      1: {
         ...normWidget1Update,
       },
     },

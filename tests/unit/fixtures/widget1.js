@@ -119,7 +119,7 @@ export function normFormatUpdate() {
 export function storeFormat() {
   return {
     widget: {
-      '1': {
+      1: {
         ...normFormat(),
       },
     },

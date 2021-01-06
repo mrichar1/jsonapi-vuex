@@ -45,7 +45,7 @@ export function normFormatWithRels() {
 export function storeFormat() {
   return {
     widget: {
-      '3': {
+      3: {
         ...normFormat(),
       },
     },
