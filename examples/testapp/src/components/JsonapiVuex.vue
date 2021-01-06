@@ -1,7 +1,7 @@
 <template>
   <div id="main-div">
     <h1>JSONAPI Vuex Test App</h1>
-    <div id="raw_data" style="border: 1px solid;">
+    <div id="raw_data" style="border: 1px solid">
       <h2>Raw Data</h2>
       <h3>Action Status</h3>
       <pre>{{ sessions }}</pre>
@@ -10,7 +10,7 @@
       <h3>Search</h3>
       <pre>{{ searchResult }}</pre>
     </div>
-    <div id="render_data" style="border: 1px solid;">
+    <div id="render_data" style="border: 1px solid">
       <h2>Rendered Data</h2>
       <h3>Records</h3>
       <div v-for="(widget, id, index) in widgets" :key="index">
@@ -68,9 +68,7 @@
       <label for="delete_id">Widget ID</label>
       <input id="delete_id" v-model="delWidgetId" />
       <div>
-        <button name="delete_button" @click="deleteRecord(delWidgetId)">
-          Delete
-        </button>
+        <button name="delete_button" @click="deleteRecord(delWidgetId)">Delete</button>
       </div>
     </div>
   </div>
