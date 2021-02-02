@@ -32,7 +32,7 @@ export default (conf) => {
         // No data arg - return whole state object
         result = state
       } else {
-        const [type, id] = utils.getTypeId(data)
+        const [type, id] = utils.getTypeId(data).map(el => decodeURIComponent(el))
 
         if (utils.hasProperty(state, type)) {
           if (id) {
