@@ -32,7 +32,7 @@ export default (conf) => {
         // No data arg - return whole state object
         result = state
       } else {
-        const [type, id] = utils.getTypeId(data)
+        const [type, id] = utils.getTypeId(data, false)
 
         if (utils.hasProperty(state, type)) {
           if (id) {
@@ -76,7 +76,7 @@ export default (conf) => {
      * @return {object} Restructured representation of the record(s)
      */
     getRelated: (state, getters) => (data, seen) => {
-      const [type, id] = utils.getTypeId(data)
+      const [type, id] = utils.getTypeId(data, false)
       if (!type || !id) {
         throw 'No type/id specified'
       }

@@ -44,6 +44,7 @@ let jm,
   normRecordRels,
   storeWidget1,
   storeWidget1Update,
+  storeWidgetSpecialChars,
   storeRecord
 
 // Mock up a fake axios-like api instance
@@ -103,6 +104,12 @@ beforeEach(function () {
     },
   }
   storeRecord = createStoreRecord()
+  // Create a widget where id contains special chars
+  storeWidgetSpecialChars = {
+    widget: {
+      '# ?': storeWidget1['widget']['1'],
+    },
+  }
 })
 
 afterEach(function () {})
@@ -327,6 +334,15 @@ describe('jsonapi-vuex tests', function () {
           },
         }
         expect(utils.getTypeId(urlWidget)).to.deep.equal(['%2F%23', '%3F%20%26'])
+      })
+      it('should not uri encode type and/or id if encode=false', function () {
+        const urlWidget = {
+          _jv: {
+            type: '/#',
+            id: '? &',
+          },
+        }
+        expect(utils.getTypeId(urlWidget, false)).to.deep.equal(['/#', '? &'])
       })
     })
 
@@ -612,6 +628,11 @@ describe('jsonapi-vuex tests', function () {
       it('should accept a string path to object', function () {
         const { get } = jm.getters
         const result = get(storeWidget1)('widget/1')
+        expect(result).to.deep.equal(normWidget1)
+      })
+      it('should accept a string path with special chars without url-encoding', function () {
+        const { get } = jm.getters
+        const result = get(storeWidgetSpecialChars)('widget/# ?')
         expect(result).to.deep.equal(normWidget1)
       })
       it('should filter results using jsonpath, returning a single item', function () {
