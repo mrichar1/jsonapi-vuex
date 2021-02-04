@@ -300,9 +300,10 @@ const Utils = class {
    * Get the type, id and relationships from a restructured object
    * @memberof module:jsonapi-vuex.utils
    * @param {object} data - A restructured object
+   * @param {boolean} encode=true - url-encode the returned values
    * @return {array} An array (optionally) containing type, id and rels
    */
-  getTypeId(data) {
+  getTypeId(data, encode = true) {
     let type, id, rel
     if (typeof data === 'string') {
       ;[type, id, rel] = data.replace(/^\//, '').split('/')
@@ -310,12 +311,13 @@ const Utils = class {
       ;({ type, id } = data[this.jvtag])
     }
 
+    let result = [type, id, rel]
     // Spec: The values of the id and type members MUST be strings.
     // uri encode to prevent mis-interpretation as url parts.
-    // Strip any empty strings (falsey items)
-    return [type && encodeURIComponent(type), id && encodeURIComponent(id), rel && encodeURIComponent(rel)].filter(
-      Boolean
-    )
+    if (encode) {
+      result = [type && encodeURIComponent(type), id && encodeURIComponent(id), rel && encodeURIComponent(rel)]
+    }
+    return result.filter(Boolean)
   }
 
   /**
