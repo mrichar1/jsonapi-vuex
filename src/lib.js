@@ -387,9 +387,8 @@ const Utils = class {
     }
     // Move attributes to top-level, nest original jsonapi under _jv
     const norm = Object.assign({ [this.jvtag]: data }, data['attributes'])
-    // Create a new object omitting attributes
-    const { attributes, ...normNoAttrs } = norm[this.jvtag] // eslint-disable-line no-unused-vars
-    norm[this.jvtag] = normNoAttrs
+    // Delete attributes from norm object
+    delete norm['attributes']
     return norm
   }
 
