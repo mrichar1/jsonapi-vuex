@@ -10,7 +10,6 @@
  * @param {object} conf - A jsonapi-vuex config object.
  */
 
-import Vue from 'vue'
 import get from 'lodash.get'
 import isEqual from 'lodash.isequal'
 import merge from 'lodash.merge'
@@ -528,7 +527,7 @@ const Utils = class {
     const storeRecords = this.normToStore(records)
     for (let [type, item] of Object.entries(storeRecords)) {
       if (!this.hasProperty(state, type)) {
-        Vue.set(state, type, {})
+        state[type] = {}
         // If there's no type, then there are no existing records to merge
         merging = false
       }
@@ -539,7 +538,7 @@ const Utils = class {
             data = merge(oldRecord, data)
           }
         }
-        Vue.set(state[type], id, data)
+        state[type][id] = data
       }
     }
   }

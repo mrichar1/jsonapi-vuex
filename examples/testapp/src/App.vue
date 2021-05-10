@@ -8,7 +8,7 @@
 import JsonapiVuex from './components/JsonapiVuex.vue'
 
 export default {
-  name: 'app',
+  name: 'App',
   components: {
     JsonapiVuex,
   },

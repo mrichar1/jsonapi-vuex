@@ -1,5 +1,5 @@
 module.exports = {
-  extends: ['eslint:recommended', 'plugin:prettier/recommended', 'plugin:vue/recommended'],
+  extends: ['eslint:recommended', 'plugin:vue/vue3-recommended', 'plugin:prettier-vue/recommended'],
   env: {
     browser: true,
     es6: true,
@@ -12,7 +12,7 @@ module.exports = {
     sourceType: 'module',
   },
   rules: {
-    'prettier/prettier': 'error',
+    'prettier-vue/prettier': 'error',
     camelcase: 'error',
     'no-console': 'warn',
   },
