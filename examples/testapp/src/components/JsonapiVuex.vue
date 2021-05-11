@@ -103,8 +103,9 @@ export default {
   },
   created() {
     status.run(() => this.$store.dispatch('jv/get', 'widget'))
+
     status
-      .run(() => this.$store.dispatch('jv/get', 'widget'))
+      .run(() => this.$store.dispatch('jv/search', 'widget'))
       .then((res) => {
         this.searchResult = res
       })
