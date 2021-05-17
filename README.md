@@ -4,6 +4,8 @@
 
 A module to access [JSONAPI](https://jsonapi.org) data from an API, using a [Vuex](https://vuex.vuejs.org/) store, restructured to make life easier.
 
+*Vue 3* - v5 and later supports *only* Vue3. For `Vue 2` stay with v4.x.
+
 ## Documentation
 
 Documentation, including JSDoc-generated API reference, is available at: [JSONAPI-Vuex Documentation](https://mrichar1.github.io/jsonapi-vuex/)

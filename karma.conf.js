@@ -14,7 +14,7 @@ module.exports = function (config) {
         flags: ['-headless'],
       },
     },
-    frameworks: ['mocha', 'chai', 'sinon', 'webpack'],
+    frameworks: ['mocha', 'chai', 'sinon'],
     files: ['node_modules/babel-polyfill/dist/polyfill.js', tests],
     preprocessors: {
       [src]: ['webpack'],

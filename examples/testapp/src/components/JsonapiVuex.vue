@@ -15,14 +15,14 @@
       <h3>Records</h3>
       <div v-for="(widget, id, index) in widgets" :key="index">
         <div>{{ id }}</div>
-        <div :id="'render_' + id + '_' + index" v-for="(value, name, index) in widget['_jv'].attrs" :key="index">
+        <div v-for="(value, name, idx) in widget['_jv'].attrs" :id="'render_' + id + '_' + idx" :key="idx">
           <span>{{ name }}: </span>
           <span :id="'span_' + name + '_' + id">{{ value }}</span>
         </div>
       </div>
       <h3>Related</h3>
       <div v-if="'_jv' in widget1 && 'rels' in widget1['_jv']">
-        <div :id="'rels_' + name" v-for="(rel, name, index) in widget1['_jv'].rels" :key="index">
+        <div v-for="(rel, name, index) in widget1['_jv'].rels" :id="'rels_' + name" :key="index">
           <span>Related: </span>
           <span :id="'rel_span_relname'">{{ name }}</span>
           <br />
@@ -35,7 +35,7 @@
       <h3>Search</h3>
       <div v-for="(widget, id, index) in widgets" :key="'search' + index">
         <div>{{ id }}</div>
-        <div :id="'render_' + id + '_' + index" v-for="(value, name, index) in widget['_jv'].attrs" :key="index">
+        <div v-for="(value, name, idx) in widget['_jv'].attrs" :id="'render_' + id + '_' + idx" :key="idx">
           <span>{{ name }}: </span>
           <span :id="'search_' + name + '_' + id">{{ value }}</span>
         </div>
@@ -103,8 +103,9 @@ export default {
   },
   created() {
     status.run(() => this.$store.dispatch('jv/get', 'widget'))
+
     status
-      .run(() => this.$store.dispatch('jv/get', 'widget'))
+      .run(() => this.$store.dispatch('jv/search', 'widget'))
       .then((res) => {
         this.searchResult = res
       })

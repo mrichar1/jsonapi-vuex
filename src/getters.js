@@ -34,9 +34,9 @@ export default (conf) => {
       } else {
         const [type, id] = utils.getTypeId(data, false)
 
-        if (utils.hasProperty(state, type)) {
+        if (type in state) {
           if (id) {
-            if (utils.hasProperty(state[type], id)) {
+            if (id in state[type]) {
               // single item
               result = state[type][id]
             } else {

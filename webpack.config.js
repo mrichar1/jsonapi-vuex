@@ -1,14 +1,9 @@
 module.exports = {
   mode: 'production',
   performance: { hints: false },
-  resolve: {
-    fallback: {
-      vm: require.resolve('vm-browserify'),
-    },
-  },
   // Re-enable Errors (disabled in production mode) to allow eslint to stop build
   optimization: {
-    emitOnErrors: true,
+    noEmitOnErrors: true,
   },
   module: {
     rules: [

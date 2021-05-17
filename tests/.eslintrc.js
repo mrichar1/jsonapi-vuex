@@ -1,5 +1,5 @@
 module.exports = {
-  extends: ['plugin:prettier/recommended'],
+  extends: ['plugin:prettier-vue/recommended'],
   env: {
     browser: false,
     es6: true,
