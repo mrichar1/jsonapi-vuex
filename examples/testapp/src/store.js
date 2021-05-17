@@ -1,4 +1,4 @@
-import Vuex from 'vuex'
+import { createStore } from 'vuex'
 import axios from 'axios'
 import { jsonapiModule } from '../../../src/jsonapi-vuex'
 
@@ -11,8 +11,8 @@ const api = axios.create({
   },
 })
 
-export default new Vuex.createStore({
-  strict: true,
+export const store = createStore({
+  strict: process.env.NODE_ENV !== 'production',
   modules: {
     jv: jsonapiModule(api, {}),
   },
