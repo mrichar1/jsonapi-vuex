@@ -2241,7 +2241,7 @@ axios-mock-adapter@^1.19.0:
     fast-deep-equal "^3.1.3"
     is-buffer "^2.0.3"
 
-axios@^0.21.0, axios@^0.21.1:
+axios@^0.21.1:
   version "0.21.1"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.1.tgz#22563481962f4d6bde9a76d516ef0e5d3c09b2b8"
   integrity sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==
@@ -2966,13 +2966,13 @@ chrome-trace-event@^1.0.2:
   dependencies:
     tslib "^1.9.0"
 
-chromedriver@^87.0.0:
-  version "87.0.5"
-  resolved "https://registry.yarnpkg.com/chromedriver/-/chromedriver-87.0.5.tgz#5a56bae6e23fc5eaa0c5ac3b76f936e4dd0989a1"
-  integrity sha512-bWAKdZANrt3LXMUOKFP+DgW7DjVKfihCbjej6URkUcKsvbQBDYpf5YY5d/dXE3SOSzIFZ7fmLxogusxpsupCJg==
+chromedriver@^90.0.0:
+  version "90.0.0"
+  resolved "https://registry.yarnpkg.com/chromedriver/-/chromedriver-90.0.0.tgz#1b18960a31a12884981bdc270b43c4356ce7a65a"
+  integrity sha512-k+GMmNb7cmuCCctQvUIeNxDGSq8DJauO+UKQS2qLT8aA36CPEcv8rpFepf6lRkNaIlfwdCUt/0B5bZDw3wY2yw==
   dependencies:
     "@testim/chrome-version" "^1.0.7"
-    axios "^0.21.0"
+    axios "^0.21.1"
     del "^6.0.0"
     extract-zip "^2.0.1"
     https-proxy-agent "^5.0.0"
