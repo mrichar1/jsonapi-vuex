@@ -47,12 +47,14 @@ export default (conf) => {
             // whole collection, indexed by id
             result = state[type]
           }
-          result = utils.checkAndFollowRelationships(state, getters, result, seen)
         } else {
           // no records for that type in state
           return {}
         }
       }
+
+      // Follow relationships
+      result = utils.checkAndFollowRelationships(state, getters, result, seen)
 
       // Filter by jsonpath
       if (jsonpath) {

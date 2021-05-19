@@ -136,7 +136,12 @@ const Utils = class {
   checkAndFollowRelationships(state, getters, records, seen) {
     if (this.conf.followRelationshipsData) {
       let resData = {}
-      if (this.hasProperty(records, this.jvtag)) {
+      if (state === records) {
+        // All of state
+        for (let [key, record] of Object.entries(records)) {
+          resData[key] = this.checkAndFollowRelationships(state, getters, record, seen)
+        }
+      } else if (this.hasProperty(records, this.jvtag)) {
         // single item
         resData = this.followRelationships(state, getters, records, seen)
       } else {
