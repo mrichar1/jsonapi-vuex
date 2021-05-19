@@ -686,6 +686,15 @@ describe('jsonapi-vuex tests', function () {
           expect(val).to.have.all.keys(normRecordRels[key])
         }
       })
+      it('should follow relationships data for the whole store', function () {
+        jm = jsonapiModule(api, { followRelationshipsData: true })
+        const { get } = jm.getters
+        const result = get(storeRecord, { get: get })()
+        // Check 'sub-key' equality for each item in the store (just test 'widget')
+        for (let [key, val] of Object.entries(result['widget'])) {
+          expect(val).to.have.all.keys(normRecordRels[key])
+        }
+      })
     })
 
     describe('getRelated', function () {
