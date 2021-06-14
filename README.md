@@ -146,12 +146,9 @@ The attributes of the related object can then be accessed as e.g.: `record.doohi
 Having created a Vue project, simply add the module to your `store.js`, passing it an [axios](https://github.com/axios/axios)-like instance:
 
 ```js
-import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
 import { jsonapiModule } from 'jsonapi-vuex'
-
-Vue.use(Vuex)
 
 const api = axios.create({
   baseURL: 'https://api.example.com/1/api/',
@@ -160,7 +157,7 @@ const api = axios.create({
   },
 })
 
-export default new Vuex.Store({
+export default Vuex.createStore({
   modules: {
     jv: jsonapiModule(api),
   },
