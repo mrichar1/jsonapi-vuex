@@ -14,7 +14,6 @@
     "babel-loader": "^8.2.2",
     "babel-plugin-istanbul": "^6.0.0",
     "babel-polyfill": "^6.26.0",
-    "better-docs": "^2.3.2",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
     "chromedriver": "^90.0.0",

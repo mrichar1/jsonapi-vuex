@@ -4,7 +4,6 @@
     "destination": "docs/",
     "readme": "README.md",
     "recurse": true,
-    "template": "node_modules/better-docs/",
     "tutorials": "tutorials/"
   },
   "markdown": {
@@ -21,16 +20,6 @@
     "dictionaries": ["jsdoc", "closure"]
   },
   "templates": {
-    "cleverLinks": true,
-    "better-docs": {
-      "name": "jsonapi-vuex documentation",
-      "logo": "docs/logo.png",
-      "navigation": [
-        {
-          "label": "Github",
-          "href": "https://github.com/mrichar1/jsonapi-vuex"
-        }
-      ]
-    }
+    "cleverLinks": true
   }
 }
