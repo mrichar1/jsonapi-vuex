@@ -1,10 +1,10 @@
 # jsonapi-vuex
 
-[![Build Status](https://travis-ci.com/mrichar1/jsonapi-vuex.svg?branch=master)](https://travis-ci.com/mrichar1/jsonapi-vuex) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/jsonapi-vuex.svg)](https://bundlephobia.com/result?p=jsonapi-vuex) [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/mrichar1/jsonapi-vuex.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/mrichar1/jsonapi-vuex/context:javascript)
+[![Build Status](https://github.com/mrichar1/jsonapi-vuex/actions/workflows/main.yml/badge.svg)](https://github.com/mrichar1/jsonapi-vuex/actions) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/jsonapi-vuex.svg)](https://bundlephobia.com/result?p=jsonapi-vuex) [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/mrichar1/jsonapi-vuex.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/mrichar1/jsonapi-vuex/context:javascript)
 
 A module to access [JSONAPI](https://jsonapi.org) data from an API, using a [Vuex](https://vuex.vuejs.org/) store, restructured to make life easier.
 
-*Vue 3* - v5 and later supports *only* Vue3. For `Vue 2` stay with v4.x.
+**NOTE:** `v5.x` and later supports *only* `Vue3`. For `Vue2` the last supported version is `v4.5.3`
 
 ## Documentation
 
