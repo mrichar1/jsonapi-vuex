@@ -18,6 +18,52 @@ import { utils } from './jsonapi-vuex'
 const actions = (api, conf) => {
   // Short var name
   let jvtag = conf['jvtag']
+
+  /**
+   * Internal method to 'write' related items from the API.
+   * This method is wrapped by `(delete|patch|post)Related` actions, and is not available directly as an action.
+   *
+   * @async
+   * @memberof module:jsonapi-vuex.jsonapiModule.actions
+   * @param {object} context - Vuex context object
+   * @param {object} args - A restructured object, specifying relationship(s)  - e.g. `{ _jv: { type: "endpoint", id: "1", relationships: {...} } }`
+   * @param {object} args - A restructured object, specifying relationship(s)  - e.g. `{ _jv: { type: "endpoint", id: "1", relationships: {...} } }`
+   * @return {object} Restructured representation of the 'parent' item
+   */
+  const writeRelated = async (context, args, method) => {
+    let [data, config] = utils.unpackArgs(args)
+    let [type, id] = utils.getTypeId(data)
+    if (!type || !id) {
+      throw 'No type/id specified'
+    }
+
+    let rels
+    if (typeof data === 'object' && utils.hasProperty(data[jvtag], 'relationships')) {
+      rels = data[jvtag]['relationships']
+    } else {
+      throw 'No relationships specified'
+    }
+
+    // Iterate over all records in rels
+    let relPromises = []
+    for (let [relName, relItems] of Object.entries(rels)) {
+      if (utils.hasProperty(relItems, 'data')) {
+        let path = `${type}/${id}/relationships/${relName}`
+        const apiConf = {
+          method: method,
+          url: path,
+          data: relItems,
+        }
+        merge(apiConf, config)
+        relPromises.push(api(apiConf))
+      }
+    }
+    // Wait for all individual API calls to complete
+    await Promise.all(relPromises)
+    // Get the updated object from the API
+    return context.dispatch('get', `${type}/${id}`)
+  }
+
   return {
     /**
      * Get items from the API
@@ -154,6 +200,45 @@ const actions = (api, conf) => {
         })
         return related
       })
+    },
+    /**
+     * DELETE an object's relationships via its `relationships URL`
+     *
+     * @async
+     * @memberof module:jsonapi-vuex.jsonapiModule.actions
+     * @param {object} context - Vuex context object
+     * @param {object} args - A restructured object, specifying relationship(s)  - e.g. `{ _jv: { type: "endpoint", id: "1", relationships: {...} } }`
+     * @param {object} args - A restructured object, specifying relationship(s)  - e.g. `{ _jv: { type: "endpoint", id: "1", relationships: {...} } }`
+     * @return {object} Restructured representation of the 'parent' item
+     */
+    deleteRelated: (context, args) => {
+      return writeRelated(context, args, 'delete')
+    },
+    /**
+     * PATCH an object's relationships via its `relationships URL`
+     *
+     * @async
+     * @memberof module:jsonapi-vuex.jsonapiModule.actions
+     * @param {object} context - Vuex context object
+     * @param {object} args - A restructured object, specifying relationship(s)  - e.g. `{ _jv: { type: "endpoint", id: "1", relationships: {...} } }`
+     * @param {object} args - A restructured object, specifying relationship(s)  - e.g. `{ _jv: { type: "endpoint", id: "1", relationships: {...} } }`
+     * @return {object} Restructured representation of the 'parent' item
+     */
+    patchRelated: async (context, args) => {
+      return writeRelated(context, args, 'patch')
+    },
+    /**
+     * POST to an object's relationships via its `relationships URL`
+     *
+     * @async
+     * @memberof module:jsonapi-vuex.jsonapiModule.actions
+     * @param {object} context - Vuex context object
+     * @param {object} args - A restructured object, specifying relationship(s)  - e.g. `{ _jv: { type: "endpoint", id: "1", relationships: {...} } }`
+     * @param {object} args - A restructured object, specifying relationship(s)  - e.g. `{ _jv: { type: "endpoint", id: "1", relationships: {...} } }`
+     * @return {object} Restructured representation of the 'parent' item
+     */
+    postRelated: async (context, args) => {
+      return writeRelated(context, args, 'post')
     },
     /**
      * Post an item to the API

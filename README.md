@@ -208,7 +208,7 @@ The 3 categories of Vuex methods are used as follows:
 
 The usual way to use this module is to use `actions` wherever possible. All actions are asynchronous, and both query the API and update the store, then return data in a normalized form. Actions can be handled using the `then/catch` methods of promises, or using `async/await`.
 
-#### RESTful actions
+#### 'Direct' Actions
 
 There are 4 actions (with aliases): `get` (`fetch`), `post` (`create`), `patch` (`update`), and `delete` which correspond to RESTful methods.
 
@@ -232,7 +232,7 @@ this.$store.dispatch('jv/get', 'widget').then((data) => {
   console.log(data)
 })
 
-// Request Query params (JSONAPI options, auth tokens etc)
+// axios request query params (JSONAPI options, auth tokens etc)
 const params = {
   token: 'abcdef123456',
 }
@@ -272,6 +272,9 @@ this.$store.dispatch('jv/get', ['widget/1', { params: params }]).then((widget1) 
   widget1['color'] = 'red'
   this.$store.dispatch('jv/patch', [widget1, { params: params }])
 })
+
+// Delete a widget from the API
+this.$store.dispatch('jv/delete', ['widget/1', { params: params }])
 ```
 
 #### search
@@ -287,6 +290,10 @@ const widgetSearch = (text) => {
   })
 }
 ```
+
+#### 'Relationship' Actions
+
+There are also 4 'relationship' actions: `getRelated`, `postRelated`, `patchRelated` and `deleteRelated` which modify relationships via an object's relationship URL.
 
 #### getRelated
 
@@ -364,6 +371,56 @@ const customRelsNoData = {
 }
 
 this.$store.dispatch('jv/getRelated', customRels).then((data) => {
+  console.log(data)
+})
+```
+
+#### (delete|patch|post)Related
+
+The other 3 methods are all for 'writing' to the relationships of an object. they use the `relationship URLs` of an object, rather than writing to the object itself.
+
+* `post` - adds relationships to an item.
+* `delete` - removes relationships from an item.
+* `patch` - replace all relationships for an item.
+
+All methods return the updated item from the API, and also update the store (by internally calling the `get` action).
+
+These methods take a single argument - an object representing the item, with the `'_jv` section containing relationships that are to be acted on. For example:
+
+```js
+const rels = {
+  _jv: {
+    type: 'widget',
+    id: '1',
+    relationships: {
+      widgets: {
+        data: {
+          type: 'widget',
+          id: '2',
+        },
+      },
+      doohickeys: {
+        data: {
+          type: 'doohickeys',
+          id: '10',
+        },
+      },
+    },
+  },
+}
+
+// Adds 'widget/2' and 'doohickey/10' relationships to 'widgets' and 'doohickeys' on 'widget/1'
+this.$store.dispatch('jv/postRelated', rels).then((data) => {
+  console.log(data)
+})
+
+// Removes 'widget/2' and 'doohickey/10' relationships from 'widgets' and 'doohickeys' on 'widget/1'
+this.$store.dispatch('jv/deleteRelated', rels).then((data) => {
+  console.log(data)
+})
+
+// Replaces 'widgets' and 'doohickeys' relationships with just 'widget/1' and 'doohickey/10'
+this.$store.dispatch('jv/patchRelated', rels).then((data) => {
   console.log(data)
 })
 ```
