@@ -49,7 +49,7 @@
     "vuex": "^4.0.0"
   },
   "name": "jsonapi-vuex",
-  "version": "5.1.1",
+  "version": "5.2.0",
   "description": "Access restructured JSONAPI data from a Vuex Store.",
   "keywords": [
     "vue",
