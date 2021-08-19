@@ -5,7 +5,7 @@
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 5.x   | :white_check_mark: |
+| 5.x   | :heavy_check_mark: |
 | 4.5.x   | :white_check_mark:|
 
 Version 4.5.x releases still support Vue2. 5x supports only Vue3.
