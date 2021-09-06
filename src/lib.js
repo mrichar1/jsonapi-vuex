@@ -545,6 +545,9 @@ const Utils = class {
         }
         state[type][id] = data
       }
+      // FIXME: Review with release of Vuex5 to see if there is a new ref()/reactive() approach
+      // Maintain reactivity by 'touching' the 'root' state property
+      state[type] = { ...state[type] }
     }
   }
 }
