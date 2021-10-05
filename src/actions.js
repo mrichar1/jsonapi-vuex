@@ -85,7 +85,6 @@ const actions = (api, conf) => {
       config['data'] = config['data'] || {}
       merge(apiConf, config)
       return api(apiConf).then((results) => {
-        utils.processIncludedRecords(context, results)
         let resData = utils.jsonapiToNorm(results.data.data)
         context.commit('addRecords', resData)
         if (conf.clearOnUpdate) {
@@ -97,6 +96,7 @@ const actions = (api, conf) => {
           }
           context.commit('clearRecords', record)
         }
+        utils.processIncludedRecords(context, results)
         resData = utils.checkAndFollowRelationships(context.state, context.getters, resData)
         resData = utils.preserveJSON(resData, results.data)
         return resData

@@ -114,8 +114,8 @@ describe('get', function () {
     // for a real API call, would need axios include params here
     await jsonapiModule.actions.get(stubContext, normWidget1)
 
-    expect(stubContext.commit).to.have.been.calledWith('addRecords', normWidget2)
-    expect(stubContext.commit).to.have.been.calledWith('addRecords', normMachine1)
+    expect(stubContext.commit).to.have.been.calledWith('mergeRecords', normWidget2)
+    expect(stubContext.commit).to.have.been.calledWith('mergeRecords', normMachine1)
   })
 
   it('should return normalized data with expanded rels (single item)', async function () {

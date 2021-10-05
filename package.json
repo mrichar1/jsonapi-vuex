@@ -17,7 +17,7 @@
     "babel-polyfill": "^6.26.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
-    "chromedriver": "91",
+    "chromedriver": "^93",
     "concurrently": "^6.2.1",
     "core-js": "^3.16.1",
     "eslint": "^7.32.0",
@@ -49,7 +49,7 @@
     "vuex": "^4.0.0"
   },
   "name": "jsonapi-vuex",
-  "version": "5.3.0",
+  "version": "5.4.0",
   "description": "Access restructured JSONAPI data from a Vuex Store.",
   "keywords": [
     "vue",

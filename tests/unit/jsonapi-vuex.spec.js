@@ -308,7 +308,7 @@ describe('jsonapi-vuex tests', function () {
       it('should process included records', function () {
         jsonWidget1['included'] = [jsonWidget2]
         utils.processIncludedRecords(stubContext, { data: jsonWidget1 })
-        expect(stubContext.commit).to.have.been.calledWith('addRecords')
+        expect(stubContext.commit).to.have.been.calledWith('mergeRecords')
       })
     })
 

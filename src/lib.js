@@ -500,7 +500,7 @@ const Utils = class {
   processIncludedRecords(context, results) {
     for (let item of get(results, ['data', 'included'], [])) {
       const includedItem = this.jsonapiToNormItem(item)
-      context.commit('addRecords', includedItem)
+      context.commit('mergeRecords', includedItem)
     }
   }
 
