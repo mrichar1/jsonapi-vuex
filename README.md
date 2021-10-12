@@ -431,7 +431,7 @@ Most errors are likely to be those raised by the API in response to the request.
 
 To handle errors with `jsonapi-vuex` using `then/catch` methods on the promise:
 
-```
+```js
 this.$store
   .dispatch('jv/get', '/widget/99')
   .then((res) => {
@@ -455,7 +455,7 @@ this.$store
 
 Otherwise if you are using `async/await`:
 
-```
+```js
 try {
   let res = await this.$store.dispatch('jv/get', '/widget/99')
   console.log(res)
@@ -472,7 +472,7 @@ The status of actions can be monitored using the `status` wrapper function, impo
 
 It returns the promise created by the function, with an ID added (`_statusID`). This ID can be used to get the status of the function via the `status.status` object:
 
-```
+```js
 import { status } from 'jsonapi-vuex'
 
 // Capture the returned promise
@@ -503,9 +503,9 @@ The value for the ID in `status.status` will be set to one of:
 - 1 - Action is Complete (Success)
 - -1 - Action is Complete (Error)
 
-These values can be easily overidden if you wish to use the value directly:
+These values can be easily overridden if you wish to use the value directly:
 
-```
+```js
 // Change the status values at the start
 status.PENDING = 'Please wait...'
 status.SUCCESS = 'Task completed successfully'
@@ -514,7 +514,7 @@ status.ERROR = 'There was an error'
 
 You can now easily track status in your UI:
 
-```
+```html
 <!-- Displayed once action completes (success or error) -->
 <span v-if="myStatus">{{ result }}</span>
 
@@ -618,7 +618,7 @@ Updates records in the store. Replaces or merges with existing records, dependin
 
 `addRecords` takes a normalised data object as an argument.
 
-```
+```js
 // Update a single record in ths store
 store.commit(
   'jv/addRecords',
@@ -680,7 +680,7 @@ Distinguishing between the `attributes` and `relationships` in the 'root' is sim
 
 These are particularly useful in `Vue` templates. For example to iterate over an item, picking out just the attributes:
 
-```
+```html
 <li v-for="(val, key) in widget._jv.attrs">{{ key }} {{ val }}</li>
 
 <!-- Or -->
@@ -694,7 +694,7 @@ These are particularly useful in `Vue` templates. For example to iterate over an
 
 Some functions are potentially useful for data manipulation etc outside the normal code flow. These functions are exported as `utils`, i.e:
 
-```
+```js
 import { utils } from `jsonapi-vuex`
 ```
 
@@ -777,7 +777,7 @@ However many APIs vary how endpoints are named - for example plurals (e.g. `type
 
 To solve this it is possible to override the endpoint for a request by explicitly setting the `axios` `url` configuration option:
 
-```
+```js
 data = { _jv: { type: 'person' } }
 
 // Default behaviour - will always treat type = itemEP = collectionEP
