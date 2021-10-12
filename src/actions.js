@@ -87,11 +87,11 @@ const actions = (api, conf) => {
       return api(apiConf).then((results) => {
         let resData = utils.jsonapiToNorm(results.data.data)
         context.commit('addRecords', resData)
-        if (conf.clearOnUpdate) {
+        let [type, id] = utils.getTypeId(data)
+        if (!id && conf.clearOnUpdate) {
           let record = resData
           if (Object.keys(resData).length === 0) {
             // No records - assume type == endpoint
-            let [type] = utils.getTypeId(data)
             record = { _jv: { type: type } }
           }
           context.commit('clearRecords', record)

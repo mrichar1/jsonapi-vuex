@@ -529,8 +529,10 @@ const Utils = class {
    * @param {boolean} merging - Whether or not to merge or overwrite records
    */
   updateRecords(state, records, merging = this.conf.mergeRecords) {
+    let newState = {}
     const storeRecords = this.normToStore(records)
     for (let [type, item] of Object.entries(storeRecords)) {
+      newState[type] = {}
       if (!this.hasProperty(state, type)) {
         state[type] = {}
         // If there's no type, then there are no existing records to merge
@@ -543,11 +545,11 @@ const Utils = class {
             data = merge(oldRecord, data)
           }
         }
-        state[type][id] = data
+        newState[type][id] = data
       }
       // FIXME: Review with release of Vuex5 to see if there is a new ref()/reactive() approach
       // Maintain reactivity by 'touching' the 'root' state property
-      state[type] = { ...state[type] }
+      state[type] = Object.assign({}, state[type], newState[type])
     }
   }
 }

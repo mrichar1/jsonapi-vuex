@@ -659,7 +659,7 @@ As `addRecords`, but explicitly merges onto existing records.
 
 #### clearRecords
 
-Will remove all records from the store (of a given type) which aren't contained in a given response. Can be set as he default behaviour on updates - see [clearOnUpdate](#usage).
+Will remove all records from the store (of a given type) which aren't contained in a given response. Can be set as the default behaviour on updates - see [clearOnUpdate](#usage).
 
 ```js
 // Remove all records of type 'widget' from the store
@@ -761,7 +761,7 @@ For many of these options, more information is provided in the [Usage](#usage) s
 - `followRelationshipsData` - Whether to follow and expand relationships and store them alongside attributes in the item 'root' (defaults to `true`).
 - `preserveJson` - Whether actions should return the API response json (minus `data`) in `_jv/json` (for access to `meta` etc) (defaults to `false`)
 - `mergeRecords` - Whether new records should be merged onto existing records in the store, or just replace them (defaults to `false`).
-- `clearOnUpdate` - Whether the store should clear old records and only keep new records when updating. Applies to the `type(s)` associated with the new records. (defaults to false).
+- `clearOnUpdate` - Whether the store should clear old records and only keep new records when updating from a 'collection' get. Applies to the `type(s)` associated with the new records. (defaults to false).
 - `cleanPatch` - If enabled, patch object is compared to the record in the store, and only unique or modified attributes are kept in the patch. (defaults to false).
 - `cleanPatchProps` - If cleanPatch is enabled, an array of `_jv` properties that should be preserved - `links`, `meta`, and/or `relationships`. (defaults to `[]`).
 - `recurseRelationships` - If `false`, replaces recursive relationships with a normalised resource identifier (i.e `{ _jv: { type: 'x', id: 'y' } }`). (defaults to `false`).

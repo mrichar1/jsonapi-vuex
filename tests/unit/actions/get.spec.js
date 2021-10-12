@@ -183,13 +183,22 @@ describe('get', function () {
     expect(res).to.not.have.key('_jv')
   })
 
-  it('should call clearRecords if clearOnUpdate is set', async function () {
+  it('should call clearRecords if clearOnUpdate is set for collections', async function () {
+    this.mockApi.onAny().reply(200, { data: [] })
+
+    config.clearOnUpdate = true
+
+    await jsonapiModule.actions.get(stubContext, '/widgets')
+    expect(stubContext.commit).to.have.been.calledWith('clearRecords')
+  })
+
+  it('should not call clearRecords if clearOnUpdate is set for items', async function () {
     this.mockApi.onAny().reply(200, { data: jsonWidget1 })
 
     config.clearOnUpdate = true
 
     await jsonapiModule.actions.get(stubContext, normWidget1)
-    expect(stubContext.commit).to.have.been.calledWith('clearRecords', normWidget1)
+    expect(stubContext.commit).to.not.have.been.calledWith('clearRecords')
   })
 
   it('should call clearRecords with endpoint if clearOnUpdate is set and no data', async function () {
