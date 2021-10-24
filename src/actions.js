@@ -152,21 +152,21 @@ const actions = (api, conf) => {
             throw `No such relationship: ${relName}`
           }
         }
-        // Extract relationships from 'data' (type/id)
-        // empty to-one rels (null) are special-cased
-        if (utils.hasProperty(relItems, 'data') && relItems['data'] !== null) {
-          relData = relItems['data']
-          if (!Array.isArray(relData)) {
-            // Treat as if always an array
-            relData = [relData]
-          }
-          // Or from 'links/related'
-        } else if (utils.hasProperty(relItems, 'links')) {
+        // Use related link if provided
+        if (utils.hasProperty(relItems, 'links')) {
           relData = relItems['links']['related']
           if (!(typeof relData === 'string')) {
             relData = relData['href']
           }
           relData = [relData]
+          // Or extract relationships from 'data' (type/id)
+          // empty to-one rels (null) are special-cased
+        } else if (utils.hasProperty(relItems, 'data') && relItems['data'] !== null) {
+          relData = relItems['data']
+          if (!Array.isArray(relData)) {
+            // Treat as if always an array
+            relData = [relData]
+          }
         }
         if (relData) {
           for (let entry of relData) {
