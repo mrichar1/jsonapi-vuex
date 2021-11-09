@@ -85,7 +85,12 @@ const actions = (api, conf) => {
       config['data'] = config['data'] || {}
       merge(apiConf, config)
       return api(apiConf).then((results) => {
-        let resData = utils.jsonapiToNorm(results.data.data)
+        // If there is included data, set 'inData' flag on all 'root' records
+        let setInData = false
+        if (get(results, ['data', 'included'])) {
+          setInData = true
+        }
+        let resData = utils.jsonapiToNorm(results.data.data, setInData)
         context.commit('addRecords', resData)
         let [type, id] = utils.getTypeId(data)
         if (!id && conf.clearOnUpdate) {

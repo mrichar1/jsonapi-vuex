@@ -361,9 +361,10 @@ const Utils = class {
    * Convert JSONAPI record(s) to restructured data
    * @memberof module:jsonapi-vuex.utils
    * @param {object} data - The `data` object from a JSONAPI record
+   * @param {boolean} inData - Flag which if true, will mark these records as coming from 'data' not via 'included'
    * @return {object} Restructured data
    */
-  jsonapiToNorm(data) {
+  jsonapiToNorm(data, inData) {
     const norm = {}
     if (Array.isArray(data)) {
       data.forEach((item) => {
@@ -371,10 +372,10 @@ const Utils = class {
         if (!this.hasProperty(norm, id)) {
           norm[id] = {}
         }
-        Object.assign(norm[id], this.jsonapiToNormItem(item))
+        Object.assign(norm[id], this.jsonapiToNormItem(item, inData))
       })
     } else {
-      Object.assign(norm, this.jsonapiToNormItem(data))
+      Object.assign(norm, this.jsonapiToNormItem(data, inData))
     }
     return norm
   }
@@ -383,9 +384,10 @@ const Utils = class {
    * Restructure a single jsonapi item. Used internally by {@link module:jsonapi-vuex.utils.jsonapiToNorm}
    * @memberof module:jsonapi-vuex._internal
    * @param {object} data - JSONAPI record
+   * @param {boolean} inData - Flag, which if true will mark this record as coming from 'data', not via 'included'
    * @return {object} Restructured data
    */
-  jsonapiToNormItem(data) {
+  jsonapiToNormItem(data, inData = false) {
     if (!data) {
       return {}
     }
@@ -394,6 +396,9 @@ const Utils = class {
     // Create a new object omitting attributes
     const { attributes, ...normNoAttrs } = norm[this.jvtag] // eslint-disable-line no-unused-vars
     norm[this.jvtag] = normNoAttrs
+    if (inData) {
+      norm[this.jvtag].inData = inData
+    }
     return norm
   }
 
