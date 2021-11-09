@@ -170,7 +170,7 @@ export default Vuex.createStore({
 
 There are a number of features which are worth explaining in more detail. Many of these can be configured - see the [Configuration](#configuration) section.
 
-- _Includes_ - If the JSONAPI record contains an `includes` section, the data in this will be added to the store alongisde the 'main' records. (If includes are not used, then you will need to use [`getRelated`](#getrelated) to fetch relationships).
+- _Includes_ - If the JSONAPI record contains an `includes` section, the data in this will be added to the store alongside the 'main' records. (If includes are not used, then you will need to use [`getRelated`](#getrelated) to fetch relationships).
 
 - _Follow relationships_ - `Relationships` specified as `data` resources in the JSONAPI data will be added alongside the attributes in the restructured data 'root' as a `get` getter property. Querying this key will return the record from the store, if present. Additionally, helper methods will be added to `_jv` to make dealing with these easier (see [Helper functions](#helper-functions))
 
@@ -704,7 +704,7 @@ The current utility functions are:
 
 Adds the 'helper' functions/properties to `_jv` in a restructured object.
 
-`addJvHelpers` takes a restructured object as its argument, and returns (and modifies in-place) the obejct to include the helper methods (see [Helper functions](#helper-functions))
+`addJvHelpers` takes a restructured object as its argument, and returns (and modifies in-place) the object to include the helper methods (see [Helper functions](#helper-functions))
 
 ### `cleanPatch`
 
