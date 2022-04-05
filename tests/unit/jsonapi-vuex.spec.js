@@ -356,9 +356,9 @@ describe('jsonapi-vuex tests', function () {
       it("should preserve deeply nested '_jv' keys", function () {
         expect(utils.jsonapiToNormItem(jsonWidget1)).to.deep.equal(normWidget1)
       })
-      it("should set the 'inData' property if inData param is true", function () {
+      it("should set the 'isIncluded' property if isIncluded param is true", function () {
         // Set inData param to true
-        normWidget1._jv.inData = true
+        normWidget1._jv.isIncluded = true
         expect(utils.jsonapiToNormItem(jsonWidget1, true)).to.deep.equal(normWidget1)
       })
     })

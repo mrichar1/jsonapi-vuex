@@ -678,7 +678,7 @@ Distinguishing between the `attributes` and `relationships` in the 'root' is sim
 
 - `isRel` - a function which returns True/False for a given name.
 
-- `inData` - this property is set to `true` on items returned as part of the `data` property, if `included` records were also returned. This is useful if you wish to filter out included records when displaying data, but still want to access them as related data.
+- `isIncluded` - this property is set to `true` on items returned as an `included` record. This is useful if you wish to filter out included records when displaying data, but still want to access them as related data.
 
 These are particularly useful in `Vue` templates. For example to iterate over an item, picking out just the attributes:
 
