@@ -55,6 +55,7 @@ export function normFormat() {
     foo: 1,
     bar: 'baz',
     _jv: {
+      isData: true,
       type: 'widget',
       id: '1',
       links: {
@@ -85,6 +86,7 @@ export function normFormatPatch() {
   return {
     foo: 'update',
     _jv: {
+      isData: true,
       type: 'widget',
       id: '1',
     },
@@ -96,6 +98,7 @@ export function normFormatUpdate() {
     foo: 'update',
     bar: 'baz',
     _jv: {
+      isData: true,
       type: 'widget',
       id: '1',
       links: {

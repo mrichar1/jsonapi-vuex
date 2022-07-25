@@ -256,6 +256,8 @@ describe('jsonapi-vuex tests', function () {
     })
     describe('utils.cleanPatch', function () {
       it('should return patch unmodified if record not in state', function () {
+        // Remove isData as clean Patch will have removed it
+        delete normWidget1Patch._jv.isData
         const res = utils.cleanPatch(normWidget1Patch, {})
         expect(res).to.deep.equal(normWidget1Patch)
       })
@@ -357,9 +359,10 @@ describe('jsonapi-vuex tests', function () {
         expect(utils.jsonapiToNormItem(jsonWidget1)).to.deep.equal(normWidget1)
       })
       it("should set the 'isIncluded' property if isIncluded param is true", function () {
-        // Set inData param to true
+        // Set isIncluded param to true, drop isData
         normWidget1._jv.isIncluded = true
-        expect(utils.jsonapiToNormItem(jsonWidget1, true)).to.deep.equal(normWidget1)
+        delete normWidget1._jv.isData
+        expect(utils.jsonapiToNormItem(jsonWidget1, 'isIncluded')).to.deep.equal(normWidget1)
       })
     })
 

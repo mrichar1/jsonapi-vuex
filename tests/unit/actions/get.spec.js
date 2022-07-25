@@ -114,8 +114,11 @@ describe('get', function () {
     // for a real API call, would need axios include params here
     await jsonapiModule.actions.get(stubContext, normWidget1)
 
+    // Add isIncluded, remove isData (As would be found in 'real' response)
     normWidget2._jv.isIncluded = true
     normMachine1._jv.isIncluded = true
+    delete normWidget2._jv.isData
+    delete normMachine1._jv.isData
     expect(stubContext.commit).to.have.been.calledWith('mergeRecords', normWidget2)
     expect(stubContext.commit).to.have.been.calledWith('mergeRecords', normMachine1)
   })

@@ -29,6 +29,7 @@ export function normFormat() {
   return {
     foo: 2,
     _jv: {
+      isData: true,
       type: 'widget',
       id: '2',
       relationships: {

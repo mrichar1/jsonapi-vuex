@@ -361,10 +361,9 @@ const Utils = class {
    * Convert JSONAPI record(s) to restructured data
    * @memberof module:jsonapi-vuex.utils
    * @param {object} data - The `data` object from a JSONAPI record
-   * @param {boolean} isIncluded - Flag which if true, will mark these records as coming from 'included' not via 'data'
    * @return {object} Restructured data
    */
-  jsonapiToNorm(data, isIncluded) {
+  jsonapiToNorm(data) {
     const norm = {}
     if (Array.isArray(data)) {
       data.forEach((item) => {
@@ -372,10 +371,10 @@ const Utils = class {
         if (!this.hasProperty(norm, id)) {
           norm[id] = {}
         }
-        Object.assign(norm[id], this.jsonapiToNormItem(item, isIncluded))
+        Object.assign(norm[id], this.jsonapiToNormItem(item))
       })
     } else {
-      Object.assign(norm, this.jsonapiToNormItem(data, isIncluded))
+      Object.assign(norm, this.jsonapiToNormItem(data))
     }
     return norm
   }
@@ -384,10 +383,10 @@ const Utils = class {
    * Restructure a single jsonapi item. Used internally by {@link module:jsonapi-vuex.utils.jsonapiToNorm}
    * @memberof module:jsonapi-vuex._internal
    * @param {object} data - JSONAPI record
-   * @param {boolean} isIncluded - Flag, which if true will mark this record as coming from 'included', not via 'data'
+   * @param {boolean} recordType=isData - Set a key in _jv which reflects if this came 'direct' from 'data' or via 'included'
    * @return {object} Restructured data
    */
-  jsonapiToNormItem(data, isIncluded = false) {
+  jsonapiToNormItem(data, recordType = 'isData') {
     if (!data) {
       return {}
     }
@@ -396,9 +395,8 @@ const Utils = class {
     // Create a new object omitting attributes
     const { attributes, ...normNoAttrs } = norm[this.jvtag] // eslint-disable-line no-unused-vars
     norm[this.jvtag] = normNoAttrs
-    if (isIncluded) {
-      norm[this.jvtag].isIncluded = isIncluded
-    }
+    // Set recordType (either isData or isIncluded) to true
+    norm[this.jvtag][recordType] = true
     return norm
   }
 
@@ -504,9 +502,8 @@ const Utils = class {
    */
   processIncludedRecords(context, results) {
     for (let item of get(results, ['data', 'included'], [])) {
-      //Mark record as coming from included
-      let isIncluded = true
-      const includedItem = this.jsonapiToNormItem(item, isIncluded)
+      // Mark record as coming from included
+      const includedItem = this.jsonapiToNormItem(item, 'isIncluded')
       context.commit('mergeRecords', includedItem)
     }
   }
