@@ -1,13 +1,36 @@
 {
+  "name": "jsonapi-vuex",
+  "version": "5.9.0",
+  "description": "Access restructured JSONAPI data from a Vuex Store.",
+  "author": "Matthew Richardson <M.Richardson@ed.ac.uk>",
+  "scripts": {
+    "lint": "eslint .",
+    "docs": "rm -rf docs/; jsdoc -c jsdoc.json",
+    "e2e": "concurrently --success first --kill-others \"npm:fakeapiserver\" \"vue-cli-service test:e2e --env chrome --headless\"",
+    "fakeapiserver": "node examples/fake-json-api-server.js",
+    "test": "npm run unit -- --single-run && npm run e2e",
+    "testapp": "concurrently --kill-others \"npm:fakeapiserver\" \"vue-cli-service serve\"",
+    "unit": "karma start"
+  },
+  "main": "src/jsonapi-vuex.js",
+  "files": [
+    "src/"
+  ],
+  "dependencies": {
+    "jsonpath-plus": "^6.0.1",
+    "lodash.get": "^4.4.2",
+    "lodash.isequal": "^4.5.0",
+    "lodash.merge": "^4.6.2",
+    "lodash.set": "^4.3.2"
+  },
   "devDependencies": {
     "@babel/core": "^7.15.0",
     "@babel/preset-env": "^7.15.0",
-    "@vue/cli-plugin-babel": "^4.5.17",
-    "@vue/cli-plugin-e2e-nightwatch": "^4.5.17",
-    "@vue/cli-plugin-eslint": "^4.5.17",
-    "@vue/cli-plugin-vuex": "^4.5.3",
-    "@vue/cli-service": "^4.5.17",
-    "@vue/compiler-sfc": "^3.2.1",
+    "@vue/cli-plugin-babel": "~5.0.8",
+    "@vue/cli-plugin-e2e-nightwatch": "~5.0.8",
+    "@vue/cli-plugin-eslint": "~5.0.8",
+    "@vue/cli-plugin-vuex": "~5.0.8",
+    "@vue/cli-service": "~5.0.8",
     "@vue/test-utils": "^1.2.2",
     "axios": "^0.21.1",
     "axios-mock-adapter": "^1.19.0",
@@ -41,16 +64,26 @@
     "lint-staged": "^11.1.2",
     "mocha": "^9.0.3",
     "mocha-eslint": "^7.0.0",
-    "nightwatch": "^1.7.13",
+    "nightwatch": "^2.3.0",
     "prettier": "^2.3.2",
-    "sinon": "^11.1.2",
+    "sinon": "^14.0.0",
     "sinon-chai": "^3.7.0",
-    "vue": "^3.0.0",
+    "vue": "^3.2.37",
     "vuex": "^4.0.0"
   },
-  "name": "jsonapi-vuex",
-  "version": "5.9.0",
-  "description": "Access restructured JSONAPI data from a Vuex Store.",
+  "peerDependencies": {
+    "vue": "^3.0.11",
+    "vuex": "^4.0.0"
+  },
+  "bugs": {
+    "url": "https://github.com/mrichar1/jsonapi-vuex/issues"
+  },
+  "homepage": "https://github.com/mrichar1/jsonapi-vuex.git",
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
   "keywords": [
     "vue",
     "vuex",
@@ -59,49 +92,15 @@
     "normalize",
     "jsonpath"
   ],
-  "main": "src/jsonapi-vuex.js",
-  "files": [
-    "src/"
-  ],
-  "author": "Matthew Richardson <M.Richardson@ed.ac.uk>",
-  "homepage": "https://github.com/mrichar1/jsonapi-vuex.git",
   "license": "AGPL-3.0-or-later",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/mrichar1/jsonapi-vuex.git"
-  },
-  "bugs": {
-    "url": "https://github.com/mrichar1/jsonapi-vuex/issues"
-  },
-  "scripts": {
-    "docs": "rm -rf docs/; jsdoc -c jsdoc.json",
-    "test": "npm run unit -- --single-run && npm run e2e",
-    "unit": "karma start",
-    "lint": "eslint .",
-    "e2e": "concurrently --success first --kill-others \"npm:fakeapiserver\" \"vue-cli-service test:e2e --env chrome --headless\"",
-    "testapp": "concurrently --kill-others \"npm:fakeapiserver\" \"vue-cli-service serve\"",
-    "fakeapiserver": "node examples/fake-json-api-server.js"
-  },
-  "dependencies": {
-    "jsonpath-plus": "^6.0.1",
-    "lodash.get": "^4.4.2",
-    "lodash.isequal": "^4.5.0",
-    "lodash.merge": "^4.6.2",
-    "lodash.set": "^4.3.2"
-  },
-  "peerDependencies": {
-    "vue": "^3.0.11",
-    "vuex": "^4.0.0"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "lint-staged"
-    }
-  },
   "lint-staged": {
     "*.{js,json,css,md}": [
       "prettier --write",
       "git add"
     ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrichar1/jsonapi-vuex.git"
   }
 }

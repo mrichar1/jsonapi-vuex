@@ -31,8 +31,9 @@ module.exports = {
 
     // Inputs exist and have correct values
     be.element('#patch').to.be.present
-    be.element('#patch_name').value.to.be.equal('sprocket')
-    be.element('#patch_color').value.to.be.equal('black')
+    // USe assert syntax due to NW bug
+    browser.assert.valueEquals('#patch_name', 'sprocket')
+    browser.assert.valueEquals('#patch_color', 'black')
 
     // Modify values
     browser.clearValue('#patch_name')
@@ -40,8 +41,6 @@ module.exports = {
     browser.clearValue('#patch_color')
     browser.setValue('#patch_color', 'red')
 
-    // Move so that element is in view (Firefox doesn't render items off-screen)
-    browser.getLocationInView('button[name=patch_button]')
     browser.click('button[name=patch_button]')
     // Pause for API response
     browser.pause(1000)
