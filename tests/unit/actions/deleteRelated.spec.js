@@ -2,6 +2,7 @@ import { expect } from 'chai'
 
 import createStubContext from '../stubs/context'
 import createJsonapiModule from '../utils/createJsonapiModule'
+import { config } from '../../../src/jsonapi-vuex'
 import { jsonFormat as createJsonWidget1, normFormat as createNormWidget1 } from '../fixtures/widget1'
 
 describe('deleteRelated', function () {
@@ -44,6 +45,24 @@ describe('deleteRelated', function () {
     // Expect a delete call to rel url, with rel payload, then get object to update store
     expect(this.mockApi.history.delete[0].url).to.equal('widget/1/relationships/widgets')
     expect(this.mockApi.history.delete[0].data).to.deep.equal(JSON.stringify(rel))
+    expect(this.mockApi.history.get[0].params).to.have.property('include')
+    expect(this.mockApi.history.get[0].url).to.equal('widget/1')
+  })
+
+  it('should make a delete request for the object passed in.', async function () {
+    this.mockApi.onDelete().replyOnce(204)
+    this.mockApi.onGet().replyOnce(200, { data: jsonWidget1 })
+
+    const rel = { data: { type: 'widget', id: '2' } }
+    normWidget1['_jv']['relationships'] = { widgets: rel }
+
+    config.relatedIncludes = false
+
+    await jsonapiModule.actions.deleteRelated(stubContext, normWidget1)
+    // Expect a delete call to rel url, with rel payload, then get object to update store
+    expect(this.mockApi.history.delete[0].url).to.equal('widget/1/relationships/widgets')
+    expect(this.mockApi.history.delete[0].data).to.deep.equal(JSON.stringify(rel))
+    expect(this.mockApi.history.get[0].params).to.not.have.property('include')
     expect(this.mockApi.history.get[0].url).to.equal('widget/1')
   })
 
@@ -60,6 +79,7 @@ describe('deleteRelated', function () {
     expect(this.mockApi.history.delete[0].data).to.deep.equal(JSON.stringify(rel1))
     expect(this.mockApi.history.delete[1].url).to.equal('widget/1/relationships/doohickeys')
     expect(this.mockApi.history.delete[1].data).to.deep.equal(JSON.stringify(rel2))
+    expect(this.mockApi.history.get[0].params).to.have.property('include')
     expect(this.mockApi.history.get[0].url).to.equal('widget/1')
     // Only get the object once at end
     expect(this.mockApi.history.get.length).to.equal(1)

@@ -46,7 +46,9 @@ const actions = (api, conf) => {
 
     // Iterate over all records in rels
     let relPromises = []
+    let includes = []
     for (let [relName, relItems] of Object.entries(rels)) {
+      includes.push(relName)
       if (utils.hasProperty(relItems, 'data')) {
         let path = `${type}/${id}/relationships/${relName}`
         const apiConf = {
@@ -61,7 +63,12 @@ const actions = (api, conf) => {
     // Wait for all individual API calls to complete
     await Promise.all(relPromises)
     // Get the updated object from the API
-    return context.dispatch('get', `${type}/${id}`)
+    let params = {}
+    // Also include related objects
+    if (conf.relatedIncludes) {
+      params['include'] = includes.join()
+    }
+    return context.dispatch('get', [`${type}/${id}`, { params: params }])
   }
 
   return {
@@ -208,7 +215,6 @@ const actions = (api, conf) => {
      * @memberof module:jsonapi-vuex.jsonapiModule.actions
      * @param {object} context - Vuex context object
      * @param {object} args - A restructured object, specifying relationship(s)  - e.g. `{ _jv: { type: "endpoint", id: "1", relationships: {...} } }`
-     * @param {object} args - A restructured object, specifying relationship(s)  - e.g. `{ _jv: { type: "endpoint", id: "1", relationships: {...} } }`
      * @return {object} Restructured representation of the 'parent' item
      */
     deleteRelated: (context, args) => {
@@ -221,7 +227,6 @@ const actions = (api, conf) => {
      * @memberof module:jsonapi-vuex.jsonapiModule.actions
      * @param {object} context - Vuex context object
      * @param {object} args - A restructured object, specifying relationship(s)  - e.g. `{ _jv: { type: "endpoint", id: "1", relationships: {...} } }`
-     * @param {object} args - A restructured object, specifying relationship(s)  - e.g. `{ _jv: { type: "endpoint", id: "1", relationships: {...} } }`
      * @return {object} Restructured representation of the 'parent' item
      */
     patchRelated: async (context, args) => {
@@ -233,7 +238,6 @@ const actions = (api, conf) => {
      * @async
      * @memberof module:jsonapi-vuex.jsonapiModule.actions
      * @param {object} context - Vuex context object
-     * @param {object} args - A restructured object, specifying relationship(s)  - e.g. `{ _jv: { type: "endpoint", id: "1", relationships: {...} } }`
      * @param {object} args - A restructured object, specifying relationship(s)  - e.g. `{ _jv: { type: "endpoint", id: "1", relationships: {...} } }`
      * @return {object} Restructured representation of the 'parent' item
      */

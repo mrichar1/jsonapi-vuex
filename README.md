@@ -771,6 +771,8 @@ For many of these options, more information is provided in the [Usage](#usage) s
 - `cleanPatchProps` - If cleanPatch is enabled, an array of `_jv` properties that should be preserved - `links`, `meta`, and/or `relationships`. (defaults to `[]`).
 - `recurseRelationships` - If `false`, replaces recursive relationships with a normalised resource identifier (i.e `{ _jv: { type: 'x', id: 'y' } }`). (defaults to `false`).
 - `maxStatusID` - Sets the highest status ID that will be used in `status` before rolling round to 1 again. (defaults to `-1` - no limit).
+- `relatedIncludes` - When returning the original object from `patch|post|deleteRelated` methods, also include related objects (defaults to `true`).
+
 
 ## Endpoints
 

@@ -1,6 +1,6 @@
 {
   "name": "jsonapi-vuex",
-  "version": "5.9.1",
+  "version": "5.10.0",
   "description": "Access restructured JSONAPI data from a Vuex Store.",
   "author": "Matthew Richardson <M.Richardson@ed.ac.uk>",
   "scripts": {
@@ -40,7 +40,7 @@
     "babel-polyfill": "^6.26.0",
     "chai": "^4.3.4",
     "chai-as-promised": "^7.1.1",
-    "chromedriver": "^103",
+    "chromedriver": "^106",
     "concurrently": "^6.2.1",
     "core-js": "^3.16.1",
     "eslint": "^7.32.0",
