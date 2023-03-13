@@ -17,7 +17,7 @@ export default () => {
      * @param {(string|object)} record - The record to be deleted
      */
     deleteRecord: (state, record) => {
-      const [type, id] = utils.getTypeId(record)
+      const [type, id] = utils.getTypeId(record, false)
       if (!type || !id) {
         throw `deleteRecord: Missing type or id: ${record}`
       }

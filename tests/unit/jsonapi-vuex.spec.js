@@ -147,6 +147,16 @@ describe('jsonapi-vuex tests', function () {
         deleteRecord(storeWidget1, 'widget/1')
         expect(storeWidget1[normWidget1['_jv']['type']]).to.not.have.key(normWidget1['_jv']['id'])
       })
+      it('should delete a record (string) from the store without url-encoding it', function () {
+        const { deleteRecord } = jm.mutations
+        let storeCompound1 = {
+          widget: {
+            'hello:world': { _jv: { type: 'widget', id: 'hello:world' } },
+          },
+        }
+        deleteRecord(storeCompound1, 'widget/hello:world')
+        expect(storeCompound1['widget']).to.not.have.key('hello:world')
+      })
       it('should throw an error if no type or id present.', function () {
         const { deleteRecord } = jm.mutations
         // expect needs a function to call, not the return from a function
