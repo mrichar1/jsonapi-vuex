@@ -1,27 +1,23 @@
+const ESLintPlugin = require('eslint-webpack-plugin');
+
+const options = {
+  extensions: [`js`, `jsx`],
+  exclude: [
+    'node_modules',
+  ],
+  failOnWarning: false,
+  failOnError: true,
+}
 module.exports = {
   mode: 'production',
   performance: { hints: false },
-  resolve: {
-    fallback: {
-      vm: require.resolve('vm-browserify'),
-    },
-  },
+  plugins: [new ESLintPlugin(options)],
   // Re-enable Errors (disabled in production mode) to allow eslint to stop build
   optimization: {
-    emitOnErrors: true,
+    emitOnErrors: false,
   },
   module: {
     rules: [
-      {
-        enforce: 'pre',
-        test: /\.js$/,
-        exclude: /(node_modules|bower_components)/,
-        loader: 'eslint-loader',
-        options: {
-          failOnWarning: false,
-          failOnError: true,
-        },
-      },
       {
         test: /\.js$/,
         exclude: /(node_modules|bower_components)/,

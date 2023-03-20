@@ -29,7 +29,6 @@ jobs:
           yarn
           yarn lint
           yarn test
-          yarn docs
 
       - name: Setup Node.js
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags')
