@@ -5,7 +5,7 @@
  * @memberof module:jsonapi-vuex.jsonapiModule
  */
 
-import get from 'lodash.get'
+import get from 'lodash/get'
 import { utils } from './jsonapi-vuex'
 
 export default () => {

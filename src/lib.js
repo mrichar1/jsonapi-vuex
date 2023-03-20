@@ -10,9 +10,9 @@
  * @param {object} conf - A jsonapi-vuex config object.
  */
 
-import get from 'lodash.get'
-import isEqual from 'lodash.isequal'
-import merge from 'lodash.merge'
+import get from 'lodash/get'
+import isEqual from 'lodash/isEqual'
+import merge from 'lodash/merge'
 
 /**
  * Helper methods added to `_jv` by {@link module:jsonapi-vuex.utils.addJvHelpers}
