@@ -7,7 +7,7 @@
  * @param {object} conf - a jsonapi-vuex config object
  */
 
-import get from 'lodash.get'
+import get from 'lodash/get'
 import { JSONPath } from 'jsonpath-plus'
 
 import { utils } from './jsonapi-vuex'

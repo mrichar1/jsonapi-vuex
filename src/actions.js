@@ -10,8 +10,8 @@
  * @param {object} conf - a jsonapi-vuex config object
  */
 
-import get from 'lodash.get'
-import merge from 'lodash.merge'
+import get from 'lodash/get'
+import merge from 'lodash/merge'
 
 import { utils } from './jsonapi-vuex'
 

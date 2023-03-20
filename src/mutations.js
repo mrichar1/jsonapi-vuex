@@ -6,7 +6,7 @@
  */
 
 import Vue from 'vue'
-import get from 'lodash.get'
+import get from 'lodash/get'
 import { utils } from './jsonapi-vuex'
 
 export default () => {
