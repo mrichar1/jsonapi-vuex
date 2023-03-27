@@ -5,7 +5,6 @@
  * @memberof module:jsonapi-vuex.jsonapiModule
  */
 
-import get from 'lodash/get'
 import { utils } from './jsonapi-vuex'
 
 export default () => {
@@ -59,21 +58,13 @@ export default () => {
       utils.updateRecords(state, records, true)
     },
     /**
-     * Delete all records from the store for a given type
+     * Delete all records from the store (of a given type) other than those included in a given record
      * @memberof module:jsonapi-vuex.jsonapiModule.mutations
      * @param {object} state - The Vuex state object
      * @param {object} records - A record with type set.
      */
     clearRecords: (state, records) => {
-      const newRecords = utils.normToStore(records)
-      for (let [type, item] of Object.entries(newRecords)) {
-        const storeRecords = get(state, [type], {})
-        for (let id of Object.keys(storeRecords)) {
-          if (!utils.hasProperty(item, id)) {
-            delete state[type][id]
-          }
-        }
-      }
+      Object.assign(state, utils.normToStore(records))
     },
   }
 }
