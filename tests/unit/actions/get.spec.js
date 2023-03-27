@@ -119,8 +119,7 @@ describe('get', function () {
     normMachine1._jv.isIncluded = true
     delete normWidget2._jv.isData
     delete normMachine1._jv.isData
-    expect(stubContext.commit).to.have.been.calledWith('mergeRecords', normWidget2)
-    expect(stubContext.commit).to.have.been.calledWith('mergeRecords', normMachine1)
+    expect(stubContext.commit).to.have.been.calledWith('mergeRecords', [normWidget2, normMachine1])
   })
 
   it('should return normalized data with expanded rels (single item)', async function () {

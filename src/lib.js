@@ -501,11 +501,10 @@ const Utils = class {
    * @param {object} results - JSONAPI record
    */
   processIncludedRecords(context, results) {
-    for (let item of get(results, ['data', 'included'], [])) {
-      // Mark record as coming from included
-      const includedItem = this.jsonapiToNormItem(item, 'isIncluded')
-      context.commit('mergeRecords', includedItem)
-    }
+    context.commit(
+      'mergeRecords',
+      get(results, ['data', 'included'], []).map((item) => this.jsonapiToNormItem(item, 'isIncluded'))
+    )
   }
 
   /**
@@ -532,28 +531,34 @@ const Utils = class {
    * @param {object} records - Restructured records to be updated
    * @param {boolean} merging - Whether or not to merge or overwrite records
    */
-  updateRecords(state, records, merging = this.conf.mergeRecords) {
-    let newState = {}
+  updateRecords(state, records, mergeDefault = this.conf.mergeRecords) {
     const storeRecords = this.normToStore(records)
+    let merging = {}
     for (let [type, item] of Object.entries(storeRecords)) {
-      newState[type] = {}
-      if (!this.hasProperty(state, type)) {
-        state[type] = {}
-        // If there's no type, then there are no existing records to merge
-        merging = false
-      }
-      for (let [id, data] of Object.entries(item)) {
-        if (merging) {
-          const oldRecord = get(state, [type, id])
-          if (oldRecord) {
-            data = merge(oldRecord, data)
+      let newRecords = item
+      if (mergeDefault) {
+        if (!(type in merging)) {
+          merging[type] = true
+          if (!this.hasProperty(state, type)) {
+            // If there's no type, then there are no existing records to merge with
+            merging[type] = false
           }
         }
-        newState[type][id] = data
+        if (merging[type]) {
+          newRecords = Object.fromEntries(
+            Object.entries(item).map(([id, data]) => {
+              const oldRecord = get(state, [type, id])
+              if (oldRecord) {
+                data = merge(oldRecord, data)
+              }
+              return [id, data]
+            })
+          )
+        }
       }
       // FIXME: Review with release of Vuex5 to see if there is a new ref()/reactive() approach
       // Maintain reactivity by 'touching' the 'root' state property
-      state[type] = Object.assign({}, state[type], newState[type])
+      state[type] = Object.assign({}, state[type], newRecords)
     }
   }
 }
