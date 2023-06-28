@@ -93,15 +93,18 @@ const actions = (api, conf) => {
       merge(apiConf, config)
       return api(apiConf).then((results) => {
         let resData = utils.jsonapiToNorm(results.data.data)
-        context.commit('addRecords', resData)
         let [type, id] = utils.getTypeId(data)
         if (!id && conf.clearOnUpdate) {
           let record = resData
-          if (Object.keys(resData).length === 0) {
+          if (Object.keys(resData).length === 0 && type) {
             // No records - assume type == endpoint
             record = { _jv: { type: type } }
           }
-          context.commit('clearRecords', record)
+          if (record) {
+            context.commit('clearRecords', record)
+          }
+        } else {
+          context.commit('addRecords', resData)
         }
         utils.processIncludedRecords(context, results)
         resData = utils.checkAndFollowRelationships(context.state, context.getters, resData)

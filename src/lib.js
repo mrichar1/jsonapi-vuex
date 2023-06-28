@@ -310,6 +310,13 @@ const Utils = class {
   getTypeId(data, encode = true) {
     let type, id, rel
     if (typeof data === 'string') {
+      try {
+        // If the data param is a full URL, we can't extract type/id/rel from it
+        new URL(data)
+        return []
+      } catch {
+        // Continue if not a full URL
+      }
       ;[type, id, rel] = data.replace(/^\//, '').split('/')
     } else {
       ;({ type, id } = data[this.jvtag])

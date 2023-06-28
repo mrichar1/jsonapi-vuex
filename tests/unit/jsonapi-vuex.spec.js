@@ -333,6 +333,9 @@ describe('jsonapi-vuex tests', function () {
       it('should get type only from string', function () {
         expect(utils.getTypeId('widget')).to.deep.equal(['widget'])
       })
+      it('should not get type & id from a full URL', function () {
+        expect(utils.getTypeId('https://www.example.com/api/widget')).to.deep.equal([])
+      })
       it('should get type, id & relname from string', function () {
         expect(utils.getTypeId('widget/1/relname')).to.deep.equal(['widget', '1', 'relname'])
       })
