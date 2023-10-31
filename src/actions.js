@@ -125,7 +125,7 @@ const actions = (api, conf) => {
      * @return {object} Restructured representation of the requested item(s)
      */
     getRelated: async (context, args) => {
-      const data = utils.unpackArgs(args)[0]
+      const [data, config] = utils.unpackArgs(args)
       let [type, id, relName] = utils.getTypeId(data)
       if (!type || !id) {
         throw 'No type/id specified'
@@ -156,7 +156,7 @@ const actions = (api, conf) => {
         // so fetch relationships resource linkage for these
         if (!relItems) {
           try {
-            const resLink = await api.get(`${type}/${id}/relationships/${relName}`)
+            const resLink = await api.get(`${type}/${id}/relationships/${relName}`, config)
             relItems = resLink.data
           } catch (error) {
             throw `No such relationship: ${relName}`
@@ -185,7 +185,7 @@ const actions = (api, conf) => {
               entry = { [jvtag]: entry }
             }
             relNames.push(relName)
-            relPromises.push(context.dispatch('get', entry))
+            relPromises.push(context.dispatch('get', [entry, config]))
           }
         } else {
           // Empty to-one rels should have a relName but no data
