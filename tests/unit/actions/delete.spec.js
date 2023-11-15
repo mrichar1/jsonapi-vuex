@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test } from 'vitest'
 import sinonChai from 'sinon-chai'
-import sinon from 'sinon'
 import chai from 'chai'
 chai.use(sinonChai)
 
@@ -15,7 +14,7 @@ describe('delete', function () {
   let jsonWidget1, normWidget1, jsonapiModule, stubContext
 
   beforeEach(function () {
-    [ api, mockApi ] = makeApi()
+    ;[api, mockApi] = makeApi()
     jsonWidget1 = createJsonWidget1()
     normWidget1 = createNormWidget1()
 

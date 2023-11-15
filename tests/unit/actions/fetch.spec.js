@@ -8,7 +8,7 @@ describe('fetch', function () {
   let jsonapiModule
 
   beforeEach(function () {
-    [ api ] = makeApi()
+    ;[api] = makeApi()
     jsonapiModule = createJsonapiModule(api)
   })
 

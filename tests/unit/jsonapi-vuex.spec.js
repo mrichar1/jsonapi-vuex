@@ -47,7 +47,7 @@ let jm,
   storeRecord
 
 beforeEach(function () {
-  [api, mockApi] = makeApi()
+  ;[api, mockApi] = makeApi()
 
   // Remove mock handlers
   mockApi.reset()
@@ -109,21 +109,6 @@ describe('jsonapi-vuex tests', function () {
   test('should export jsonapiModule', function () {
     expect(jsonapiModule).to.exist
   })
-
-//  describe('jsonapiModule actions', function () {
-//    import('./actions/get.spec.js')
-//    import('./actions/search.spec')
-//    import('./actions/fetch.spec')
-//    import('./actions/getRelated.spec')
-//    import('./actions/deleteRelated.spec')
-//    import('./actions/patchRelated.spec')
-//    import('./actions/postRelated.spec')
-//    import('./actions/post.spec')
-//    import('./actions/create.spec')
-//    import('./actions/patch.spec')
-//    import('./actions/update.spec')
-//    import('./actions/delete.spec')
-//  })
 
   describe('jsonapiModule mutations', function () {
     describe('deleteRecord', function () {

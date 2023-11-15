@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test } from 'vitest'
 import sinonChai from 'sinon-chai'
-import sinon from 'sinon'
 import chai from 'chai'
 chai.use(sinonChai)
 
@@ -37,7 +36,7 @@ describe('get', function () {
 
   beforeEach(function () {
     // Mock up a fake axios-like api instance
-    [ api, mockApi ] = makeApi()
+    ;[api, mockApi] = makeApi()
     jsonMachine1 = createJsonMachine1()
     normMachine1 = createNormMachine1()
     jsonWidget1 = createJsonWidget1()

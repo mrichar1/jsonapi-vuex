@@ -24,7 +24,7 @@ describe('search', function () {
     stubContext
 
   beforeEach(function () {
-    [ api, mockApi ] = makeApi()
+    ;[api, mockApi] = makeApi()
     jsonWidget1 = createJsonWidget1()
     normWidget1 = createNormWidget1()
     normRecordRels = createNormRecordRels()

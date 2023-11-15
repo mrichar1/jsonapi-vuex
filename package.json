@@ -4,13 +4,12 @@
   "description": "Access restructured JSONAPI data from a Vuex Store.",
   "author": "Matthew Richardson <M.Richardson@ed.ac.uk>",
   "scripts": {
-    "lint": "eslint .",
+    "dev": "concurrently --success first --kill-others \"npm:fakeapiserver\" \"vite dev\"",
     "docs": "rm -rf docs/; jsdoc -c jsdoc.json",
-    "e2e": "concurrently --success first --kill-others \"npm:fakeapiserver\" \"vue-cli-service test:e2e --env chrome --headless\"",
+    "e2e": "playwright test --project 'Google Chrome'",
     "fakeapiserver": "node examples/fake-json-api-server.js",
-    "test": "npm run unit && npm run e2e",
-    "testapp": "concurrently --kill-others \"npm:fakeapiserver\" \"vue-cli-service serve\"",
-    "unit": "vitest run"
+    "lint": "eslint .",
+    "unit": "vitest run --dir tests/unit"
   },
   "main": "src/jsonapi-vuex.js",
   "files": [
@@ -18,25 +17,17 @@
   ],
   "dependencies": {
     "jsonpath-plus": "^7.2.0",
-    "lodash": "^4.17.21",
-    "vitest": "^0.34.6"
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "~5.0.8",
-    "@vue/cli-plugin-e2e-nightwatch": "~5.0.8",
-    "@vue/cli-plugin-eslint": "~5.0.8",
-    "@vue/cli-plugin-vuex": "~5.0.8",
-    "@vue/cli-service": "~5.0.8",
-    "@vue/test-utils": "^2.3.1",
+    "@babel/core": "^7.23.3",
+    "@babel/eslint-parser": "^7.23.3",
+    "@playwright/test": "^1.39.0",
+    "@vitejs/plugin-vue": "^4.4.1",
     "axios": "^1.6.2",
     "axios-mock-adapter": "^1.22.0",
-    "@babel/core": "^7.21.0",
-    "@babel/eslint-parser": "^7.19.1",
-    "@babel/preset-env": "^7.20.2",
     "chai": "^4.3.10",
-    "chromedriver": "^118.0.0",
     "concurrently": "^7.6.0",
-    "core-js": "^3.29.1",
     "eslint": "^8.36.0",
     "eslint-config-prettier": "^8.7.0",
     "eslint-plugin-prettier": "^4.2.1",
@@ -44,17 +35,15 @@
     "eslint-plugin-vue": "^9.9.0",
     "eslint-webpack-plugin": "^4.0.0",
     "fake-json-api-server": "^1.6.0",
-    "geckodriver": "^3.2.0",
-    "husky": "^8.0.3",
+    "happy-dom": "^12.10.3",
     "jsdoc": "^4.0.2",
-    "lint-staged": "^13.2.0",
-    "nightwatch": "^2.6.17",
     "prettier": "^2.8.4",
     "sinon": "^17.0.1",
     "sinon-chai": "^3.7.0",
-    "vue": "^3.2.47",
-    "vuex": "^4.1.0",
-    "webpack": "^5.0.0"
+    "vite": "^4.4.5",
+    "vitest": "^0.34.6",
+    "vue": "^3.3.8",
+    "vuex": "^4.1.0"
   },
   "peerDependencies": {
     "vue": "^3.0.11",

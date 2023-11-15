@@ -24,7 +24,7 @@ describe('getRelated', function () {
     stubContext
 
   beforeEach(function () {
-    [ api, mockApi ] = makeApi()
+    ;[api, mockApi] = makeApi()
     jsonWidget1 = createJsonWidget1()
     jsonWidget2 = createJsonWidget2()
     jsonWidget3 = createJsonWidget3()

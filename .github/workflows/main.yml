@@ -28,7 +28,8 @@ jobs:
         run: |
           yarn
           yarn lint
-          yarn test
+          yarn unit
+          yarn e2e
           yarn docs
 
       - name: Setup Node.js

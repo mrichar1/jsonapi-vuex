@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, test } from 'vitest'
 import sinonChai from 'sinon-chai'
-import sinon from 'sinon'
 import chai from 'chai'
 chai.use(sinonChai)
 
@@ -23,7 +22,7 @@ describe('patch', function () {
   let jsonWidget1, jsonWidget1Patch, normWidget1, normWidget1Patch, normWidget1Update, jsonapiModule, stubContext
 
   beforeEach(function () {
-    [ api, mockApi ] = makeApi()
+    ;[api, mockApi] = makeApi()
     jsonWidget1 = createJsonWidget1()
     jsonWidget1Patch = createJsonWidget1Patch()
     normWidget1 = createNormWidget1()
@@ -39,9 +38,7 @@ describe('patch', function () {
 
     await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
 
-    expect(mockApi.history.patch[0].url).to.equal(
-      `${normWidget1Patch['_jv']['type']}/${normWidget1Patch['_jv']['id']}`
-    )
+    expect(mockApi.history.patch[0].url).to.equal(`${normWidget1Patch['_jv']['type']}/${normWidget1Patch['_jv']['id']}`)
   })
 
   test('should accept axios config as the 2nd arg in a list', async function () {

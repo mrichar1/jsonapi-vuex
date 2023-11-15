@@ -11,7 +11,7 @@ describe('deleteRelated', function () {
   let normWidget1, jsonWidget1, jsonapiModule, stubContext
 
   beforeEach(function () {
-    [ api, mockApi ] = makeApi()
+    ;[api, mockApi] = makeApi()
     normWidget1 = createNormWidget1()
     jsonWidget1 = createJsonWidget1()
 
