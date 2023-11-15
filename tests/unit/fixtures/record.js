@@ -3,19 +3,19 @@ import {
   normFormat as createNormWidget1,
   normFormatWithRels as createNormWidget1WithRels,
   storeFormat as createStoreWidget1,
-} from './widget1'
+} from './widget1.js'
 import {
   jsonFormat as createJsonWidget2,
   normFormat as createNormWidget2,
   normFormatWithRels as createNormWidget2WithRels,
   storeFormat as createStoreWidget2,
-} from './widget2'
+} from './widget2.js'
 import {
   jsonFormat as createJsonWidget3,
   normFormat as createNormWidget3,
   normFormatWithRels as createNormWidget3WithRels,
   storeFormat as createStoreWidget3,
-} from './widget3'
+} from './widget3.js'
 
 export function jsonFormat() {
   return {

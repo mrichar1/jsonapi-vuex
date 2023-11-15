@@ -1,4 +1,6 @@
-import { expect } from 'chai'
+import { beforeEach, describe, expect, test } from 'vitest'
+import { makeApi } from '../server'
+let api, mockApi
 
 import createStubContext from '../stubs/context'
 import createJsonapiModule from '../utils/createJsonapiModule'
@@ -22,6 +24,7 @@ describe('getRelated', function () {
     stubContext
 
   beforeEach(function () {
+    [ api, mockApi ] = makeApi()
     jsonWidget1 = createJsonWidget1()
     jsonWidget2 = createJsonWidget2()
     jsonWidget3 = createJsonWidget3()
@@ -38,11 +41,11 @@ describe('getRelated', function () {
       },
     }
 
-    jsonapiModule = createJsonapiModule(this.api)
+    jsonapiModule = createJsonapiModule(api)
     stubContext = createStubContext(jsonapiModule)
   })
 
-  it('Should throw an error if passed an object with no type or id', async function () {
+  test('Should throw an error if passed an object with no type or id', async function () {
     try {
       await jsonapiModule.actions.getRelated(stubContext, { _jv: {} })
       throw 'Should have thrown an error (no id)'
@@ -51,9 +54,9 @@ describe('getRelated', function () {
     }
   })
 
-  it('should use existing rel info in the object passed in.', async function () {
+  test('should use existing rel info in the object passed in.', async function () {
     // Only return related record (no initial object GET)
-    this.mockApi.onGet().reply(200, { data: jsonWidget2 })
+    mockApi.onGet().reply(200, { data: jsonWidget2 })
 
     const rel = { widgets: { data: { type: 'widget', id: 2 } } }
 
@@ -64,9 +67,9 @@ describe('getRelated', function () {
     expect(res).to.deep.equal({ widgets: storeWidget2 })
   })
 
-  it('should use existing rel info in the object passed in - keys only.', async function () {
+  test('should use existing rel info in the object passed in - keys only.', async function () {
     // Return resource linkage, then related record
-    this.mockApi
+    mockApi
       .onGet()
       .replyOnce(200, { data: { type: 'widget', id: 2 } })
       .onGet()
@@ -81,9 +84,9 @@ describe('getRelated', function () {
     expect(res).to.deep.equal({ widgets: storeWidget2 })
   })
 
-  it('should throw an error fetching resource linkage for unknown relationship.', async function () {
+  test('should throw an error fetching resource linkage for unknown relationship.', async function () {
     // Return 404 - no such resource linkage
-    this.mockApi.onGet().replyOnce(404)
+    mockApi.onGet().replyOnce(404)
 
     const rel = { invalidRelName: undefined }
 
@@ -97,16 +100,16 @@ describe('getRelated', function () {
     }
   })
 
-  it("should get a record's single related item (using 'data') - string", async function () {
-    this.mockApi.onGet().replyOnce(200, { data: jsonWidget1 }).onGet().replyOnce(200, { data: jsonWidget2 })
+  test("should get a record's single related item (using 'data') - string", async function () {
+    mockApi.onGet().replyOnce(200, { data: jsonWidget1 }).onGet().replyOnce(200, { data: jsonWidget2 })
 
     let res = await jsonapiModule.actions.getRelated(stubContext, 'widget/1')
 
     expect(res).to.deep.equal({ widgets: storeWidget2 })
   })
 
-  it("should get a record's single related item (using 'data') - object", async function () {
-    this.mockApi.onGet().replyOnce(200, { data: jsonWidget1 }).onGet().replyOnce(200, { data: jsonWidget2 })
+  test("should get a record's single related item (using 'data') - object", async function () {
+    mockApi.onGet().replyOnce(200, { data: jsonWidget1 }).onGet().replyOnce(200, { data: jsonWidget2 })
 
     delete normWidget1['_jv']['relationships']
 
@@ -115,9 +118,9 @@ describe('getRelated', function () {
     expect(res).to.deep.equal({ widgets: storeWidget2 })
   })
 
-  it("should get a record's related items (using 'data')", async function () {
+  test("should get a record's related items (using 'data')", async function () {
     // Return main item, then its related items
-    this.mockApi
+    mockApi
       .onGet()
       .replyOnce(200, { data: jsonWidget2 })
       .onGet()
@@ -130,32 +133,32 @@ describe('getRelated', function () {
     expect(res).to.deep.equal({ widgets: storeWidget1_3 }) // eslint-disable-line camelcase
   })
 
-  it("should get a record's related items (using 'links' string)", async function () {
+  test("should get a record's related items (using 'links' string)", async function () {
     // Remove data so it will fallback to using links
     delete jsonWidget1['relationships']['widgets']['data']
-    this.mockApi.onGet().replyOnce(200, { data: jsonWidget1 }).onGet().replyOnce(200, { data: jsonWidget2 })
+    mockApi.onGet().replyOnce(200, { data: jsonWidget1 }).onGet().replyOnce(200, { data: jsonWidget2 })
 
     let res = await jsonapiModule.actions.getRelated(stubContext, 'widget/1')
 
     expect(res).to.deep.equal({ widgets: storeWidget2 })
   })
 
-  it("should get a record's related items (using 'links' object)", async function () {
+  test("should get a record's related items (using 'links' object)", async function () {
     // Remove data so it will fallback to using links
     delete jsonWidget1['relationships']['widgets']['data']
     // Replace links string with links object
     jsonWidget1['relationships']['widgets']['links']['related'] = {
       href: '/widget/1/widgets',
     }
-    this.mockApi.onGet().replyOnce(200, { data: jsonWidget1 }).onGet().replyOnce(200, { data: jsonWidget2 })
+    mockApi.onGet().replyOnce(200, { data: jsonWidget1 }).onGet().replyOnce(200, { data: jsonWidget2 })
 
     let res = await jsonapiModule.actions.getRelated(stubContext, 'widget/1')
 
     expect(res).to.deep.equal({ widgets: storeWidget2 })
   })
 
-  it("should get a record's related items (string path)", async function () {
-    this.mockApi
+  test("should get a record's related items (string path)", async function () {
+    mockApi
       .onGet()
       .replyOnce(200, { data: jsonWidget2 })
       .onGet()
@@ -168,17 +171,17 @@ describe('getRelated', function () {
     expect(res).to.deep.equal({ widgets: storeWidget1_3 }) // eslint-disable-line camelcase
   })
 
-  it('should return related data for a specific relname', async function () {
-    this.mockApi.onGet().replyOnce(200, { data: jsonWidget3 }).onGet().replyOnce(200, { data: jsonWidget1 })
+  test('should return related data for a specific relname', async function () {
+    mockApi.onGet().replyOnce(200, { data: jsonWidget3 }).onGet().replyOnce(200, { data: jsonWidget1 })
 
     let res = await jsonapiModule.actions.getRelated(stubContext, 'widget/3/widgets')
 
     expect(res).to.deep.equal({ widgets: storeWidget1 })
   })
 
-  it('Should handle API errors (initial GET)', async function () {
+  test('Should handle API errors (initial GET)', async function () {
     // Fake an API error response
-    this.mockApi.onGet().replyOnce(500)
+    mockApi.onGet().replyOnce(500)
 
     try {
       await jsonapiModule.actions.getRelated(stubContext, 'none/1')
@@ -187,16 +190,16 @@ describe('getRelated', function () {
     }
   })
 
-  it('Should handle data: null (empty to-one rels)', async function () {
+  test('Should handle data: null (empty to-one rels)', async function () {
     jsonWidget1['relationships']['widgets']['data'] = null
     delete jsonWidget1['relationships']['widgets']['links']
-    this.mockApi.onGet().replyOnce(200, { data: jsonWidget1 })
+    mockApi.onGet().replyOnce(200, { data: jsonWidget1 })
     let res = await jsonapiModule.actions.getRelated(stubContext, 'widget/1')
     expect(res).to.deep.equal({ widgets: {} })
   })
 
-  it('Should handle API errors (in the data)', async function () {
-    this.mockApi.onGet().replyOnce(200, { data: jsonWidget1 }).onGet().replyOnce(500)
+  test('Should handle API errors (in the data)', async function () {
+    mockApi.onGet().replyOnce(200, { data: jsonWidget1 }).onGet().replyOnce(500)
 
     try {
       await jsonapiModule.actions.getRelated(stubContext, 'widget/1')
@@ -205,10 +208,10 @@ describe('getRelated', function () {
     }
   })
 
-  it('Should handle API errors (in the links)', async function () {
+  test('Should handle API errors (in the links)', async function () {
     // Remove data so it will fallback to using links
     delete jsonWidget1['relationships']['widgets']['data']
-    this.mockApi.onGet().replyOnce(200, { data: jsonWidget1 }).onGet().replyOnce(500)
+    mockApi.onGet().replyOnce(200, { data: jsonWidget1 }).onGet().replyOnce(500)
 
     try {
       await jsonapiModule.actions.getRelated(stubContext, 'widget/1')

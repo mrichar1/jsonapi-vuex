@@ -1,5 +1,5 @@
-import { jsonapiModule } from '../../../src/jsonapi-vuex'
-import config from '../../../src/config'
+import { jsonapiModule } from '../../../src/jsonapi-vuex.js'
+import config from '../../../src/config.js'
 
 // Turn off the following to simplify test data in most cases
 const customConfig = {

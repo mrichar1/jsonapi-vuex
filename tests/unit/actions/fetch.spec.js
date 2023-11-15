@@ -1,4 +1,6 @@
-import { expect } from 'chai'
+import { beforeEach, describe, expect, test } from 'vitest'
+import { makeApi } from '../server'
+let api
 
 import createJsonapiModule from '../utils/createJsonapiModule'
 
@@ -6,10 +8,11 @@ describe('fetch', function () {
   let jsonapiModule
 
   beforeEach(function () {
-    jsonapiModule = createJsonapiModule(this.api)
+    [ api ] = makeApi()
+    jsonapiModule = createJsonapiModule(api)
   })
 
-  it('should be an alias for get', function () {
+  test('should be an alias for get', function () {
     expect(jsonapiModule.actions.fetch).to.equal(jsonapiModule.actions.get)
   })
 })

@@ -1,4 +1,6 @@
-import { expect } from 'chai'
+import { beforeEach, describe, expect, test } from 'vitest'
+import { makeApi } from '../server'
+let api, mockApi
 
 import createJsonapiModule from '../utils/createJsonapiModule'
 
@@ -6,10 +8,11 @@ describe('update', function () {
   let jsonapiModule
 
   beforeEach(function () {
-    jsonapiModule = createJsonapiModule(this.api)
+    [api, mockApi] = makeApi()
+    jsonapiModule = createJsonapiModule(api)
   })
 
-  it('should be an alias for patch', function () {
+  test('should be an alias for patch', function () {
     expect(jsonapiModule.actions.update).to.equal(jsonapiModule.actions.patch)
   })
 })

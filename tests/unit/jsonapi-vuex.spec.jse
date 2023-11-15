@@ -1,11 +1,5 @@
-import { afterEach, beforeEach, describe, expect, test } from 'vitest'
-import sinonChai from 'sinon-chai'
-import sinon from 'sinon'
-import chai from 'chai'
-chai.use(sinonChai)
-
-import { makeApi } from './server'
-let api, mockApi
+import { afterEach, beforeAll, beforeEach, describe, expect, test } from 'vitest'
+import { api, mockApi } from './server'
 
 import { jsonapiModule, config, status, utils } from '../../src/jsonapi-vuex.js'
 import createStubContext from './stubs/context.js'
@@ -47,8 +41,6 @@ let jm,
   storeRecord
 
 beforeEach(function () {
-  [api, mockApi] = makeApi()
-
   // Remove mock handlers
   mockApi.reset()
 

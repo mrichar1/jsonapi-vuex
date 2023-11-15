@@ -1,4 +1,4 @@
-import { normFormat as createNormWidget2 } from './widget2'
+import { normFormat as createNormWidget2 } from './widget2.js'
 
 export function jsonFormat() {
   return {
