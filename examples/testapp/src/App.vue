@@ -4,15 +4,8 @@
   </div>
 </template>
 
-<script>
+<script setup>
 import JsonapiVuex from './components/JsonapiVuex.vue'
-
-export default {
-  name: 'App',
-  components: {
-    JsonapiVuex,
-  },
-}
 </script>
 
 <style></style>

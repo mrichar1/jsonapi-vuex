@@ -74,54 +74,34 @@
   </div>
 </template>
 
-<script>
+<script setup>
+import { computed, ref } from 'vue'
+import { useStore } from 'vuex'
 import { status, utils } from '../../../../src/jsonapi-vuex'
 
-export default {
-  name: 'JsonapiVuex',
-  data: () => {
-    return {
-      searchResult: {},
-      delWidgetId: undefined,
-      postWidget: {
-        _jv: {
-          type: 'widget',
-        },
-      },
-    }
-  },
-  computed: {
-    sessions() {
-      return status.status
-    },
-    widgets() {
-      return this.$store.getters['jv/get']('widget')
-    },
-    widget1() {
-      return utils.deepCopy(this.$store.getters['jv/get']('widget/1'))
-    },
-  },
-  created() {
-    status.run(() => this.$store.dispatch('jv/get', 'widget'))
+const store = useStore()
 
-    status
-      .run(() => this.$store.dispatch('jv/search', 'widget'))
-      .then((res) => {
-        this.searchResult = res
-      })
+let searchResult = ref({})
+let delWidgetID = ref()
+let postWidget = ref({
+  _jv: {
+    type: 'widget',
   },
-  methods: {
-    patchRecord(record) {
-      this.$store.dispatch('jv/patch', record)
-    },
-    postRecord(record) {
-      this.$store.dispatch('jv/post', record)
-    },
-    deleteRecord(id) {
-      this.$store.dispatch('jv/delete', 'widget' + '/' + id)
-    },
-  },
-}
+})
+
+const sessions = computed(() => status.status )
+const widgets = computed(() => store.getters['jv/get']('widget') )
+const widget1 = computed(() => utils.deepCopy(store.getters['jv/get']('widget/1')))
+
+const patchRecord = ((record) => store.dispatch('jv/patch', record))
+const postRecord = ((record) => store.dispatch('jv/post', record))
+const deleteRecord = ((id) => store.dispatch('jv/delete', 'widget' + '/' + id))
+
+store.dispatch('jv/get', 'widget')
+store.dispatch('jv/search', 'widget')
+  .then((res) => {
+    this.searchResult = res
+  })
 </script>
 
 <style scoped></style>
