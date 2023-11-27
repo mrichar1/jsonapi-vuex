@@ -133,21 +133,21 @@ const Utils = class {
    * @param {array} seen - internal recursion state-tracking
    * @return {object} records with relationships followed
    */
-  checkAndFollowRelationships(state, getters, records, seen) {
+  checkAndFollowRelationships(store, records, seen) {
     if (this.conf.followRelationshipsData) {
       let resData = {}
-      if (state === records) {
+      if (store.$state === records) {
         // All of state
         for (let [key, record] of Object.entries(records)) {
-          resData[key] = this.checkAndFollowRelationships(state, getters, record, seen)
+          resData[key] = this.checkAndFollowRelationships(store, record, seen)
         }
       } else if (this.hasProperty(records, this.jvtag)) {
         // single item
-        resData = this.followRelationships(state, getters, records, seen)
+        resData = this.followRelationships(store, records, seen)
       } else {
         // multiple items
         for (let [key, item] of Object.entries(records)) {
-          resData[key] = this.followRelationships(state, getters, item, seen)
+          resData[key] = this.followRelationships(store, item, seen)
         }
       }
       if (resData) {
@@ -226,12 +226,12 @@ const Utils = class {
    * @param {array} seen - internal recursion state-tracking
    * @return {object} records with relationships followed and helper functions added (see {@link module:jsonapi-vuex.utils.addJvHelpers})
    */
-  followRelationships(state, getters, record, seen) {
+  followRelationships(store, record, seen) {
     let data = {}
 
     Object.defineProperties(data, Object.getOwnPropertyDescriptors(record))
 
-    let relationships = this.getRelationships(getters, data, seen)
+    let relationships = this.getRelationships(store, data, seen)
     Object.defineProperties(data, Object.getOwnPropertyDescriptors(relationships))
 
     return this.addJvHelpers(data)
@@ -249,7 +249,7 @@ const Utils = class {
    * @param {array} seen - Internal recursion state tracking
    * @returns {object} A copy of the object with getter relationships added
    */
-  getRelationships(getters, parent, seen = []) {
+  getRelationships(store, parent, seen = []) {
     // Avoid 'this' confusion in Object.defineProperty
     let conf = this.conf
     let jvtag = this.jvtag
@@ -275,7 +275,7 @@ const Utils = class {
                   return { [jvtag]: { type: relType, id: relId } }
                 } else {
                   // prettier-ignore
-                  return getters.get(
+                  return store.getData(
                       `${relType}/${relId}`,
                       undefined,
                       [...seen, [relName, relType, relId]]
@@ -504,14 +504,10 @@ const Utils = class {
    * Restructure all records in 'included' (using {@link module:jsonapi-vuex._internal.jsonapiToNormItem})
    * and add to the store.
    * @memberof module:jsonapi-vuex._internal
-   * @param {object} context - Vuex actions context object
    * @param {object} results - JSONAPI record
    */
-  processIncludedRecords(context, results) {
-    context.commit(
-      'mergeRecords',
-      get(results, ['data', 'included'], []).map((item) => this.jsonapiToNormItem(item, 'isIncluded'))
-    )
+  getIncludedRecords(results) {
+      return get(results, ['data', 'included'], []).map((item) => this.jsonapiToNormItem(item, 'isIncluded'))
   }
 
   /**
@@ -538,7 +534,7 @@ const Utils = class {
    * @param {object} records - Restructured records to be updated
    * @param {boolean} merging - Whether or not to merge or overwrite records
    */
-  updateRecords(state, records, mergeDefault = this.conf.mergeRecords) {
+  updateRecords(store, records, mergeDefault = this.conf.mergeRecords) {
     const storeRecords = this.normToStore(records)
     let merging = {}
     for (let [type, item] of Object.entries(storeRecords)) {
@@ -546,7 +542,7 @@ const Utils = class {
       if (mergeDefault) {
         if (!(type in merging)) {
           merging[type] = true
-          if (!this.hasProperty(state, type)) {
+          if (!this.hasProperty(store.$state, type)) {
             // If there's no type, then there are no existing records to merge with
             merging[type] = false
           }
@@ -554,7 +550,7 @@ const Utils = class {
         if (merging[type]) {
           newRecords = Object.fromEntries(
             Object.entries(item).map(([id, data]) => {
-              const oldRecord = get(state, [type, id])
+              const oldRecord = get(store.$state, [type, id])
               if (oldRecord) {
                 data = merge(oldRecord, data)
               }
@@ -563,9 +559,12 @@ const Utils = class {
           )
         }
       }
-      // FIXME: Review with release of Vuex5 to see if there is a new ref()/reactive() approach
       // Maintain reactivity by 'touching' the 'root' state property
-      state[type] = Object.assign({}, state[type], newRecords)
+      if (type in store.$state) {
+        store.$state[type] = Object.assign({}, store.$state[type], newRecords)
+      } else {
+        store.$state[type] = newRecords
+      }
     }
   }
 }

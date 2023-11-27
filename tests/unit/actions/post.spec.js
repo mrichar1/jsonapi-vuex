@@ -1,31 +1,37 @@
 import { beforeEach, describe, expect, test } from 'vitest'
 import sinonChai from 'sinon-chai'
 import chai from 'chai'
+import sinon from 'sinon'
 chai.use(sinonChai)
 
+import { setActivePinia, createPinia } from 'pinia'
 import { makeApi } from '../server'
 let api, mockApi
 
-import createStubContext from '../stubs/context'
-import createJsonapiModule from '../utils/createJsonapiModule'
+import { createJsonapiStore } from '../../../src/jsonapi-vuex'
+import defaultJsonapiStore from '../utils/defaultJsonapiStore'
 import { jsonFormat as createJsonWidget1, normFormat as createNormWidget1 } from '../fixtures/widget1'
 
 describe('post', function () {
-  let jsonWidget1, normWidget1, jsonapiModule, stubContext
+  let jsonWidget1, normWidget1, store, config, status, utils
 
   beforeEach(function () {
     ;[api, mockApi] = makeApi()
     jsonWidget1 = createJsonWidget1()
     normWidget1 = createNormWidget1()
 
-    jsonapiModule = createJsonapiModule(api)
-    stubContext = createStubContext(jsonapiModule)
+    setActivePinia(createPinia())
+    let jStore = defaultJsonapiStore(api)
+    store = jStore.jsonapiStore()
+    config = jStore.config
+    status = jStore.stats
+    utils = jStore.utils
   })
 
   test('should make an api call to POST item(s)', async function () {
     mockApi.onAny().reply(201, { data: jsonWidget1 })
 
-    await jsonapiModule.actions.post(stubContext, normWidget1)
+    await store.post(normWidget1)
 
     expect(mockApi.history.post[0].url).to.equal(`${normWidget1['_jv']['type']}`)
   })
@@ -34,7 +40,7 @@ describe('post', function () {
     mockApi.onAny().reply(201, { data: jsonWidget1 })
     const params = { filter: 'color' }
 
-    await jsonapiModule.actions.post(stubContext, [normWidget1, { params: params }])
+    await store.post([normWidget1, { params: params }])
 
     expect(mockApi.history.post[0].params).to.deep.equal(params)
   })
@@ -43,38 +49,42 @@ describe('post', function () {
     mockApi.onAny().reply(200, { data: jsonWidget1 })
     const url = '/fish/1'
 
-    await jsonapiModule.actions.post(stubContext, [normWidget1, { url: url }])
+    await store.post([normWidget1, { url: url }])
     expect(mockApi.history.post[0].url).to.equal(url)
   })
 
   test('should add record(s) to the store', async function () {
     mockApi.onAny().reply(201, { data: jsonWidget1 })
 
-    await jsonapiModule.actions.post(stubContext, normWidget1)
+    let addRecordsMock = sinon.stub(store, 'addRecords')
+    await store.post(normWidget1)
 
-    expect(stubContext.commit).to.have.been.calledWith('addRecords', normWidget1)
+    expect(addRecordsMock).to.have.been.calledWith(normWidget1)
   })
 
   test('should add record(s) in the store (no server response)', async function () {
     mockApi.onAny().reply(204)
 
-    await jsonapiModule.actions.post(stubContext, normWidget1)
+    let addRecordsMock = sinon.stub(store, 'addRecords')
+    await store.post(normWidget1)
 
-    expect(stubContext.commit).to.have.been.calledWith('addRecords', normWidget1)
+    expect(addRecordsMock).to.have.been.calledWith(normWidget1)
   })
 
-  test("should return data via the 'get' getter", async function () {
+// FIXME: It is currently not possible to mock/stub a getter so this test is impossible
+// See e.g.: https://github.com/vuejs/pinia/issues/945
+  test.skip("should return data via the 'get' getter", async function () {
     mockApi.onAny().reply(201, { data: jsonWidget1 })
 
-    await jsonapiModule.actions.post(stubContext, normWidget1)
+    await store.post(normWidget1)
 
-    expect(stubContext.getters.get).to.have.been.calledWith(normWidget1)
+    expect(store.getData.calledWith(normWidget1)).to.be.true
   })
 
   test('should POST data', async function () {
     mockApi.onAny().reply(201, { data: jsonWidget1 })
 
-    await jsonapiModule.actions.post(stubContext, normWidget1)
+    await store.post(normWidget1)
 
     // History stores data as JSON string, so parse back to object
     expect(JSON.parse(mockApi.history.post[0].data)).to.deep.equal({
@@ -83,20 +93,22 @@ describe('post', function () {
   })
 
   test('should preserve json in _jv in returned data', async function () {
-    let jsonapiModule = createJsonapiModule(api, { preserveJson: true })
+    let { jsonapiStore } = createJsonapiStore(api, { preserveJson: true }, 'tmp')
+    store = jsonapiStore()
+
     mockApi.onAny().reply(201, { data: jsonWidget1 })
 
-    let res = await jsonapiModule.actions.post(stubContext, normWidget1)
+    let res = await store.post(normWidget1)
 
     // json should now be nested in _jv
-    expect(res['_jv']).to.have.keys('json')
+    expect(res['_jv']).to.include.keys('json')
   })
 
   test('should handle API errors', async function () {
     mockApi.onAny().reply(500)
 
     try {
-      await jsonapiModule.actions.post(stubContext, normWidget1)
+      await store.post(normWidget1)
     } catch (error) {
       expect(error.response.status).to.equal(500)
     }

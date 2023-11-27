@@ -76,31 +76,31 @@
 
 <script setup>
 import { computed, ref } from 'vue'
-import { useStore } from 'vuex'
+import { testAppStore } from '../store'
 import { status, utils } from '../../../../src/jsonapi-vuex'
 
-const store = useStore()
+const store = testAppStore()
 
 let searchResult = ref({})
-let delWidgetID = ref()
+let delWidgetId = ref()
 let postWidget = ref({
   _jv: {
     type: 'widget',
   },
 })
 
-const sessions = computed(() => status.status )
-const widgets = computed(() => store.getters['jv/get']('widget') )
-const widget1 = computed(() => utils.deepCopy(store.getters['jv/get']('widget/1')))
+const sessions = computed(() => status.status)
+const widgets = computed(() => store.getData('widget'))
+const widget1 = computed(() => utils.deepCopy(store.getData('widget/1')))
 
-const patchRecord = ((record) => store.dispatch('jv/patch', record))
-const postRecord = ((record) => store.dispatch('jv/post', record))
-const deleteRecord = ((id) => store.dispatch('jv/delete', 'widget' + '/' + id))
+const patchRecord = ((record) => store.patch(record))
+const postRecord = ((record) => store.post(record))
+const deleteRecord = ((id) => store.delete('widget' + '/' + id))
 
-store.dispatch('jv/get', 'widget')
-store.dispatch('jv/search', 'widget')
+store.get('widget')
+store.search('widget')
   .then((res) => {
-    this.searchResult = res
+    searchResult = res
   })
 </script>
 

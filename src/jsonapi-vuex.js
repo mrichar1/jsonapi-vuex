@@ -1,43 +1,39 @@
 /**
  * @module jsonapi-vuex
  */
-
+import { defineStore } from 'pinia'
 import actions from './actions'
 import jvConfig from './config'
-import mutations from './mutations'
 import getters from './getters'
 import { Utils, ActionStatus } from './lib'
 
-let config, status, utils
-
 /**
- * jsonapi-vuex store module
+ * jsonapi-vuex pinia store
  * @namespace
  * @memberof module:jsonapi-vuex
  * @param {axios} api - an axios instance
  * @param {object} [conf={}] - jsonapi-vuex configuation
- * @return {object} A Vuex store object
+ * @param {string} [name='jv'] - the pinia store id
+ * @return {object} A Pinia store object
  */
-const jsonapiModule = (api, conf = {}) => {
-  config = Object.assign({}, jvConfig, conf)
-
+const createJsonapiStore = ((api, conf = {}, name = 'jv') => {
+  let config = Object.assign({}, jvConfig, conf)
   // Instantiate helper classes with config prior to re-exporting
-  utils = new Utils(config)
-  status = new ActionStatus(config.maxStatusID)
+  let utils = new Utils(config)
+  let status = new ActionStatus(config.maxStatusID)
 
   return {
-    namespaced: true,
-
-    // Nuxt requires that state be a function
-    state: () => {
-      return { [config['jvtag']]: {} }
-    },
-
-    actions: actions(api, config),
-    getters: getters(config),
-    mutations: mutations(),
+    jsonapiStore: defineStore({
+      id: name,
+      state: () => { return { [config['jvtag']]: {} } },
+      actions: actions(api, config, utils),
+      getters: getters(config, utils),
+    }),
+    config: config,
+    status: status,
+    utils: utils
   }
-}
+})
 
 // Export instance of Utils, and merged configs
-export { jsonapiModule, config, status, utils }
+export { createJsonapiStore }

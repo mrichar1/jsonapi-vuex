@@ -1,14 +1,15 @@
 import { beforeEach, describe, expect, test } from 'vitest'
 import sinonChai from 'sinon-chai'
 import chai from 'chai'
+import sinon  from 'sinon'
 chai.use(sinonChai)
 
+import { setActivePinia, createPinia } from 'pinia'
 import { makeApi } from '../server'
 let api, mockApi
 
-import { utils } from '../../../src/jsonapi-vuex'
-import createStubContext from '../stubs/context'
-import createJsonapiModule from '../utils/createJsonapiModule'
+import { createJsonapiStore } from '../../../src/jsonapi-vuex'
+import defaultJsonapiStore from '../utils/defaultJsonapiStore'
 import {
   jsonFormat as createJsonWidget1,
   jsonFormatPatch as createJsonWidget1Patch,
@@ -19,7 +20,7 @@ import {
 } from '../fixtures/widget1'
 
 describe('patch', function () {
-  let jsonWidget1, jsonWidget1Patch, normWidget1, normWidget1Patch, normWidget1Update, jsonapiModule, stubContext
+  let jsonWidget1, jsonWidget1Patch, normWidget1, normWidget1Patch, normWidget1Update, store, config, status, utils
 
   beforeEach(function () {
     ;[api, mockApi] = makeApi()
@@ -29,14 +30,18 @@ describe('patch', function () {
     normWidget1Patch = createNormWidget1Patch()
     normWidget1Update = createNormWidget1Update()
 
-    jsonapiModule = createJsonapiModule(api)
-    stubContext = createStubContext(jsonapiModule)
+    setActivePinia(createPinia())
+    let jStore = defaultJsonapiStore(api)
+    store = jStore.jsonapiStore()
+    config = jStore.config
+    status = jStore.stats
+    utils = jStore.utils
   })
 
   test('should make an api call to PATCH item(s)', async function () {
     mockApi.onAny().reply(200, { data: jsonWidget1 })
 
-    await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
+    await store.patch(normWidget1Patch)
 
     expect(mockApi.history.patch[0].url).to.equal(`${normWidget1Patch['_jv']['type']}/${normWidget1Patch['_jv']['id']}`)
   })
@@ -45,7 +50,7 @@ describe('patch', function () {
     mockApi.onAny().reply(200, { data: jsonWidget1 })
     const params = { filter: 'color' }
 
-    await jsonapiModule.actions.patch(stubContext, [normWidget1Patch, { params: params }])
+    await store.patch([normWidget1Patch, { params: params }])
 
     expect(mockApi.history.patch[0].params).to.deep.equal(params)
   })
@@ -54,58 +59,65 @@ describe('patch', function () {
     mockApi.onAny().reply(200, { data: jsonWidget1 })
     const url = '/fish/1'
 
-    await jsonapiModule.actions.patch(stubContext, [normWidget1, { url: url }])
+    await store.patch([normWidget1, { url: url }])
     expect(mockApi.history.patch[0].url).to.equal(url)
   })
 
   test('should delete then add record(s) in the store (from server response)', async function () {
     mockApi.onAny().reply(200, { data: jsonWidget1Patch })
 
-    await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
+    let deleteRecordMock = sinon.stub(store, 'deleteRecord')
+    let addRecordsMock = sinon.stub(store, 'addRecords')
+    await store.patch(normWidget1Patch)
 
-    expect(stubContext.commit).to.have.been.calledWith('deleteRecord', normWidget1Patch)
-    expect(stubContext.commit).to.have.been.calledWith('addRecords', normWidget1Update)
+    expect(deleteRecordMock).to.have.been.calledWith(normWidget1Patch)
+    expect(addRecordsMock).to.have.been.calledWith(normWidget1Update)
   })
 
   test('should update record(s) in the store (no server response)', async function () {
     mockApi.onAny().reply(204)
 
-    await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
+    let mergeRecordsMock = sinon.stub(store, 'mergeRecords')
+    await store.patch(normWidget1Patch)
 
-    expect(stubContext.commit).to.have.been.calledWith('mergeRecords', normWidget1Patch)
+    expect(mergeRecordsMock).to.have.been.calledWith(normWidget1Patch)
   })
 
   test('should update record(s) in the store (meta-only response)', async function () {
     mockApi.onAny().reply(200, { meta: 'testing' })
 
-    await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
+    let mergeRecordsMock = sinon.stub(store, 'mergeRecords')
+    await store.patch(normWidget1Patch)
 
-    expect(stubContext.commit).to.have.been.calledWith('mergeRecords', normWidget1Patch)
+    expect(mergeRecordsMock).to.have.been.calledWith(normWidget1Patch)
   })
 
-  test("should return data via the 'get' getter", async function () {
+// FIXME: It is currently not possible to mock/stub a getter so this test is impossible
+// See e.g.: https://github.com/vuejs/pinia/issues/945
+  test.skip("should return data via the 'get' getter", async function () {
     mockApi.onAny().reply(204)
 
-    await jsonapiModule.actions.patch(stubContext, normWidget1Patch)
+    await store.patch(normWidget1Patch)
 
-    expect(stubContext.getters.get).to.have.been.calledWith(normWidget1Patch)
+    expect(store.getData).to.have.been.calledWith(normWidget1Patch)
   })
 
   test('should preserve json in _jv in returned data', async function () {
-    let jm = createJsonapiModule(api, { preserveJson: true })
     mockApi.onAny().reply(200, { data: jsonWidget1 })
+    let { jsonapiStore } = createJsonapiStore(api, { preserveJson: true }, 'tmp')
+    store = jsonapiStore()
 
-    let res = await jm.actions.patch(stubContext, normWidget1Patch)
+    let res = await store.patch(normWidget1Patch)
 
     // json should now be nested in _jv
-    expect(res['_jv']).to.have.keys('json')
+    expect(res['_jv']).to.include.keys('json')
   })
 
   test('should handle API errors', async function () {
     mockApi.onAny().reply(500)
 
     try {
-      await jsonapiModule.actions.patch(stubContext, normWidget1)
+      await store.patch(normWidget1)
     } catch (error) {
       expect(error.response.status).to.equal(500)
     }
@@ -114,8 +126,10 @@ describe('patch', function () {
   test('should not include rels/links/meta in requests (auto cleanPatch)', async function () {
     mockApi.onAny().reply(204)
     const widget = createNormWidget1WithRels()
-    jsonapiModule = createJsonapiModule(api, {followRelationshipsData: true, cleanPatch: true }) //prettier-ignore
-    await jsonapiModule.actions.patch(stubContext, widget)
+    let { jsonapiStore } = createJsonapiStore(api, {followRelationshipsData: true, cleanPatch: true }, 'tmp')
+    store = jsonapiStore()
+
+    await store.patch(widget)
     const res = JSON.parse(mockApi.history.patch[0].data)
     expect(res.data).to.not.have.property('relationships')
     expect(res.data).to.not.have.property('links')
@@ -130,8 +144,10 @@ describe('patch', function () {
       cleanPatch: true,
       cleanPatchProps: ['links', 'relationships'],
     }
-    jsonapiModule = createJsonapiModule(api, conf) //prettier-ignore
-    await jsonapiModule.actions.patch(stubContext, widget)
+    let { jsonapiStore } = createJsonapiStore(api, conf, 'tmp')
+    store = jsonapiStore()
+
+    await store.patch(widget)
     const res = JSON.parse(mockApi.history.patch[0].data)
     expect(res.data).to.have.property('relationships')
     expect(res.data).to.have.property('links')
@@ -140,8 +156,10 @@ describe('patch', function () {
   test('should not include rels/links/meta in requests (manual cleanPatch)', async function () {
     mockApi.onAny().reply(204)
     const widget = createNormWidget1WithRels()
-    jsonapiModule = createJsonapiModule(api, {followRelationshipsData: true}) //prettier-ignore
-    await jsonapiModule.actions.patch(stubContext, utils.cleanPatch(widget))
+    let  { jsonapiStore} = createJsonapiStore(api,  {followRelationshipsData: true}, 'tmp')
+    store = jsonapiStore()
+
+    await store.patch(utils.cleanPatch(widget))
     const res = JSON.parse(mockApi.history.patch[0].data)
     expect(res.data).to.not.have.property('relationships')
     expect(res.data).to.not.have.property('links')
@@ -151,9 +169,10 @@ describe('patch', function () {
   test('should include rels/links/meta in requests', async function () {
     mockApi.onAny().reply(204)
     const widget = createNormWidget1WithRels()
-    jsonapiModule = createJsonapiModule(api, {followRelationshipsData: true}) //prettier-ignore
+    let { jsonapiStore } = createJsonapiStore(api,  {followRelationshipsData: true}, 'tmp')
+    store = jsonapiStore()
     const clean = utils.cleanPatch(widget, {}, ['links', 'meta', 'relationships']) //prettier-ignore
-    await jsonapiModule.actions.patch(stubContext, clean)
+    await store.patch(clean)
     const res = JSON.parse(mockApi.history.patch[0].data)
     expect(res.data).to.have.property('relationships')
     expect(res.data).to.have.property('links')

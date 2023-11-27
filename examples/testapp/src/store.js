@@ -1,6 +1,5 @@
-import { createStore } from 'vuex'
 import axios from 'axios'
-import { jsonapiModule } from '../../../src/jsonapi-vuex'
+import { jsonapiStore } from '../../../src/jsonapi-vuex'
 
 const api = axios.create({
   // connect to local jsonapi-mock server
@@ -11,9 +10,6 @@ const api = axios.create({
   },
 })
 
-export const store = createStore({
-  strict: process.env.NODE_ENV !== 'production',
-  modules: {
-    jv: jsonapiModule(api, {}),
-  },
-})
+const testAppStore = jsonapiStore(api, {})
+
+export { testAppStore }

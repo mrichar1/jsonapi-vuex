@@ -13,9 +13,7 @@
 import get from 'lodash/get'
 import merge from 'lodash/merge'
 
-import { utils } from './jsonapi-vuex'
-
-const actions = (api, conf) => {
+const actions = (api, conf, utils) => {
   // Short var name
   let jvtag = conf['jvtag']
 
@@ -25,12 +23,11 @@ const actions = (api, conf) => {
    *
    * @async
    * @memberof module:jsonapi-vuex.jsonapiModule.actions
-   * @param {object} context - Vuex context object
    * @param {object} args - A restructured object, specifying relationship(s)  - e.g. `{ _jv: { type: "endpoint", id: "1", relationships: {...} } }`
    * @param {object} args - A restructured object, specifying relationship(s)  - e.g. `{ _jv: { type: "endpoint", id: "1", relationships: {...} } }`
    * @return {object} Restructured representation of the 'parent' item
    */
-  const writeRelated = async (context, args, method) => {
+  const writeRelated = async (store, args, method) => {
     let [data, config] = utils.unpackArgs(args)
     let [type, id] = utils.getTypeId(data)
     if (!type || !id) {
@@ -68,7 +65,7 @@ const actions = (api, conf) => {
     if (conf.relatedIncludes) {
       params['include'] = includes.join()
     }
-    return context.dispatch('get', [`${type}/${id}`, { params: params }])
+    return store.get([`${type}/${id}`, { params: params }])
   }
 
   return {
@@ -77,14 +74,13 @@ const actions = (api, conf) => {
      *
      * @async
      * @memberof module:jsonapi-vuex.jsonapiModule.actions
-     * @param {object} context - Vuex context object
      * @param {(string|object|array)} args - See {@link module:jsonapi-vuex.jsonapiModule.actions} for a summary of args
      * @param {string}  - A URL path to an item - e.g. `endpoint/1`
      * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
      * @param {array}  - A 2-element array, consisting of a string/object and an optional axios config object
      * @return {object} Restructured representation of the requested item(s)
      */
-    get: (context, args) => {
+    get(args) {
       const [data, config] = utils.unpackArgs(args)
       const path = utils.getURL(data)
       const apiConf = { method: 'get', url: path }
@@ -101,13 +97,14 @@ const actions = (api, conf) => {
             record = { _jv: { type: type } }
           }
           if (record) {
-            context.commit('clearRecords', record)
+          this.clearRecords(record)
           }
         } else {
-          context.commit('addRecords', resData)
+          this.addRecords(resData)
         }
-        utils.processIncludedRecords(context, results)
-        resData = utils.checkAndFollowRelationships(context.state, context.getters, resData)
+        let includes = utils.getIncludedRecords(results)
+        this.mergeRecords(includes)
+        resData = utils.checkAndFollowRelationships(this, resData)
         resData = utils.preserveJSON(resData, results.data)
         return resData
       })
@@ -117,14 +114,13 @@ const actions = (api, conf) => {
      *
      * @async
      * @memberof module:jsonapi-vuex.jsonapiModule.actions
-     * @param {object} context - Vuex context object
      * @param {(string|object|array)} args - See {@link module:jsonapi-vuex.jsonapiModule.actions} for a summary of args
      * @param {string}  - A URL path to an item - e.g. `endpoint/1`
      * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
      * @param {array}  - A 2-element array, consisting of a string/object and an optional axios config object
      * @return {object} Restructured representation of the requested item(s)
      */
-    getRelated: async (context, args) => {
+    async getRelated(args) {
       const [data, config] = utils.unpackArgs(args)
       let [type, id, relName] = utils.getTypeId(data)
       if (!type || !id) {
@@ -135,7 +131,7 @@ const actions = (api, conf) => {
       if (typeof data === 'object' && utils.hasProperty(data[jvtag], 'relationships')) {
         rels = data[jvtag]['relationships']
       } else {
-        let record = await context.dispatch('get', args)
+        let record = await this.get(args)
 
         rels = get(record, [jvtag, 'relationships'], {})
         if (relName && utils.hasProperty(rels, relName)) {
@@ -185,7 +181,7 @@ const actions = (api, conf) => {
               entry = { [jvtag]: entry }
             }
             relNames.push(relName)
-            relPromises.push(context.dispatch('get', [entry, config]))
+            relPromises.push(this.get([entry, config]))
           }
         } else {
           // Empty to-one rels should have a relName but no data
@@ -216,49 +212,45 @@ const actions = (api, conf) => {
      *
      * @async
      * @memberof module:jsonapi-vuex.jsonapiModule.actions
-     * @param {object} context - Vuex context object
      * @param {object} args - A restructured object, specifying relationship(s)  - e.g. `{ _jv: { type: "endpoint", id: "1", relationships: {...} } }`
      * @return {object} Restructured representation of the 'parent' item
      */
-    deleteRelated: (context, args) => {
-      return writeRelated(context, args, 'delete')
+    deleteRelated(args) {
+      return writeRelated(this, args, 'delete')
     },
     /**
      * PATCH an object's relationships via its `relationships URL`
      *
      * @async
      * @memberof module:jsonapi-vuex.jsonapiModule.actions
-     * @param {object} context - Vuex context object
      * @param {object} args - A restructured object, specifying relationship(s)  - e.g. `{ _jv: { type: "endpoint", id: "1", relationships: {...} } }`
      * @return {object} Restructured representation of the 'parent' item
      */
-    patchRelated: async (context, args) => {
-      return writeRelated(context, args, 'patch')
+    patchRelated(args) {
+      return writeRelated(this, args, 'patch')
     },
     /**
      * POST to an object's relationships via its `relationships URL`
      *
      * @async
      * @memberof module:jsonapi-vuex.jsonapiModule.actions
-     * @param {object} context - Vuex context object
      * @param {object} args - A restructured object, specifying relationship(s)  - e.g. `{ _jv: { type: "endpoint", id: "1", relationships: {...} } }`
      * @return {object} Restructured representation of the 'parent' item
      */
-    postRelated: async (context, args) => {
-      return writeRelated(context, args, 'post')
+    postRelated(args) {
+      return writeRelated(this, args, 'post')
     },
     /**
      * Post an item to the API
      *
      * @async
      * @memberof module:jsonapi-vuex.jsonapiModule.actions
-     * @param {object} context - Vuex context object
      * @param {(object|array)} args - See {@link module:jsonapi-vuex.jsonapiModule.actions} for a summary of args
      * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
      * @param {array}  - A 2-element array, consisting of a string/object and an optional axios config object
      * @return {object} Restructured representation of the posted item
      */
-    post: (context, args) => {
+    post(args) {
       let [data, config] = utils.unpackArgs(args)
       const path = utils.getURL(data, true)
       const apiConf = {
@@ -268,15 +260,16 @@ const actions = (api, conf) => {
       }
       merge(apiConf, config)
       return api(apiConf).then((results) => {
-        utils.processIncludedRecords(context, results)
+        let includes = utils.getIncludedRecords(results)
+        this.mergeRecords(includes)
 
         // If the server handed back data, store it (to get id)
         // spec says 201, but some servers (wrongly) return 200
         if (results.status === 200 || results.status === 201) {
           data = utils.jsonapiToNorm(results.data.data)
         }
-        context.commit('addRecords', data)
-        return utils.preserveJSON(context.getters.get(data), results.data)
+        this.addRecords(data)
+        return utils.preserveJSON(this.getData(data), results.data)
       })
     },
     /**
@@ -284,16 +277,15 @@ const actions = (api, conf) => {
      *
      * @async
      * @memberof module:jsonapi-vuex.jsonapiModule.actions
-     * @param {object} context - Vuex context object
      * @param {(object|array)} args - See {@link module:jsonapi-vuex.jsonapiModule.actions} for a summary of args
      * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
      * @param {array}  - A 2-element array, consisting of a string/object and an optional axios config object
      * @return {object} Restructured representation of the patched item
      */
-    patch: (context, args) => {
+    patch(args) {
       let [data, config] = utils.unpackArgs(args)
       if (conf.cleanPatch) {
-        data = utils.cleanPatch(data, context.state, conf.cleanPatchProps)
+        data = utils.cleanPatch(data, this.$state, conf.cleanPatchProps)
       }
       const path = utils.getURL(data)
       const apiConf = {
@@ -306,19 +298,20 @@ const actions = (api, conf) => {
         // If the server handed back data, store it
         if (results.status === 200 && utils.hasProperty(results.data, 'data')) {
           // Full response
-          context.commit('deleteRecord', data)
+          this.deleteRecord(data)
           data = utils.jsonapiToNorm(results.data.data)
-          context.commit('addRecords', data)
+          this.addRecords(data)
         } else {
           // 200 (meta-only), or 204 (no resource) response
           // Update the store record from the patch
-          context.commit('mergeRecords', data)
+          this.mergeRecords(data)
         }
 
         // NOTE: We deliberately process included records after any `deleteRecord` mutations
         // to avoid deleting any included records that we just added.
-        utils.processIncludedRecords(context, results)
-        return utils.preserveJSON(context.getters.get(data), results.data)
+        let includes = utils.getIncludedRecords(results)
+        this.mergeRecords(includes)
+        return utils.preserveJSON(this.getData(data), results.data)
       })
     },
     /**
@@ -326,22 +319,21 @@ const actions = (api, conf) => {
      *
      * @async
      * @memberof module:jsonapi-vuex.jsonapiModule.actions
-     * @param {object} context - Vuex context object
      * @param {(string|object|array)} args - See {@link module:jsonapi-vuex.jsonapiModule.actions} for a summary of args
      * @param {string}  - A URL path to an item - e.g. `endpoint/1`
      * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
      * @param {array}  - A 2-element array, consisting of a string/object and an optional axios config object
      * @return {object} Restructured representation of the deleted item
      */
-    delete: (context, args) => {
+    delete(args) {
       const [data, config] = utils.unpackArgs(args)
       const path = utils.getURL(data)
       const apiConf = { method: 'delete', url: path }
       merge(apiConf, config)
       return api(apiConf).then((results) => {
-        utils.processIncludedRecords(context, results)
-
-        context.commit('deleteRecord', data)
+        let includes = getIncludedRecords(results)
+        this.mergeRecords(includes)
+        this.deleteRecord(data)
         if (results.data) {
           return utils.preserveJSON(utils.jsonapiToNorm(results.data.data), results.data)
         } else {
@@ -355,46 +347,76 @@ const actions = (api, conf) => {
      * @see module:jsonapi-vuex.jsonapiModule.actions.get
      * @async
      * @memberof module:jsonapi-vuex.jsonapiModule.actions
-     * @param {object} context - Vuex context object
      * @param {(string|object|array)} args - See {@link module:jsonapi-vuex.jsonapiModule.actions} for a summary of args
      * @param {string}  - A URL path to an item - e.g. `endpoint/1`
      * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
      * @param {array}  - A 2-element array, consisting of a string/object and an optional axios config object
      * @return {object} Restructured representation of the posted item
      */
-    search: (context, args) => {
-      // Create a 'noop' context.commit to avoid store modifications
-      const nocontext = {
-        commit: () => {},
-        dispatch: context.dispatch,
-        getters: context.getters,
-      }
-      // Use a new actions 'instance' instead of 'dispatch' to allow context override
-      return actions(api, conf).get(nocontext, args)
+    search(args) {
+      // Set 'write' to false to prevent store updates
+      return this.get(args, false)
     },
     /**
      * Alias for {@link module:jsonapi-vuex.jsonapiModule.actions.get}
      * @async
      * @memberof module:jsonapi-vuex.jsonapiModule.actions
      */
-    get fetch() {
-      return this.get
+    fetch(args) {
+      return this.get(args)
     },
     /**
      * Alias for {@link module:jsonapi-vuex.jsonapiModule.actions.post}
      * @async
      * @memberof module:jsonapi-vuex.jsonapiModule.actions
      */
-    get create() {
-      return this.post
+    create(args) {
+      return this.post(args)
     },
     /**
      * Alias for {@link module:jsonapi-vuex.jsonapiModule.actions.patch}
      * @async
      * @memberof module:jsonapi-vuex.jsonapiModule.actions
      */
-    get update() {
-      return this.patch
+    update(args) {
+      return this.patch(args)
+    },
+    addRecords(records) {
+      utils.updateRecords(this, records)
+    },
+    /**
+     * Delete all records from the store (of a given type) other than those included in a given record
+     * @memberof module:jsonapi-vuex.jsonapiStore.actions
+     * @param {object} records - A record with type set.
+     */
+    clearRecords(records) {
+      Object.assign(this.$state, utils.normToStore(records))
+    },
+    deleteRecord(record) {
+      const [type, id] = utils.getTypeId(record, false)
+      if (!type || !id) {
+        throw `deleteRecord: Missing type or id: ${record}`
+      }
+      try {
+        delete this.$state[type][id]
+      } catch (err) {
+        if (err instanceof TypeError) {
+          // Trying to delete non-existent object - ignore
+        } else {
+          throw err
+        }
+      }
+    },
+    mergeRecords(records) {
+      utils.updateRecords(this, records, true)
+    },
+    /**
+     * Replace (or add) record(s) to the store
+     * @memberof module:jsonapi-vuex.jsonapiModule.actions
+     * @param {object} records - The record(s) to be replaced
+     */
+    replaceRecords(records) {
+      utils.updateRecords(this, records, false)
     },
   }
 }

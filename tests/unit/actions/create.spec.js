@@ -1,18 +1,25 @@
 import { beforeEach, describe, expect, test } from 'vitest'
+import { setActivePinia, createPinia } from 'pinia'
+import sinon from 'sinon'
 import { makeApi } from '../server'
 let api
 
-import createJsonapiModule from '../utils/createJsonapiModule'
+import defaultJsonapiStore from '../utils/defaultJsonapiStore'
 
 describe('create', function () {
-  let jsonapiModule
+  let store
 
   beforeEach(function () {
     ;[api] = makeApi()
-    jsonapiModule = createJsonapiModule(api)
+    setActivePinia(createPinia())
+    let { jsonapiStore } = defaultJsonapiStore(api)
+    store = jsonapiStore()
+
   })
 
   test('should be an alias for post', function () {
-    expect(jsonapiModule.actions.create).to.equal(jsonapiModule.actions.post)
+    let storeMock = sinon.stub(store, 'post')
+    store.create()
+    expect(storeMock.calledOnce).to.be.true
   })
 })

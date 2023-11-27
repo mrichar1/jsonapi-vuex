@@ -10,9 +10,9 @@
 import get from 'lodash/get'
 import { JSONPath } from 'jsonpath-plus'
 
-import { utils } from './jsonapi-vuex'
+// import { utils } from './jsonapi-vuex'
 
-export default (conf) => {
+export default (conf, utils) => {
   // Short var name
   let jvtag = conf['jvtag']
   return {
@@ -26,8 +26,9 @@ export default (conf) => {
      * @param {string} jsonpath - a JSONPath string to filter the record(s) which are being retrieved. See [JSONPath Syntax](https://github.com/dchester/jsonpath#jsonpath-syntax)
      * @return {object} Restructured representation of the record(s)
      */
-    get: (state, getters) => (data, jsonpath, seen) => {
+    getData: (store) => (data, jsonpath, seen) => {
       let result
+      let state = store.$state
       if (!data) {
         // No data arg - return whole state object
         result = state
@@ -54,7 +55,7 @@ export default (conf) => {
       }
 
       // Follow relationships
-      result = utils.checkAndFollowRelationships(state, getters, result, seen)
+      result = utils.checkAndFollowRelationships(store, result, seen)
 
       // Filter by jsonpath
       if (jsonpath) {
@@ -77,14 +78,15 @@ export default (conf) => {
      * @param {object}  - A restructured object  - e.g. `{ _jv: { type: "endpoint", id: "1" } }`
      * @return {object} Restructured representation of the record(s)
      */
-    getRelated: (state, getters) => (data, seen) => {
+    getRelatedData: (store) => (data, seen) => {
+      let state = store.$state
       const [type, id] = utils.getTypeId(data, false)
       if (!type || !id) {
         throw 'No type/id specified'
       }
       let parent = get(state, [type, id])
       if (parent) {
-        return utils.getRelationships(getters, parent, seen)
+        return utils.getRelationships(store, parent, seen)
       }
       return {}
     },

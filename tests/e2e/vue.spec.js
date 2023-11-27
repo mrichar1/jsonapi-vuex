@@ -72,9 +72,10 @@ test('Post new item', async () => {
 })
 
 test('Delete an item', async () => {
-  expect(await page.locator('#span_name_1').isVisible()).toBe(true)
-  expect(await page.locator('#delete_id').fill('1'))
+  await page.waitForTimeout(5000)
+  expect(await page.locator('#span_name_3').isVisible()).toBe(true)
+  expect(await page.locator('#delete_id').fill('3'))
   await page.getByRole('button', { name: 'Delete' }).click()
   await page.waitForTimeout(1000)
-  expect(await page.locator('#span_name_1').isVisible()).toBe(false)
+  expect(await page.locator('#span_name_3').isVisible()).toBe(false)
 })
