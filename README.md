@@ -2,6 +2,10 @@
 
 [![Build Status](https://github.com/mrichar1/jsonapi-vuex/actions/workflows/main.yml/badge.svg)](https://github.com/mrichar1/jsonapi-vuex/actions) [![npm bundle size](https://img.shields.io/bundlephobia/minzip/jsonapi-vuex.svg)](https://bundlephobia.com/result?p=jsonapi-vuex) [![Language grade: JavaScript](https://img.shields.io/lgtm/grade/javascript/g/mrichar1/jsonapi-vuex.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/mrichar1/jsonapi-vuex/context:javascript)
 
+
+## **NOTE:** *This module is now deprecated in favour of [pinia-jsonapi](https://github.com/mrichar1/pinia-jsonapi) which is a functionally-equivalent port of this project for Vue3 with Pinia.*
+
+
 A module to access [JSONAPI](https://jsonapi.org) data from an API, using a [Vuex](https://vuex.vuejs.org/) store, restructured to make life easier.
 
 **NOTE:** `v5.x` and later supports *only* `Vue3`. For `Vue2` the last supported version is `v4.5.3`
