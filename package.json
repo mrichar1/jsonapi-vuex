@@ -1,6 +1,6 @@
 {
   "name": "jsonapi-vuex",
-  "version": "5.13.1",
+  "version": "5.13.2",
   "description": "Access restructured JSONAPI data from a Vuex Store.",
   "author": "Matthew Richardson <M.Richardson@ed.ac.uk>",
   "scripts": {
@@ -16,7 +16,7 @@
     "src/"
   ],
   "dependencies": {
-    "jsonpath-plus": "^7.2.0",
+    "jsonpath-plus": "^10.0.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {
